@@ -79,7 +79,10 @@ class UserResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('profile')->url(fn (User $record): null|string => $record->profile ?  Storage::disk('public')->url($record->profile) : null)
-                ->openUrlInNewTab(),
+                ->openUrlInNewTab()
+                ->height(90)
+                ->width(90)
+                ,
                TextColumn::make('name')->sortable()->searchable(),
                TextColumn::make('email')->searchable(),
                TextColumn::make('role.name')

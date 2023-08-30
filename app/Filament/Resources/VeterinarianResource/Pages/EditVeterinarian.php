@@ -10,6 +10,12 @@ class EditVeterinarian extends EditRecord
 {
     protected static string $resource = VeterinarianResource::class;
 
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

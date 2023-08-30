@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\VeterinarianResource\Pages;
@@ -46,9 +47,10 @@ class VeterinarianResource extends Resource
                 ->schema([
                     Select::make('user_id')
                    ->label('Who\'s Account ')
-                    ->options(User::whereHas('role', function($query){
+                    ->options(
+                        User::whereHas('role', function($query){
                         $query->whereName('Vet');
-                    })->pluck('name', 'id')->all())
+                    })->whereDoesntHave('veterinarian')->pluck('name', 'id')->all())
                     ->searchable()
                     ->required()
                                 ->columnSpan([
@@ -129,6 +131,29 @@ class VeterinarianResource extends Resource
                         'xl' => 3,
                         '2xl' => 6,
                     ]),
+                    // RichEditor::make('address')->columnSpan([
+                    //         'sm' => 2,
+                    //         'xl' => 3,
+                    //         '2xl' => 6,
+                    //     ])
+                    //     ->disableToolbarButtons([
+                    //         'attachFiles',
+                    //         'blockquote',
+                    //         'bold',
+                    //         'bulletList',
+                    //         'codeBlock',
+                    //         'h2',
+                    //         'h3',
+                    //         'italic',
+                    //         'link',
+                    //         'orderedList',
+                    //         'redo',
+                    //         'strike',
+                    //         'undo',
+                    //         'underline'
+                    //     ])
+                    //     ->required(),
+                        
                     TextInput::make('address')->required()->columnSpan([
                         'sm' => 2,
                         'xl' => 3,
@@ -143,10 +168,16 @@ class VeterinarianResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('image')->url(fn (Veterinarian $record): null|string => $record->profile ?  Storage::disk('public')->url($record->profile) : null)
-                ->openUrlInNewTab(),
+                ImageColumn::make('profile')->url(fn (Veterinarian $record): null|string => $record->profile ?  Storage::disk('public')->url($record->profile) : null)
+                ->openUrlInNewTab()
+                ->height(90)
+                ->width(90)
+                ,
                 TextColumn::make('first_name')->sortable()->searchable(),
                 TextColumn::make('last_name')->sortable()->searchable(),
+                TextColumn::make('phone_number')
+                ->sortable()->searchable(),
+                TextColumn::make('address')->searchable(),
                 TextColumn::make('gender')
                 ->badge()
                 ->color(fn (string $state): string => match ($state) {
@@ -154,13 +185,14 @@ class VeterinarianResource extends Resource
                     'Female' => 'danger',
                 })
                 ->searchable(),
-                TextColumn::make('address')->searchable(),
+            
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->button()->outlined(),
+                Tables\Actions\DeleteAction::make()->button()->outlined(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

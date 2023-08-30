@@ -61,7 +61,7 @@ class ClinicResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('image')->url(fn (Clinic $record): null|string => $record->image ?  Storage::disk('public')->url($record->profile) : null)
+                ImageColumn::make('image')->url(fn (Clinic $record): null|string => $record->image ?  Storage::disk('public')->url($record->image) : null)
                 ->openUrlInNewTab(),
                 TextColumn::make('name')->sortable()->searchable(),
                 TextColumn::make('address')->searchable(),
