@@ -27,6 +27,8 @@ class ClientPanelProvider extends PanelProvider
             ->path('client')
             ->login()
             ->registration()
+            ->passwordReset()
+            ->emailVerification()
             ->colors([
                 'primary' => Color::Fuchsia,
             ])

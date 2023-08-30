@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ClinicResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -47,7 +48,24 @@ class ClinicResource extends Resource
                 
 
                     TextInput::make('name')->required(),
-                    TextInput::make('address')->required(),
+                     
+RichEditor::make('content')
+->toolbarButtons([
+    
+    'blockquote',
+    'bold',
+    'bulletList',
+    'codeBlock',
+    'h2',
+    'h3',
+    'italic',
+    'link',
+    'orderedList',
+    'redo',
+    'strike',
+    'undo',
+])->required(),
+                    // TextInput::make('address')->required(),
                   
                    
                    
@@ -64,7 +82,7 @@ class ClinicResource extends Resource
                 ImageColumn::make('image')->url(fn (Clinic $record): null|string => $record->image ?  Storage::disk('public')->url($record->image) : null)
                 ->openUrlInNewTab(),
                 TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('address')->searchable(),
+                TextColumn::make('address')->searchable()->markdown(),
             ])
             ->filters([
                 //

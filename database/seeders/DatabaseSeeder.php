@@ -10,6 +10,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\ClinicSeeder;
+use Database\Seeders\ServiceSeeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -25,6 +26,7 @@ class DatabaseSeeder extends Seeder
             ClinicSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
+            ServiceSeeder::class,
         ]);
 
        
