@@ -83,17 +83,40 @@ class AppointmentResource extends Resource
 
 
                     ]),
-                Section::make()
-                    ->description('Set Patients
-                            ')->icon('heroicon-m-user')
-                    ->schema([
-                        Repeater::make('patients')
-                            ->relationship()
-                            ->schema([
-                                Select::make('patient.animal_id')->options(Animal::query()->pluck('name', 'id')),
-                            ])
 
-                    ]),
+                Repeater::make('patients')
+                    ->relationship()
+                    ->schema([
+                                        
+                    // Select::make('animal_id')
+                    // ->relationship(name: 'animal', titleAttribute: 'name')
+                    Select::make('animal_id')
+                    ->relationship(
+                        name: 'animal',
+                        modifyQueryUsing: fn (Builder $query) => $query->whereHas('user', function ($query) {
+                            $query->where('user_id', auth()->user()->id);
+                        })
+                    )                    
+->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} {$record->breed}")
+->searchable(['name','breed'])->preload(),
+
+Select::make('patientServices')
+    ->relationship(name: 'services', titleAttribute: 'name')
+    ->multiple()
+    ->preload()
+
+                    ])
+                // Section::make()
+                //     ->description('Set Patients
+                //             ')->icon('heroicon-m-user')
+                //     ->schema([
+                //         Repeater::make('patients')
+                //             ->relationship()
+                //             ->schema([
+                //                 Select::make('patient.animal_id')->options(Animal::query()->pluck('name', 'id')),
+                //             ])
+
+                //     ]),
 
 
             ]);

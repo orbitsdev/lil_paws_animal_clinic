@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('appointment_id')->nullable();
             $table->foreignId('animal_id')->nullable();
-
             $table->timestamps();
         });
     }
