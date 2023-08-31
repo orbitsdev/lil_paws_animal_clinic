@@ -9,6 +9,7 @@ use App\Models\Clinic;
 use Illuminate\Database\Seeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\AnimalSeeder;
 use Database\Seeders\ClinicSeeder;
 use Database\Seeders\ServiceSeeder;
 use Illuminate\Support\Facades\Hash;
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             ServiceSeeder::class,
+            AnimalSeeder::class,
         ]);
 
        

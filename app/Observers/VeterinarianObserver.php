@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Veterinarian;
+use Illuminate\Support\Facades\Storage;
 
 class VeterinarianObserver
 {
@@ -27,10 +28,10 @@ class VeterinarianObserver
      */
     public function deleted(Veterinarian $veterinarian): void
     {
-        if(!empty($user->profile)){
+        if(!empty($veterinarian->profile)){
 
-            if(Storage::disk('public')->exists($user->profile)){
-                Storage::disk('public')->delete($user->profile);
+            if(Storage::disk('public')->exists($veterinarian->profile)){
+                Storage::disk('public')->delete($veterinarian->profile);
             }
         }
     }

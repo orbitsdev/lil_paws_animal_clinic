@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Models\Animal;
 use App\Models\Clinic;
 use App\Models\Veterinarian;
+use App\Observers\AnimalObserver;
 use App\Observers\UserObserver;
 use App\Observers\ClinicObserver;
 use Illuminate\Support\Facades\Event;
@@ -34,6 +36,7 @@ class EventServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         Clinic::observe(ClinicObserver::class);
         Veterinarian::observe(VeterinarianObserver::class);
+        Animal::observe(AnimalObserver::class);
     }
 
     /**

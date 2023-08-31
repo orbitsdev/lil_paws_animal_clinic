@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Panel;
 use App\Models\Role;
+use App\Models\Animal;
 use App\Models\Clinic;
 use App\Models\Veterinarian;
 use Laravel\Sanctum\HasApiTokens;
@@ -70,6 +71,10 @@ class User extends Authenticatable implements FilamentUser
             'clinic'=> $this->hasAnyRole(['Admin','Vet']),
             'client'=> $this->hasAnyRole(['Admin','Client']),
         };
+    }
+
+    public function animals() {
+        return $this->hasMany(Animal::class);
     }
 
 }

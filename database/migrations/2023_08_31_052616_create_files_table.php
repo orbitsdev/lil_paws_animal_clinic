@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('appointments', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->nullable();
-            $table->string('title')->nullable();
-            $table->date('date')->nullable();
-            $table->time('start')->nullable();
-            $table->time('expected_end')->nullable();
-            $table->text('details')->nullable();
+            $table->morphs('fileable');
+            $table->string('path')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('appointments');
+        Schema::dropIfExists('files');
     }
 };
