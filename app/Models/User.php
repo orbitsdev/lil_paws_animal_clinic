@@ -3,15 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Panel;
 use App\Models\Role;
 use App\Models\Clinic;
 use App\Models\Veterinarian;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -54,7 +56,20 @@ class User extends Authenticatable
     public function veterinarian(){
         return $this->hasOne(Veterinarian::class);
     }
+
+    public function hasAnyRole($roles) {
+         return  $this->role()->whereIn('name', $roles)->exists();
+       
+    }
    
-    
+    public function canAccessPanel(Panel $panel): bool
+    {
+        
+        return match($panel->getId()){
+            'admin'=> $this->hasAnyRole(['Admin']),
+            'clinic'=> $this->hasAnyRole(['Admin','Vet']),
+            'client'=> $this->hasAnyRole(['Admin','Client']),
+        };
+    }
 
 }

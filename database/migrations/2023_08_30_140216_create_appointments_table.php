@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date('date')->nullable();
             $table->time('time')->nullable();
-            $table->foreignId('veterenarian_id')->nullable();
-            $table->foreignId('user_id')->nullable();
+            
             $table->timestamps();
         });
     }
