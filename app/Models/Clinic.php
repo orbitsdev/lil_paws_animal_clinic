@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Appointment;
 use App\Models\Veterinarian;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,4 +15,8 @@ class Clinic extends Model
     public function veterinarians(){
         return $this->hasMany(Veterinarian::class);
     } 
+
+    public function appointments(){
+        return $this->hasMany(Appointment::class);
+    }
 }

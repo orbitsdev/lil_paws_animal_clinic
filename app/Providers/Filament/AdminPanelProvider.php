@@ -8,6 +8,7 @@ use App\Models\Role;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use App\Http\Middleware\AdminMiddleWare;
 use Awcodes\LightSwitch\LightSwitchPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
@@ -56,10 +57,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                AdminMiddleWare::class,
             ])
             ->plugins([
                 LightSwitchPlugin::make(),
-            ]);
+            ])
             ;
     }
 }

@@ -7,6 +7,7 @@ use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use App\Http\Middleware\ClinicMiddleWare;
 use Awcodes\LightSwitch\LightSwitchPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
@@ -53,6 +54,7 @@ class ClinicPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                ClinicMiddleWare::class,
             ])
             ->plugins([
                 LightSwitchPlugin::make(),

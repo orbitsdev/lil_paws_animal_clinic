@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('appointments', function (Blueprint $table) {
+        Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('clinic_id')->nullable();
-            $table->string('title')->nullable();
-            $table->date('date')->nullable();
-            $table->time('time')->nullable();
-            $table->text('details')->nullable();
-            $table->text('status')->nullable();
+            $table->foreignId('animal_id')->nullable();
+
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('appointments');
+        Schema::dropIfExists('patients');
     }
 };
