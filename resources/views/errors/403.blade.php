@@ -58,6 +58,29 @@ html {
   font-size: 1.8em;
 }
 
+.errortexttred {
+  display:block;
+  position: relative;
+  top: -470px;
+  margin-top:10px;
+  color: red;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.8em;
+  background: transparent;
+}
+.errortexttredb {
+  display:block;
+  position: relative;
+  top: -470px;
+  margin-top:10px;
+  color: red;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.8em;
+  background: transparent;
+}
+
 .bat {
   opacity: 0;
   position: relative;
@@ -191,3 +214,7 @@ html {
 <a href="/admin"class="errortextt">For Admin Click Here</a>
 <a href="/clinic"class="errortextt">For Veterenarian Click Here</a>
 <a href="/client"class="errortextt">For Customer Click Here</a>
+
+<p class="errortexttred">IF YOU ARE A VETERINARIAN, PLEASE ENSURE THAT AN ADMINISTRATOR HAS ASSIGNED YOU TO A CLINIC BEFORE ACCESSING THE CLINIC PANEL.</p>
+<p class="errortexttred">You should go to the CUTOMER  area first and log out of your account before accessing the clinic panel. </p>
+

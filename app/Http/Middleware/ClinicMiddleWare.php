@@ -16,11 +16,16 @@ class ClinicMiddleWare
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('veterinarian.clinic');
 
-        if(!$user->hasAnyRole(['Admin','Vet'])){
+        if ($user->hasAnyRole(['Admin'])) {
+            return $next($request);
+        }
+        
+        if ($user->hasAnyRole(['Vet']) && (!$user->veterinarian || !$user->veterinarian->clinic)) {
             abort(403, 'Unauthorized action.');
         }
+        
         return $next($request);
 
     }

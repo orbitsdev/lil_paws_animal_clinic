@@ -93,6 +93,24 @@ class UserResource extends Resource
                    'Vet' => 'info',
                    'Client' => 'warning',
                })
+               ->formatStateUsing(function (User $record){
+
+                if ($record->role->name === 'Vet') {
+                    // Check if the veterinarian has a clinic assigned
+                    $hasNoClinic = !$record->veterinarian || !$record->veterinarian->clinic;
+                
+                    if ($hasNoClinic) {
+                        return $record->role->name . ' - No Clinic Assigned';
+                    } else {
+                        // Return the veterinarian's clinic name
+                        return $record->role->name . ' - ' . $record->veterinarian->clinic->name;
+                    }
+                }
+                
+                // Handle other roles or scenarios here
+                return $record->role->name;
+                
+               } )
                ->searchable(),
               
             ])
