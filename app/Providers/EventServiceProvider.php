@@ -5,11 +5,15 @@ namespace App\Providers;
 use App\Models\User;
 use App\Models\Animal;
 use App\Models\Clinic;
+use App\Models\Patient;
+use App\Models\Appointment;
 use App\Models\Veterinarian;
-use App\Observers\AnimalObserver;
 use App\Observers\UserObserver;
+use App\Observers\AnimalObserver;
 use App\Observers\ClinicObserver;
+use App\Observers\PatientObserver;
 use Illuminate\Support\Facades\Event;
+use App\Observers\AppointmentObserver;
 use Illuminate\Auth\Events\Registered;
 use App\Observers\VeterinarianObserver;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -37,6 +41,9 @@ class EventServiceProvider extends ServiceProvider
         Clinic::observe(ClinicObserver::class);
         Veterinarian::observe(VeterinarianObserver::class);
         Animal::observe(AnimalObserver::class);
+        Appointment::observe(AppointmentObserver::class);
+        Patient::observe(PatientObserver::class);
+        
     }
 
     /**

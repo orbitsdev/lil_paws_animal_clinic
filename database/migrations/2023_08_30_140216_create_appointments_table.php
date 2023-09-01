@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->date('date')->nullable();
             $table->time('time')->nullable();
-            $table->text('details')->nullable();
-            $table->text('status')->nullable();
+            $table->text('extra_pet_info')->nullable();
+            $table->string('status')->default('Pending')->nullable();
             $table->timestamps();
         });
     }

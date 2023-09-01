@@ -30,6 +30,10 @@ class Patient extends Model
     public function patientServices(){
         return $this->hasMany(PatientService::class);
     }
+    
+    public function patientService(){
+        return $this->hasOne(PatientService::class);
+    }
 
     
 }

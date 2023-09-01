@@ -12,9 +12,7 @@ class Service extends Model
 {
     use HasFactory;
 
-    public function appointments(){
-        return $this->belongsToMany(Appointment::class,'appointment_services','service_id','appointment_id');
-    }
+   
 
     public function patients(){
         return $this->belongsToMany(Patient::class,'patient_services','service_id','patient_id');

@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             ServiceSeeder::class,
-            AnimalSeeder::class,
+            // AnimalSeeder::class,
         ]);
 
        

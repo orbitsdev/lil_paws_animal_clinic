@@ -15,6 +15,7 @@ class PatientService extends Model
     public function patient(){
         return $this->belongsTo(Patient::class);
     }
+    
     public function service(){
         return $this->belongsTo(Service::class);
     }

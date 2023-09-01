@@ -18,6 +18,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TimePicker;
@@ -34,11 +35,7 @@ class AppointmentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
 
-    protected function handleRecordCreation(array $data): Model
-    {
-        dd($data);
-        return static::getModel()::create($data);
-    }
+    
 
 
     public static function form(Form $form): Form
@@ -46,23 +43,28 @@ class AppointmentResource extends Resource
         return $form
             ->schema([
                 Section::make()
-                    ->description('Select Clinic & Services
-            ')->icon('heroicon-m-user')
+                    ->description('Select Your Clinic and Schedule
+            ')->icon('heroicon-m-building-storefront')
                     ->schema([
                         Select::make('clinic_id')
                             ->options(Clinic::query()->pluck('name', 'id'))
                             ->native(false)
-                            ->label('What Clinic?'),
-                        // Select::make('Select Services that you want in appointment')
-                        //     ->multiple()
-                        //     ->preload()
-                        //     ->relationship(name: 'services', titleAttribute: 'name')
-                        //     ->searchable()
-                        //     ->native(false),
-                        DatePicker::make('date'),
-                        TimePicker::make('time'),
+                            ->label('What Clinic?')
+                            ->required()
+                            ->searchable()
+                            
+                            ,
 
-                        RichEditor::make('details')
+                        DatePicker::make('date')->required()->label('When?'),
+                        TimePicker::make('time')
+                            ->timezone('Asia/Manila')
+                            ->helperText(new HtmlString('(e.g., 02:30:00 PM)'))
+                            ->required()
+                            ->label('What Time?')
+                            
+                            ,
+
+                        RichEditor::make('extra_pet_info')
                             ->toolbarButtons([
                                 'blockquote',
                                 'bold',
@@ -77,46 +79,49 @@ class AppointmentResource extends Resource
                                 'strike',
                                 'undo',
                             ])
-                            ->label('Additional Details (Optional)')
-                            ->helperText(new HtmlString('Add any additional details or notes about the appointment. This is optional and can help the clinic better understand your needs. You can include information about your pet\'s condition, concerns, or any special instructions.'))
+                            ->label('Extra Pet Info (Optional 😊)')
+                            ->helperText(new HtmlString('Add any extra details or notes about your appointment – it\'s your chance to shine! Whether it\'s your pet\'s condition, concerns, or special wishes, we\'re all ears. Let\'s make your visit paw-sitively purr-fect'))
+                         ])->columnSpan(6),
 
 
-
-                    ]),
-
+                    
                 Repeater::make('patients')
-                    ->relationship()
-                    ->schema([
-                                        
-                    // Select::make('animal_id')
-                    // ->relationship(name: 'animal', titleAttribute: 'name')
+                ->relationship()
+                ->schema([
                     Select::make('animal_id')
+                    ->label('Your Pet\'s Name')    
                     ->relationship(
-                        name: 'animal',
-                        modifyQueryUsing: fn (Builder $query) => $query->whereHas('user', function ($query) {
-                            $query->where('user_id', auth()->user()->id);
-                        })
-                    )                    
-->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} {$record->breed}")
-->searchable(['name','breed'])->preload(),
+                            name: 'animal',
+                            modifyQueryUsing: fn (Builder $query) => $query->whereHas('user', function ($query) {
+                                $query->where('user_id', auth()->user()->id);
+                            })
+                        )
+                        ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} {$record->breed}")
+                        ->searchable(['name', 'breed'])
+                        ->preload()
+                        ->required(fn (string $operation): bool => $operation === 'create')
 
-Select::make('patientServices')
-    ->relationship(name: 'services', titleAttribute: 'name')
-    ->multiple()
-    ->preload()
+                      
+                        ,
 
-                    ])
-                // Section::make()
-                //     ->description('Set Patients
-                //             ')->icon('heroicon-m-user')
-                //     ->schema([
-                //         Repeater::make('patients')
-                //             ->relationship()
-                //             ->schema([
-                //                 Select::make('patient.animal_id')->options(Animal::query()->pluck('name', 'id')),
-                //             ])
+                    Select::make('services')
+                    ->label('Pick Services for Your Pet\'s Best ')    
+                    ->relationship(name: 'services', titleAttribute: 'name')
+                        ->multiple()
+                        ->preload()
+                        ->native(false)
+                        ->searchable()
+                       
 
-                //     ]),
+                ])
+                ->hint('Let\'s Keep Things One of a Kind, Avoid duplication')
+                ->label('Introduce Your Beloved Pets')
+                ->columns(2)
+                ->columnSpan(6)
+                
+
+
+
 
 
             ]);
@@ -126,12 +131,48 @@ Select::make('patientServices')
     {
         return $table
             ->columns([
-                TextColumn::make('clinic.name')->sortable()->searchable(),
-                TextColumn::make('title')->sortable()->searchable(),
+                TextColumn::make('clinic.name')
+                ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state )
+                ->sortable()
+                ->searchable(),
                 TextColumn::make('date')->date(),
-                TextColumn::make('time')->time(),
-                TextColumn::make('details')->markdown(),
-                TextColumn::make('status')->searchable(),
+                TextColumn::make('time')->date('h:i:s A'),
+                TextColumn::make('extra_pet_info')
+                ->markdown()
+                
+                ->tooltip(function (TextColumn $column): ?string {
+                    $state = $column->getState();
+             
+                    if (strlen($state) <= $column->getCharacterLimit()) {
+                        return null;
+                    }
+             
+                    // Only render the tooltip if the column content exceeds the length limit.
+                    return $state;
+                })
+                ->wrap()
+                ->label('Appointment Details')
+                ,
+                TextColumn::make('patients.animal.name')
+                ->badge()
+                ->separator(',')
+                
+                ,
+                TextColumn::make('status')
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'Pending' => 'primary',
+                    'Accepted' => 'success',
+                    'Completed' => 'success',
+                    'Rejected' => 'danger',
+                })
+                ->icon(fn (string $state): string => match ($state) {
+                    'Pending' => 'heroicon-o-ellipsis-horizontal-circle',
+                    'Accepted' => 'heroicon-o-check-circle',
+                    'Completed' => 'heroicon-s-check-circle',
+                    'Rejected' => 'heroicon-o-x-mark',
+                })
+                ->searchable(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -144,6 +185,9 @@ Select::make('patientServices')
             ->actions([
                 Tables\Actions\EditAction::make()->button()->outlined(),
                 Tables\Actions\DeleteAction::make()->button()->outlined(),
+            //     ActionGroup::make([
+            //   ]),
+               
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
