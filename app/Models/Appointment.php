@@ -33,6 +33,11 @@ class Appointment extends Model
         return $this->hasOne(Patient::class);
     }
 
+
+    public function hasStatus($allowedStatus){
+        return $this->whereIn('status', $allowedStatus)->exists();
+    }
+
     
 
 }

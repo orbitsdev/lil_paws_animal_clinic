@@ -14,11 +14,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Clinic\Resources\AppointmentResource\Pages;
 use App\Filament\Clinic\Resources\AppointmentResource\RelationManagers;
@@ -28,6 +31,7 @@ class AppointmentResource extends Resource
     protected static ?string $model = Appointment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
+
 
     public static function form(Form $form): Form
     {
@@ -141,7 +145,7 @@ class AppointmentResource extends Resource
                 TextColumn::make('patients.animal.name')
                 ->badge()
                 ->separator(',')
-                
+                ->label('Patients')
                 ,
                 TextColumn::make('status')
                 ->badge()
@@ -160,23 +164,37 @@ class AppointmentResource extends Resource
                 ->searchable(),
             ])
             ->filters([
-                SelectFilter::make('status')
-                ->options(Clinic::query()->pluck('name','id'))
-                ->label('By Clinic')
-                ->searchable()
-                ->default(function () {
-                    if (auth()->user()->hasAnyRole(['Vet'])) {
-                        return (auth()->user()->veterinarian && auth()->user()->veterinarian->clinic_id) ? auth()->user()->veterinarian->clinic_id : 'default_value';
-                    }
-                    return null;
-                })
-                ,
+                SelectFilter::make('clinic_id')
+                ->options(Clinic::query()->pluck('name','id'))->label('By Clinic')
+                     ->default(fn()=> auth()->user()->veterinarian?->clinic_id)
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
+
+                
+                Tables\Actions\Action::make('Update')
+                ->button()
+                ->outlined()
+                ->label('Manage Status ')->icon('heroicon-o-pencil')
+                ->form([
+                    TextInput::make('subject')->required(),
+                    RichEditor::make('body')->required(),
+                ])
+                ->action(function (Appointment $record, array $data) {
+
+
+                    // Mail::to($this->client)
+                    //     ->send(new GenericEmail(
+                    //         subject: $data['subject'],
+                    //         body: $data['body'],
+                    //     ));
+                })
+                ,
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
+
+
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

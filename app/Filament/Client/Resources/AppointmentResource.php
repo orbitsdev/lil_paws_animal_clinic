@@ -55,7 +55,11 @@ class AppointmentResource extends Resource
                             
                             ,
 
-                        DatePicker::make('date')->required()->label('When?'),
+                        DatePicker::make('date')->required()->label('When?')
+                        ->timezone('Asia/Manila')
+                        ->minDate( now()->toDateString())
+                        ->closeOnDateSelection()
+                        ,
                         TimePicker::make('time')
                             ->timezone('Asia/Manila')
                             ->helperText(new HtmlString('(e.g., 02:30:00 PM)'))
@@ -183,6 +187,7 @@ class AppointmentResource extends Resource
                     ])->label('By Gender'),
             ])
             ->actions([
+                // Tables\Actions\EditAction::make()->button()->outlined()hidden(fn (Appointment $record) => $record->status != 'Accepted'),,
                 Tables\Actions\EditAction::make()->button()->outlined(),
                 Tables\Actions\DeleteAction::make()->button()->outlined(),
             //     ActionGroup::make([

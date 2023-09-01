@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('clinic_id')->nullable();
+            $table->foreignId('veterinarian_id')->nullable();
             $table->string('title')->nullable();
             $table->date('date')->nullable();
             $table->time('time')->nullable();
