@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('clinic_id')->nullable();
             $table->foreignId('veterinarian_id')->nullable();
+            $table->foreignId('user_id')->nullable();
             $table->string('title')->nullable();
             $table->date('date')->nullable();
             $table->time('time')->nullable();

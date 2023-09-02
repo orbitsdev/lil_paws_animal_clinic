@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AnimalResource\Pages;
-use App\Filament\Resources\AnimalResource\RelationManagers;
-use App\Models\Animal;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Animal;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\AnimalResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\AnimalResource\RelationManagers;
 
 class AnimalResource extends Resource
 {
@@ -19,6 +20,8 @@ class AnimalResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+   
+   
     public static function form(Form $form): Form
     {
         return $form

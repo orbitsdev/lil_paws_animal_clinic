@@ -7,6 +7,7 @@ use Filament\Panel;
 use App\Models\Role;
 use App\Models\Animal;
 use App\Models\Clinic;
+use App\Models\Appointment;
 use App\Models\Veterinarian;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -75,6 +76,10 @@ class User extends Authenticatable implements FilamentUser
 
     public function animals() {
         return $this->hasMany(Animal::class);
+    }
+
+    public function appointments(){
+        return $this->hasMany(Appointment::class);
     }
 
 }

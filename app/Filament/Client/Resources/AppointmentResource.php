@@ -201,7 +201,8 @@ class AppointmentResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->user()->id));
     }
 
     public static function getPages(): array

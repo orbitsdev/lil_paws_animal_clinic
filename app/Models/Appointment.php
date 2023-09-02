@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use App\Models\Animal;
 use App\Models\Patient;
 use App\Models\Service;
@@ -29,6 +30,7 @@ class Appointment extends Model
     public function patients(){
         return $this->hasMany(Patient::class);
     }
+
     public function patient(){
         return $this->hasOne(Patient::class);
     }
@@ -37,6 +39,18 @@ class Appointment extends Model
     public function hasStatus($allowedStatus){
         return $this->whereIn('status', $allowedStatus)->exists();
     }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function veterinarian()
+    {
+        return $this->belongsTo(Veterinarian::class);
+    }
+
+
+
 
     
 

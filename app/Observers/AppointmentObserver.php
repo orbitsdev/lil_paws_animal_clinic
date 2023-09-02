@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Appointment;
+use Illuminate\Support\Facades\Auth;
 
 class AppointmentObserver
 {
@@ -11,7 +12,12 @@ class AppointmentObserver
      */
     public function created(Appointment $appointment): void
     {
-        //
+        $user = Auth::user();
+
+        if($user->hasAnyRole(['Client'])){
+            $appointment->user_id = $user->id;
+            $appointment->save();
+        }
     }
 
     /**
