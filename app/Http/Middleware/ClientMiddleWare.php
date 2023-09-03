@@ -19,7 +19,7 @@ class ClientMiddleWare
 
         $user = Auth::user();
 
-        if(!$user->hasAnyRole(['Admin','Vet'])){
+        if(!$user->hasAnyRole(['Admin','Veterenarian'])){
             abort(403, 'Unauthorized action.');
         }
         return $next($request);

@@ -75,7 +75,9 @@ class ServiceResource extends Resource
                 TextColumn::make('categories.name')
                 ->badge()
                 ->separator(',')
-                ->color('primary'),
+                ->color('primary')
+                ->label('For')
+                ,
                 
                 ])
             ->filters([

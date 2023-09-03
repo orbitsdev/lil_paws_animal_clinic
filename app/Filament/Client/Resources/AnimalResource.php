@@ -5,6 +5,7 @@ namespace App\Filament\Client\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Animal;
+use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -46,6 +47,13 @@ class AnimalResource extends Resource
 
                     ->schema([
                         TextInput::make('name')->required()->label('Pet Name'),
+                        Select::make('category_id')
+                        ->options(Category::pluck('name', 'id'))
+                        ->required()
+                        ->label('Pet Category')
+                        ->native(false)
+                        ->searchable()
+                        ,
                         TextInput::make('breed')->required()->label('Pet Breed'),
                         Select::make('sex')->options([
                             'Male' => 'Male',
@@ -74,7 +82,16 @@ class AnimalResource extends Resource
                     ->openUrlInNewTab()
                     ->height(200)
                     ->width(200),
-                TextColumn::make('name')->sortable()->searchable(),
+                TextColumn::make('name')->sortable()->searchable()->label('Pet Name')
+                ->formatStateUsing(fn($state)=> ucfirst($state))
+                ,
+                TextColumn::make('category.name')
+                ->sortable()
+                ->searchable()
+                ->label('Category')
+                ->badge()
+                ->color('primary')
+                ,
                 TextColumn::make('breed')->searchable(),
                 TextColumn::make('sex')
                     ->badge()

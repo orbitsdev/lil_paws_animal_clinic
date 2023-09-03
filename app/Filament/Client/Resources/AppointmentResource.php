@@ -101,10 +101,10 @@ class AppointmentResource extends Resource
                             })
                         )
                         ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} {$record->breed}")
-                        ->searchable(['name', 'breed'])
+                        ->searchable(['animal.name', 'animal.breed'])
                         ->preload()
                         ->required(fn (string $operation): bool => $operation === 'create')
-
+                        ->label('Pet Name')
                       
                         ,
 
@@ -160,6 +160,13 @@ class AppointmentResource extends Resource
                 TextColumn::make('patients.animal.name')
                 ->badge()
                 ->separator(',')
+                ->formatStateUsing(fn($state) => ucFirst($state))
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('patient.animal', function($query) use ($search){
+                        $query->where('name', 'like', "%{$search}%");
+                    });
+                        
+                })
                 
                 ,
                 TextColumn::make('status')

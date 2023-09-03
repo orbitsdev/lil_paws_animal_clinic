@@ -40,15 +40,16 @@ class Appointment extends Model
         return $this->whereIn('status', $allowedStatus)->exists();
     }
 
-    public function user(){
-        return $this->belongsTo(User::class);
-    }
+   
 
-    public function veterinarian()
+    public function clientAppointments()
     {
-        return $this->belongsTo(Veterinarian::class);
+        return $this->hasMany(Appointment::class, 'client_id');
     }
-
+    public function veterinarianAppointments()
+    {
+        return $this->hasMany(Appointment::class, 'veterinarian_id');
+    }
 
 
 

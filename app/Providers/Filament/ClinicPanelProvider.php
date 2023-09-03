@@ -59,6 +59,6 @@ class ClinicPanelProvider extends PanelProvider
             ->plugins([
                 LightSwitchPlugin::make(),
             ]);
-            ;
+            
     }
 }

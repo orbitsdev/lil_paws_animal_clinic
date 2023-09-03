@@ -9,6 +9,7 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use App\Http\Middleware\AdminMiddleWare;
 use Awcodes\LightSwitch\Enums\Alignment;
+use App\Http\Middleware\ClientMiddleWare;
 use Awcodes\LightSwitch\LightSwitchPlugin;
 use Filament\Http\Middleware\Authenticate;
 use App\Filament\Pages\Auth\ClientRegister;
@@ -58,8 +59,8 @@ class ClientPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
-
+                Authenticate::class, 
+                // ClientMiddleWare::class,
             ])
             ->plugins([
                 LightSwitchPlugin::make(),
