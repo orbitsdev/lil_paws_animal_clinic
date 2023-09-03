@@ -206,16 +206,10 @@ class AppointmentResource extends Resource
         return $infolist
             ->schema([
 
-                InfoSection::make('Ownder Detail')
-                    ->description('The items you have selected for purchase')
-                    ->icon('heroicon-m-user')
-                    ->schema([
-                        TextEntry::make('user.name')->columnSpan(6)->label('Owner'),
 
-                    ]),
-
+                
                 InfoSection::make('Appointment Details')
-                    ->description('The items you have selected for purchase')
+                ->description('Feel free to review and share your decision')
                     ->icon('heroicon-m-calendar')
                     ->columns([
                         'sm' => 3,
@@ -247,7 +241,7 @@ class AppointmentResource extends Resource
                                 '2xl' => 2,
                             ])
                             ->date()
-                            ->label('Schedule'),
+                            ->label('Date Schedule'),
 
 
                         TextEntry::make('time')
@@ -273,9 +267,18 @@ class AppointmentResource extends Resource
 
                     ]),
 
-
-                InfoSection::make('Pets Details')
+                InfoSection::make('Owner Details')
                     ->description('The items you have selected for purchase')
+                    ->icon('heroicon-m-user')
+                    ->schema([
+                        TextEntry::make('user.name')->columnSpan(6)->label('Owner'),
+
+                    ]),
+
+
+
+                InfoSection::make('Pet Profile')
+                    ->description('Appointment-Related Pet Details')
                     ->icon('heroicon-m-sparkles')
                     ->schema([
 
@@ -294,7 +297,7 @@ class AppointmentResource extends Resource
                                             ->disk('public')
                                             ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
                                             ->openUrlInNewTab()
-                                            ->label('Pet Image')
+                                            ->label('Pet Profile Image ')
                                             ->columnSpan([
                                                 'sm' => 1,
                                                 'xl' => 2,
@@ -338,15 +341,24 @@ class AppointmentResource extends Resource
                                                 'xl' => 2,
                                                 '2xl' => 2,
                                             ]),
-                                    ]),
 
-                                        ViewEntry::make('services')
-                                       ->view('infolists.components.services-list')
-                                   
-                                    ])
-                                    ->label('Pets')
-                                    // ->contained(false)
-                                    ->columnSpan(6),
+                                            ViewEntry::make('services')  ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 2,
+                                                '2xl' => 8,
+                                            ])
+                                            ->label('Requested Services *')
+                                           
+                                                   ->view('infolists.components.services-list'),
+                                    ]),
+                                  
+                                    
+
+
+                            ])
+                            ->label('Pet\'s Name')
+                            ->contained(false)
+                            ->columnSpan(6),
                     ]),
 
 

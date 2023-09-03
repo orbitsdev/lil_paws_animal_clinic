@@ -3,7 +3,7 @@
     <div class="text-sm">
         <ul>
             @forelse ($getRecord()->services as $service)
-                <li class="mb-1">{{ $service->name }}</li>
+                <li class="mb-2">{{ $service->name }}</li>
             @empty
                 <!-- Handle the empty case if needed -->
             @endforelse
