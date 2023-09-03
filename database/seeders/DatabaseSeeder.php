@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Category;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Clinic;
@@ -27,6 +29,7 @@ class DatabaseSeeder extends Seeder
             ClinicSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
+            CategorySeeder::class,
             ServiceSeeder::class,
             // AnimalSeeder::class,
         ]);
