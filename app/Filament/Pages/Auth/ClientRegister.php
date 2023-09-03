@@ -18,7 +18,12 @@ class ClientRegister extends Register {
     public function form(Form $form): Form{
 
         return $form->schema([
-            $this->getNameFormComponent(),
+            TextInput::make('first_name')
+            ->required(),
+            TextInput::make('last_name')
+            ->required(),
+
+            // $this->getNameFormComponent(),
             $this->getEmailFormComponent(),
             $this->getPasswordFormComponent(),
             $this->getPasswordConfirmationFormComponent(),

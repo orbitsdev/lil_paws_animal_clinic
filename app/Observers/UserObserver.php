@@ -19,8 +19,21 @@ class UserObserver
      * Handle the User "updated" event.
      */
     public function updated(User $user): void
-    {
-        //
+    {   
+
+
+        // if($user->hasAnyRole(['Admin', 'Client'])){
+        //     if($user->clinic){
+        //         $user->clinic_id = null;
+        //         $user->save();
+        //     }
+        // }
+        // if(!$user->hasAnyRole(['Vet'])){
+        //     if(!empty($user->clinic)){
+        //         $user->clinic_id = null;
+        //         $user->save();
+        //     }
+        // }
     }
 
     /**

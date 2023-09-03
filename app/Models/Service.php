@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Patient;
+use App\Models\Category;
 use App\Models\Appointment;
 use App\Models\PatientService;
 use Illuminate\Database\Eloquent\Model;
@@ -25,5 +26,9 @@ class Service extends Model
 
     public function serviceNames(){
         return $this->pluck('name');
+    }
+
+    public function categories(){
+        return $this->belongsToMany(Category::class, 'category_services', 'service_id', 'category_id');
     }
 }

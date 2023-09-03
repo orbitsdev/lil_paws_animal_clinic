@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
-use App\Filament\Resources\UserResource;
 use Filament\Actions;
+use Illuminate\Database\Eloquent\Model;
+use App\Filament\Resources\UserResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateUser extends CreateRecord
@@ -13,4 +14,13 @@ class CreateUser extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
+    protected function handleRecordCreation(array $data): Model
+    {   
+
+        
+        $user =  static::getModel()::create($data);
+       
+        return $user;
+    }
+    
 }

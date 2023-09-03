@@ -19,4 +19,8 @@ class Clinic extends Model
     public function appointments(){
         return $this->hasMany(Appointment::class);
     }
+
+    public function users(){
+        return $this->hasMany(User::class);
+    }
 }

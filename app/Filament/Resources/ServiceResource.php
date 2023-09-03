@@ -8,6 +8,7 @@ use App\Models\Service;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -34,7 +35,7 @@ class ServiceResource extends Resource
                 ->icon('heroicon-m-user')
               
                 ->schema([
-                    TextInput::make('name')->required(),
+                    TextInput::make('name')->required()->label('Service Name'),
                     
                     RichEditor::make('additional_description')
                     ->toolbarButtons([
@@ -50,7 +51,16 @@ class ServiceResource extends Resource
                         'redo',
                         'strike',
                         'undo',
-                    ])
+                    ]),
+                    TextInput::make('cost')->numeric()->required()->prefix('₱'),
+                    Select::make('categories')
+                    ->label('Pick Category')    
+                    ->relationship(name: 'categories', titleAttribute: 'name')
+                        ->multiple()
+                        ->preload()
+                        ->native(false)
+                        ->searchable()
+                        ->required(),
                 ]),
             ]);
     }
@@ -60,8 +70,14 @@ class ServiceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->sortable()->searchable(),
+                TextColumn::make('cost')->sortable()->searchable(),
                 TextColumn::make('additional_description')->sortable()->searchable()->markdown(),
-            ])
+                TextColumn::make('categories.name')
+                ->badge()
+                ->separator(',')
+                ->color('primary'),
+                
+                ])
             ->filters([
                 //
             ])

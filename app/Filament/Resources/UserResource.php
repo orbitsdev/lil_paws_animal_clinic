@@ -6,6 +6,8 @@ use Filament\Forms;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Clinic;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -34,6 +36,8 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Accounts';
 
+    public $role;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -55,13 +59,33 @@ class UserResource extends Resource
                 Section::make()
                 ->description('This will be display as user account')
                 ->schema([
-                    TextInput::make('name')->required(),
+                    TextInput::make('first_name')->required(),
+                    TextInput::make('last_name')->required(),
+                    TextInput::make('phone_number')->required(),
                     TextInput::make('email')->required()->unique(ignoreRecord: true),
                     Select::make('role_id')
                     ->required()
                     ->label('Role')
                     ->options(Role::all()->pluck('name', 'id'))
-                    ->searchable(),
+                    ->searchable()
+                    ->live()
+                    ,
+
+                    Select::make('clinic_id')
+                    ->required()
+                    ->label('Clinic')
+                    ->options(Clinic::all()->pluck('name', 'id'))
+                    ->searchable()
+                  
+                    ->hidden(function(Get $get){
+                        $role = Role::find($get('role_id'));
+                        if(!empty($role)){
+                            return $role->name != 'Veterenarian';
+                        }
+                    })
+                    ,
+                    
+                    
                     TextInput::make('password')
                     ->label(fn (string $operation) => $operation =='create' ? 'Password' : 'New Password')
                     ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
@@ -83,28 +107,35 @@ class UserResource extends Resource
                 ->height(90)
                 ->width(90)
                 ,
-               TextColumn::make('name')->sortable()->searchable(),
+               TextColumn::make('first_name')->sortable()->searchable(),
+               TextColumn::make('last_name')->sortable()->searchable(),
                TextColumn::make('email')->searchable(),
                TextColumn::make('role.name')
                ->badge()
                ->color(fn (string $state): string => match ($state) {
                    
                    'Admin' => 'success',
-                   'Vet' => 'info',
+                   'Veterenarian' => 'info',
                    'Client' => 'warning',
                })
                ->formatStateUsing(function (User $record){
 
-                if ($record->role->name === 'Vet') {
-                    // Check if the veterinarian has a clinic assigned
-                    $hasNoClinic = !$record->veterinarian || !$record->veterinarian->clinic;
-                
-                    if ($hasNoClinic) {
+                if ($record->role->name === 'Veterenarian') {
+
+                    if($record->clinic){
+                        return $record->role->name . ' - ' . $record->clinic?->name;
+                    }else{
                         return $record->role->name . ' - No Clinic Assigned';
-                    } else {
-                        // Return the veterinarian's clinic name
-                        return $record->role->name . ' - ' . $record->veterinarian->clinic->name;
                     }
+                    // // Check if the veterinarian has a clinic assigned
+                    // $hasNoClinic = !$record->veterinarian || !$record->veterinarian->clinic;
+                
+                    // if ($hasNoClinic) {
+                    //     return $record->role->name . ' - No Clinic Assigned';
+                    // } else {
+                    //     // Return the veterinarian's clinic name
+                    //     return $record->role->name . ' - ' . $record->veterinarian->clinic->name;
+                    // }
                 }
                 
                 // Handle other roles or scenarios here
