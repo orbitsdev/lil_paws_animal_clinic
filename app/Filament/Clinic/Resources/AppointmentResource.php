@@ -27,9 +27,10 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\RepeatableEntry;
 
+use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists\Components\Section as InfoSection;
 use App\Filament\Clinic\Resources\AppointmentResource\Pages;
@@ -41,7 +42,7 @@ class AppointmentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
-
+    protected static ?string $modelLabel = 'Appointment Request';
     public function getHeader(): ?View
     {
         return view('filament.custom.cutom-header');
@@ -97,6 +98,7 @@ class AppointmentResource extends Resource
                         Select::make('animal_id')
                             ->label('Your Pet\'s Name')
                             ->relationship(
+
                                 name: 'animal',
                                 modifyQueryUsing: fn (Builder $query) => $query->whereHas('user', function ($query) {
                                     $query->where('user_id', auth()->user()->id);
@@ -184,7 +186,7 @@ class AppointmentResource extends Resource
                     ->default(fn () => auth()->user()->veterinarian?->clinic_id)
             ])
             ->actions([
-               
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -214,21 +216,20 @@ class AppointmentResource extends Resource
 
                 InfoSection::make('Appointment Details')
                     ->description('The items you have selected for purchase')
-                    ->icon('heroicon-m-clock')
+                    ->icon('heroicon-m-calendar')
+                    ->columns([
+                        'sm' => 3,
+                        'xl' => 6,
+                        '2xl' => 8,
+                    ])
                     ->schema([
-                        TextEntry::make('user.name')->columnSpan(6)->label('Owner'),
 
-                        TextEntry::make('date')
-                            ->date()
-                            ->columnSpan(6)
-                            ->label('Appointment Schuled Dated'),
-
-
-                        TextEntry::make('time')
-                            ->columnSpan(6)
-                            ->date('H:i:s A')->timeZone('Asia/Manila')
-                            ->label('Appoint Scheduled Time '),
-                        TextEntry::make('status')->columnSpan(6)
+                        TextEntry::make('status')
+                            ->columnSpan([
+                                'sm' => 1,
+                                'xl' => 8,
+                                '2xl' => 8,
+                            ])
                             ->badge()
                             ->color(fn (string $state): string => match ($state) {
                                 'Accepted' => 'success',
@@ -236,47 +237,116 @@ class AppointmentResource extends Resource
                                 'Completed' => 'success',
                                 'Rejected' => 'danger',
                             })
-                            ->label('Status'),
+                            ->label('Request Status'),
+
+
+                        TextEntry::make('date')
+                            ->columnSpan([
+                                'sm' => 1,
+                                'xl' => 2,
+                                '2xl' => 2,
+                            ])
+                            ->date()
+                            ->label('Schedule'),
+
+
+                        TextEntry::make('time')
+                            ->columnSpan([
+                                'sm' => 1,
+                                'xl' => 2,
+                                '2xl' => 2,
+                            ])
+
+                            ->date('H:i:s A')->timeZone('Asia/Manila')
+                            ->label('Time Schedule'),
+
 
                         TextEntry::make('extra_pet_info')
-                            ->columnSpan(6)
+                            ->columnSpan([
+                                'sm' => 1,
+                                'xl' => 2,
+                                '2xl' => 8,
+                            ])
+
                             ->markdown()
-                            ->label('Extra Information '),
+                            ->label('Extra Details'),
 
                     ]),
 
 
-                InfoSection::make('Patient Details')
+                InfoSection::make('Pets Details')
                     ->description('The items you have selected for purchase')
-                    ->icon('heroicon-m-clock')
+                    ->icon('heroicon-m-sparkles')
                     ->schema([
 
                         RepeatableEntry::make('patients')
                             ->schema([
-                                ImageEntry::make('animal.image')
-                                    ->disk('public')
 
-                                    ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
-                                    ->openUrlInNewTab(),
-                                TextEntry::make('animal.name')->label('Name'),
-                                TextEntry::make('animal.breed')->label('Breed'),
-                                TextEntry::make('animal.sex')
-                                    ->label('Sex'),
-                                TextEntry::make('animal.date_of_birth')
-                                    ->date()
-                                    ->hintIcon('heroicon-m-calendar-days')->label('Birth date'),
+                                InfoSection::make()
+                                    ->columns([
+                                        'sm' => 3,
+                                        'xl' => 6,
+                                        '2xl' => 8,
+                                    ])
+                                    ->schema([
 
-                                TextEntry::make('animal.weight'),
+                                        ImageEntry::make('animal.image')
+                                            ->disk('public')
+                                            ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
+                                            ->openUrlInNewTab()
+                                            ->label('Pet Image')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 2,
+                                                '2xl' => 8,
+                                            ]),
+                                        TextEntry::make('animal.name')
+                                            ->label('Name')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 2,
+                                                '2xl' => 2,
+                                            ]),
+                                        TextEntry::make('animal.breed')
+                                            ->label('Breed')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 2,
+                                                '2xl' => 2,
+                                            ]),
+                                        TextEntry::make('animal.sex')
+                                            ->label('Sex')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 2,
+                                                '2xl' => 2,
+                                            ]),
+                                        TextEntry::make('animal.date_of_birth')
+                                            ->date()
+                                            ->hintIcon('heroicon-m-calendar-days')
+                                            ->label('Birth date')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 2,
+                                                '2xl' => 2,
+                                            ]),
 
+                                        TextEntry::make('animal.weight')
+                                            ->label('Weight')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 2,
+                                                '2xl' => 2,
+                                            ]),
+                                    ]),
 
-                                TextEntry::make('services.name')
-                                    ->listWithLineBreaks()
-                                    ->bulleted()
-                                    ->label('Service name'),
-
-
-                            ])
-                            ->columnSpan(6),
+                                        ViewEntry::make('services')
+                                       ->view('infolists.components.services-list')
+                                   
+                                    ])
+                                    ->label('Pets')
+                                    // ->contained(false)
+                                    ->columnSpan(6),
                     ]),
 
 

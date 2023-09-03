@@ -12,7 +12,7 @@ class Service extends Model
 {
     use HasFactory;
 
-   
+    protected $guarded = [];
 
     public function patients(){
         return $this->belongsToMany(Patient::class,'patient_services','service_id','patient_id');
@@ -20,5 +20,10 @@ class Service extends Model
 
     public function patientServices(){
         return $this->hasMany(PatientService::class);
+    }
+
+
+    public function serviceNames(){
+        return $this->pluck('name');
     }
 }
