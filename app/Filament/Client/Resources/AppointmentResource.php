@@ -7,6 +7,7 @@ use Filament\Tables;
 use App\Models\Animal;
 use App\Models\Clinic;
 use App\Models\Service;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Appointment;
@@ -100,17 +101,27 @@ class AppointmentResource extends Resource
                                 $query->where('user_id', auth()->user()->id);
                             })
                         )
-                        ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} {$record->breed}")
+                        ->getOptionLabelFromRecordUsing(fn (Model $record) => ucfirst(optional($record)->name) .' - '. ucfirst(optional($record)->breed))
                         ->searchable(['animal.name', 'animal.breed'])
                         ->preload()
                         ->required(fn (string $operation): bool => $operation === 'create')
                         ->label('Pet Name')
+                        ->live()
                       
                         ,
 
                     Select::make('services')
                     ->label('Pick Services for Your Pet\'s Best ')    
-                    ->relationship(name: 'services', titleAttribute: 'name')
+                    ->relationship(
+                        name: 'services',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                            $query->whereHas('categories.animals', function ($query) use ($get) {
+                                $query->where('id', $get('animal_id'));
+                            });
+                        })
+                         )
+                         ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
                         ->multiple()
                         ->preload()
                         ->native(false)
@@ -167,7 +178,7 @@ class AppointmentResource extends Resource
                     });
                         
                 })
-                
+                ->label('Pets')
                 ,
                 TextColumn::make('status')
                 ->badge()

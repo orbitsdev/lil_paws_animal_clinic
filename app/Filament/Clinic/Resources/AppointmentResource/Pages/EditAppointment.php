@@ -4,16 +4,20 @@ namespace App\Filament\Clinic\Resources\AppointmentResource\Pages;
 
 use App\Filament\Clinic\Resources\AppointmentResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\EditRecord;
 
-class ManageAppointments extends ManageRecords
+class EditAppointment extends EditRecord
 {
     protected static string $resource = AppointmentResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\CreateAction::make(),
+            // Actions\DeleteAction::make(),
         ];
     }
 }

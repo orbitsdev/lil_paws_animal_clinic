@@ -28,6 +28,8 @@ class User extends Authenticatable implements FilamentUser, HasName
     protected $fillable = [
         'first_name',
         'last_name',
+        'phone_number',
+        'address',
         'email',
         'password',
         'role_id',
@@ -93,5 +95,13 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function clinic(){
         return $this->belongsTo(Clinic::class);
     }
+
+    public function appointment(){
+        return $this->hasOne(Appointment::class,'user_id');
+    }
+    public function veteremaroanAppointment(){
+        return $this->hasOne(Appointment::class);
+    }
+
 
 }
