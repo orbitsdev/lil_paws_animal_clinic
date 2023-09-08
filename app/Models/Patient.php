@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Animal;
 use App\Models\Service;
 use App\Models\Appointment;
+use App\Models\Examination;
 use App\Models\PatientService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,5 +36,8 @@ class Patient extends Model
         return $this->hasOne(PatientService::class);
     }
 
+    public function examinations(){
+        return $this->hasMany(Examination::class);
+    }
     
 }

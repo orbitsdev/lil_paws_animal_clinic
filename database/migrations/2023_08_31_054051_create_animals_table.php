@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('sex')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('weight')->nullable();
-            $table->string('image')->nullable();
+            $table->text('image')->nullable();
             $table->timestamps();
         });
     }

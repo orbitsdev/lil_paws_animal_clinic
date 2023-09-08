@@ -2,15 +2,18 @@
 
 namespace App\Filament\Clinic\Resources;
 
+use Tabs\Tab;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Clinic;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Appointment;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -29,8 +32,10 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Forms\Components\Tabs as FormTabs;
 use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Tabs\Tab as FormChildTab;
 use Filament\Infolists\Components\Section as InfoSection;
 use App\Filament\Clinic\Resources\AppointmentResource\Pages;
 use App\Filament\Clinic\Resources\AppointmentResource\RelationManagers;
@@ -41,90 +46,98 @@ class AppointmentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $modelLabel = 'Appointment Request';
+    protected static ?string $modelLabel = 'Appointments';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
 
-                Repeater::make('patients')
-                ->relationship()
-                ->schema([
 
-                    TextInput::make('animal.name')->formatStateUsing(fn($state)=> $state)
-                    ->label('Your Pet\'s Name')
-                        ,
+                FormTabs::make()
+                    ->tabs([
+                        FormChildTab::make('Appointment Details')
+                            ->schema([
+                                Group::make()
+                                    ->relationship('clinic')
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->label('Clinic')
+                                            ->required()
+                                            ->disabled()
+                                            ->columnSpan([
+                                                'sm' => 2,
+                                                'xl' => 3,
+                                                '2xl' => 4,
+                                            ]),
+                                    ]),
+                                DatePicker::make('date')->required()->label('Schedule Date')
+                                    ->timezone('Asia/Manila')
+                                    ->closeOnDateSelection()
+                                    ->displayFormat('d/m/Y')
+                                    ->disabled(),
 
-                    // Select::make('animal_id')
-                    //     ->label('Your Pet\'s Name')
-                    //     ->relationship(
+                                TimePicker::make('time')
+                                    ->timezone('Asia/Manila')
+                                    ->required()
+                                    ->label('Scheduled Time')
+                                    ->disabled(),
 
-                    //         name: 'animal',
-                    //         modifyQueryUsing: fn (Builder $query) => $query->whereHas('user', function ($query) {
-                    //             $query->where('user_id', auth()->user()->id);
-                    //         })
-                    //     )
-                    //     ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} {$record->breed}")
-                    //     ->searchable(['name', 'breed'])
-                    //     ->preload()
-                    //     ->required(fn (string $operation): bool => $operation === 'create'),
-
-                    // Select::make('services')
-                    //     ->label('Pick Services for Your Pet\'s Best ')
-                    //     ->relationship(name: 'services', titleAttribute: 'name')
-                    //     ->multiple()
-                    //     ->preload()
-                    //     ->native(false)
-                    //     ->searchable()
-
-
-                ])
-                ->hint('Let\'s Keep Things One of a Kind, Avoid duplication')
-                ->label('Introduce Your Beloved Pets')
-                ->columns(2)
-                ->columnSpan(6)
-             
-    //             Section::make()
-    //             ->description('Select Your Clinic and Schedule
-    // ')->icon('heroicon-m-building-storefront')
-    //             ->schema([
-    //                 Select::make('clinic_id')
-    //                     ->options(Clinic::query()->pluck('name', 'id'))
-    //                     ->native(false)
-    //                     ->label('What Clinic?')
-    //                     ->required()
-    //                     ->searchable(),
-
-    //                 DatePicker::make('date')->required()->label('When?'),
-    //                 TimePicker::make('time')
-    //                     ->timezone('Asia/Manila')
-    //                     ->helperText(new HtmlString('(e.g., 02:30:00 PM)'))
-    //                     ->required()
-    //                     ->label('What Time?'),
-
-    //                 RichEditor::make('extra_pet_info')
-    //                     ->toolbarButtons([
-    //                         'blockquote',
-    //                         'bold',
-    //                         'bulletList',
-    //                         'codeBlock',
-    //                         'h2',
-    //                         'h3',
-    //                         'italic',
-    //                         'link',
-    //                         'orderedList',
-    //                         'redo',
-    //                         'strike',
-    //                         'undo',
-    //                     ])
-    //                     ->label('Extra Pet Info (Optional 😊)')
-    //                     ->helperText(new HtmlString('Add any extra details or notes about your appointment – it\'s your chance to shine! Whether it\'s your pet\'s condition, concerns, or special wishes, we\'re all ears. Let\'s make your visit paw-sitively purr-fect'))
-    //             ])->columnSpan(6),
+                                RichEditor::make('extra_pet_info')
+                                    ->toolbarButtons([])
+                                    ->label('Extra Pet Info')
+                                    ->disabled(),
+                              
 
 
+                            ]),
+                        FormChildTab::make('Pets Examination & Prescriptions')
+                            ->schema([
+                                Repeater::make('patients')
+                                ->relationship()
+                                ->schema([
+                                    Group::make()
+                                        ->relationship('animal')
+                                        ->schema([
+                                            TextInput::make('name')
+                                                ->label('Pet Name')
+                                                ->required()
+                                                ->disabled(),
+                                        ]),
 
-    //         
+                                    Select::make('services')
+                                        ->label('Selected Services')
+                                        ->relationship(
+                                            name: 'services',
+                                            titleAttribute: 'name',
+                                            modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                                                $query->whereHas('categories.animals', function ($query) use ($get) {
+                                                    $query->where('id', $get('animal_id'));
+                                                });
+                                            })
+                                        )
+                                        ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
+                                        ->multiple()
+                                        ->disabled()
+                                        ->preload()
+                                        ->native(false)
+
+                                ])
+                                ->addable(false)
+                                ->deletable(false)
+                                ->label('Pets'),
+
+                            ]),
+                        FormChildTab::make('Tab 3')
+                            ->schema([]),
+                    ])
+                    ->activeTab(2)
+                    ->columnSpan(8),
+
+
+
+
+
             ]);
     }
 
@@ -132,7 +145,7 @@ class AppointmentResource extends Resource
     {
         return $table
             ->columns([
-               
+
                 TextColumn::make('clinic.name')
                     ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state)
                     ->sortable()
@@ -178,13 +191,13 @@ class AppointmentResource extends Resource
                         'Completed' => 'heroicon-s-check-circle',
                         'Rejected' => 'heroicon-o-x-mark',
                     })
-                   
+
                     ->searchable(),
             ])
             ->filters([
                 SelectFilter::make('clinic_id')
-                ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic')
-                ->default(fn () => auth()->user()->clinic?->id)
+                    ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic')
+                    ->default(fn () => auth()->user()->clinic?->id)
             ])
             ->actions([
                 ActionGroup::make([
@@ -193,9 +206,9 @@ class AppointmentResource extends Resource
                         ->icon('heroicon-s-pencil-square')
                         ->label('Manage Request')
                         ->color('success')
-                        ->fillForm(function(Appointment $record, array $data){
+                        ->fillForm(function (Appointment $record, array $data) {
                             return [
-                                'status'=> $record->status
+                                'status' => $record->status
                             ];
                         })
                         ->form([
@@ -212,44 +225,43 @@ class AppointmentResource extends Resource
 
                         ])
                         ->action(function (Appointment $record, array $data): void {
-                            
-                            
-                          $veterenarian_id =   match($data['status']){
-                                'Accepted'=> auth()->user()->id,
-                                'Completed'=> auth()->user()->id,
-                                'Pending'=> null,
-                                'Rejected'=> auth()->user()->id,
-                                default=> null,
+
+
+                            $veterenarian_id =   match ($data['status']) {
+                                'Accepted' => auth()->user()->id,
+                                'Completed' => auth()->user()->id,
+                                'Pending' => null,
+                                'Rejected' => auth()->user()->id,
+                                default => null,
                             };
 
-                            $record->veterinarian_id = $veterenarian_id;  
-                            $record->status = $data['status'];  
+                            $record->veterinarian_id = $veterenarian_id;
+                            $record->status = $data['status'];
                             $record->save();
 
 
                             // dd($data);
                             // $this->record->author()->associate($data['authorId']);
                             // $this->record->save();
-                        })->hidden(function($record){
-                               return match($record->status){
-                                     'Accepted'=> auth()->user()->id == $record?->veterinarian?->id ? false : true ,
-                                     'Completed'=> auth()->user()->id == $record?->veterinarian?->id ? false : true ,
-                                     'Rejected'=> auth()->user()->id == $record?->veterinarian?->id ? false : true ,
-                                     default => false,
-                                };
+                        })->hidden(function ($record) {
+                            return match ($record->status) {
+                                'Accepted' => auth()->user()->id == $record?->veterinarian?->id ? false : true,
+                                'Completed' => auth()->user()->id == $record?->veterinarian?->id ? false : true,
+                                'Rejected' => auth()->user()->id == $record?->veterinarian?->id ? false : true,
+                                default => false,
+                            };
                         }),
                     Tables\Actions\EditAction::make('manage-prescription')->label('Manage Exam & Rx')
-                    ->icon('heroicon-s-pencil')
-                    ->color('success')
-                    ->tooltip('dsad')
-                    ->form([
-                        TextInput::make('dasd'),
-                    ])
-                    ->action(function (array $data): void {
-                        // $this->record->author()->associate($data['authorId']);
-                        // $this->record->save();
-                    })
-                    ,
+                        ->icon('heroicon-s-pencil')
+                        ->color('success')
+                        ->tooltip('dsad')
+                        ->hidden(function ($record) {
+                            if ($record->hasStatus(['Accepted', 'Completed']) && (auth()->user()->id == $record->veterinarian?->id)) {
+                                return false;
+                            }
+
+                            return true;
+                        }),
                     Tables\Actions\ViewAction::make()->color('primary'),
                     Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Manage Appointment'),
@@ -454,6 +466,7 @@ class AppointmentResource extends Resource
 
 
                                             ])
+                                        
                                             ->label('Pet\'s Name')
                                             ->contained(false)
                                             ->columnSpan(6),
@@ -528,12 +541,14 @@ class AppointmentResource extends Resource
 
 
                                     ])
+                                 
                                     ->label('Pet\'s Name')
                                     ->contained(false)
+                                  
                                     ->columnSpan(6),
 
-    //                                 TextColumn::make('price')
-    // ->summarize(Sum::make()->label('Total'))
+                                //                                 TextColumn::make('price')
+                                // ->summarize(Sum::make()->label('Total'))
                             ]),
                         Tabs\Tab::make('Prescription Details')
                             ->icon('heroicon-m-newspaper')
@@ -554,14 +569,14 @@ class AppointmentResource extends Resource
 
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -569,5 +584,5 @@ class AppointmentResource extends Resource
             'create' => Pages\CreateAppointment::route('/create'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
-    }    
+    }
 }
