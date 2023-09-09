@@ -13,10 +13,12 @@ use App\Models\Appointment;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +26,7 @@ use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
@@ -37,6 +40,7 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Tabs\Tab as FormChildTab;
 use Filament\Infolists\Components\Section as InfoSection;
+use Awcodes\FilamentTableRepeater\Components\TableRepeater;
 use App\Filament\Clinic\Resources\AppointmentResource\Pages;
 use App\Filament\Clinic\Resources\AppointmentResource\RelationManagers;
 
@@ -46,93 +50,282 @@ class AppointmentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $modelLabel = 'Appointments';
+    protected static ?string $modelLabel = 'Appointments Request';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Section::make('Appointment Details')
+    ->schema([
+        
+        Group::make()
+        ->relationship('clinic')
+        ->schema([
+            TextInput::make('name')
+                ->label('Clinic')
+                ->required()
+                ->disabled()
+                ->columnSpan([
+                    'sm' => 2,
+                    'xl' => 3,
+                    '2xl' => 4,
+                ])->label('Clinic'),
+        ]),
+    DatePicker::make('date')->required()->label('Schedule Date')
+        ->timezone('Asia/Manila')
+        ->closeOnDateSelection()
+        ->displayFormat('d/m/Y')
+        ->disabled(),
 
+    TimePicker::make('time')
+        ->timezone('Asia/Manila')
+        ->required()
+        ->label('Scheduled Time')
+        ->disabled(),
 
-                FormTabs::make()
-                    ->tabs([
-                        FormChildTab::make('Appointment Details')
+    RichEditor::make('extra_pet_info')
+        ->toolbarButtons([])
+        ->label('Extra Pet Info')
+        ->disabled(),
+        Group::make()
+        ->relationship('patient')
+        ->schema([
+           
+              Select::make('services')
+            ->label('Selected Services')
+            ->relationship(
+                name: 'services',
+                titleAttribute: 'name',
+                modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                    $query->whereHas('categories.animals', function ($query) use ($get) {
+                        $query->where('id', $get('animal_id'));
+                    });
+                })
+            )
+            ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
+            ->multiple()
+            ->disabled()
+            ->preload()
+            ->native(false),
+        ]),
+    ]),
+
+    Section::make('Pet Health Records')
+    ->description('Record and manage pet examinations and prescriptions')
+                ->schema([
+                    Repeater::make('patients')
+                    ->relationship()
+                    ->schema([
+                        Group::make()
+                            ->relationship('animal')
                             ->schema([
-                                Group::make()
-                                    ->relationship('clinic')
-                                    ->schema([
-                                        TextInput::make('name')
-                                            ->label('Clinic')
-                                            ->required()
-                                            ->disabled()
-                                            ->columnSpan([
-                                                'sm' => 2,
-                                                'xl' => 3,
-                                                '2xl' => 4,
-                                            ]),
-                                    ]),
-                                DatePicker::make('date')->required()->label('Schedule Date')
-                                    ->timezone('Asia/Manila')
-                                    ->closeOnDateSelection()
-                                    ->displayFormat('d/m/Y')
-                                    ->disabled(),
-
-                                TimePicker::make('time')
-                                    ->timezone('Asia/Manila')
+                                TextInput::make('name')
+                                    ->label('Name')
                                     ->required()
-                                    ->label('Scheduled Time')
                                     ->disabled(),
-
-                                RichEditor::make('extra_pet_info')
-                                    ->toolbarButtons([])
-                                    ->label('Extra Pet Info')
-                                    ->disabled(),
-                              
-
-
                             ]),
-                        FormChildTab::make('Pets Examination & Prescriptions')
+    
+                  
+    
+                            
+                            Repeater::make('examinations')
+                            ->relationship()
+                            ->label('Examination')
                             ->schema([
-                                Repeater::make('patients')
+                                Grid::make(10)->schema([
+                                    TextInput::make('exam_type')
+                                    ->label('Examination Type')
+                                    ->columnSpan(2),
+    
+    
+                                    
+                                    TextInput::make('temperature')
+                                        ->columnSpan(2),
+    
+                                    TextInput::make('crt')
+                                        ->columnSpan(2),
+    
+                                                                                        
+                                        TextInput::make('price')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->columnSpan(2),
+
+                                        
+                                    DatePicker::make('examination_date')
+                                    ->columnSpan(2),
+    
+                                    TextArea::make('exam_result')
+                                        ->columnSpanFull()
+                                        ->columnSpan(5)
+                                         ->rows(5)
+                                        ,
+    
+    
+    
+                                 
+                                        TextArea::make('diagnosis')
+                                        ->columnSpan(5)
+                                         ->rows(5)
+                                        ,
+                                ]),
+    
+    
+                               
+                         
+    
+                                FileUpload::make('image_result')
+                                ->disk('public')->image()->directory('examination-ressult')
+                                ->columnSpanFull(),
+    
+                                TableRepeater::make('prescriptions')
                                 ->relationship()
                                 ->schema([
-                                    Group::make()
-                                        ->relationship('animal')
-                                        ->schema([
-                                            TextInput::make('name')
-                                                ->label('Pet Name')
-                                                ->required()
-                                                ->disabled(),
-                                        ]),
-
-                                    Select::make('services')
-                                        ->label('Selected Services')
-                                        ->relationship(
-                                            name: 'services',
-                                            titleAttribute: 'name',
-                                            modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
-                                                $query->whereHas('categories.animals', function ($query) use ($get) {
-                                                    $query->where('id', $get('animal_id'));
-                                                });
-                                            })
-                                        )
-                                        ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
-                                        ->multiple()
-                                        ->disabled()
-                                        ->preload()
-                                        ->native(false)
-
+                                    TextInput::make('drug'),
+                                    TextInput::make('dosage'),
+                                    TextInput::make('description'),
                                 ])
-                                ->addable(false)
-                                ->deletable(false)
-                                ->label('Pets'),
-
-                            ]),
-                        FormChildTab::make('Tab 3')
-                            ->schema([]),
+                                
+                                ->columnSpanFull()
+                                ->withoutHeader()
+                               
+                                
+                            ])
+                            ->collapsible()
+                          
+                            ->maxItems(1)
+                            ,
+                            
+    
+    
+                            
                     ])
-                    ->activeTab(2)
-                    ->columnSpan(8),
+                   
+                    ->columnSpanFull()
+                    ->addable(false)
+                    ->deletable(false)
+                    ->label('Pets'),
+                ]),
+
+             
+                    // Repeater::make('patients')
+                    // ->relationship()
+                    // ->schema([
+                    //     Group::make()
+                    //         ->relationship('animal')
+                    //         ->schema([
+                    //             TextInput::make('name')
+                    //                 ->label('Pet Name')
+                    //                 ->required()
+                    //                 ->disabled(),
+                    //         ]),
+    
+                  
+    
+                            
+                    //         Repeater::make('examinations')
+                    //         ->relationship()
+                    //         ->schema([
+                    //             Grid::make(9)->schema([
+                    //                 TextInput::make('exam_type')
+                    //                 ->maxLength(191)
+                    //                 ->columnSpan(3),
+    
+                    //                 DatePicker::make('examination_date')
+                    //                 ->columnSpan(3),
+    
+                                    
+                    //                 TextInput::make('temperature')
+                    //                     ->maxLength(191)
+                    //                     ->columnSpan(3),
+    
+                    //                 TextInput::make('crt')
+                    //                     ->maxLength(191)
+                    //                     ->columnSpan(3),
+    
+                                                                                        
+                    //                     TextInput::make('price')
+                    //                     ->numeric()
+                    //                     ->prefix('$')
+                    //                     ->columnSpan(3),
+    
+                    //                 Textarea::make('exam_result')
+                    //                     ->maxLength(65535)
+                    //                     ->columnSpanFull()
+                    //                     ->columnSpan(9),
+    
+    
+    
+                                 
+                    //                 Textarea::make('diagnosis')
+                    //                     ->maxLength(65535)
+                    //                     ->columnSpan(9),
+                    //             ]),
+    
+    
+                               
+                         
+    
+                    //             FileUpload::make('image_result')
+                    //             ->disk('public')->image()->directory('examination-ressult')
+                    //             ->columnSpanFull(),
+    
+                    //             Repeater::make('prescriptions')
+                    //             ->relationship()
+                    //             ->schema([
+                    //                 TextInput::make('drug'),
+                    //                 TextInput::make('dosage'),
+                    //                 RichEditor::make('description'),
+                    //             ])
+                    //             ->minItems(1)
+                    //             ->maxItems(1),
+                    //         ])
+                    //         ->collapsible()
+                    //         ->minItems(1)
+                    //         ->maxItems(1)
+                    //         ,
+                            
+    
+    
+                            
+                    // ])
+                    // ->label('Pet List')
+                    // ->columnSpanFull()
+                    // ->addable(false)
+                    // ->deletable(false)
+                    
+            
+            
+               
+
+              
+               
+               
+
+
+          
+
+                // FormTabs::make()
+                //     ->tabs([
+                //         FormChildTab::make('Appointment Details')
+                //             ->schema([
+                               
+
+
+                //             ]),
+                //         FormChildTab::make('Pets Examination & Prescriptions')
+                //             ->schema([
+                               
+
+
+
+                //             ]),
+                //         FormChildTab::make('Tab 3')
+                //             ->schema([]),
+                //     ])
+                //     ->activeTab(2)
+                //     ->columnSpan(8),
 
 
 
@@ -146,27 +339,34 @@ class AppointmentResource extends Resource
         return $table
             ->columns([
 
+                TextColumn::make('user')
+                    ->formatStateUsing(fn ($state): string => $state ? ucfirst($state->first_name . ' '.$state->last_name) : '')
+                    ->sortable()
+                    ->label('Pet Owner')
+                    ->searchable()
+                    
+                    ,
                 TextColumn::make('clinic.name')
                     ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state)
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('date')->date()->color('warning'),
                 TextColumn::make('time')->date('h:i:s A'),
-                TextColumn::make('extra_pet_info')
-                    ->markdown()
+                // TextColumn::make('extra_pet_info')
+                //     ->markdown()
 
-                    ->tooltip(function (TextColumn $column): ?string {
-                        $state = $column->getState();
+                //     ->tooltip(function (TextColumn $column): ?string {
+                //         $state = $column->getState();
 
-                        if (strlen($state) <= $column->getCharacterLimit()) {
-                            return null;
-                        }
+                //         if (strlen($state) <= $column->getCharacterLimit()) {
+                //             return null;
+                //         }
 
-                        // Only render the tooltip if the column content exceeds the length limit.
-                        return $state;
-                    })
-                    ->wrap()
-                    ->label('Appointment Details'),
+                //         // Only render the tooltip if the column content exceeds the length limit.
+                //         return $state;
+                //     })
+                //     ->wrap()
+                //     ->label('Appointment Details'),
                 TextColumn::make('patients.animal.name')
                     ->badge()
                     ->separator(',')
