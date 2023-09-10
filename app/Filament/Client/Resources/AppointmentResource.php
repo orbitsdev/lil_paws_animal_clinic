@@ -2,10 +2,12 @@
 
 namespace App\Filament\Client\Resources;
 
+use Closure;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Animal;
 use App\Models\Clinic;
+use App\Models\Patient;
 use App\Models\Service;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
@@ -26,6 +28,7 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Awcodes\FilamentTableRepeater\Components\TableRepeater;
 use App\Filament\Client\Resources\AppointmentResource\Pages;
 use App\Filament\Client\Resources\AppointmentResource\RelationManagers;
 
@@ -34,9 +37,12 @@ class AppointmentResource extends Resource
     protected static ?string $model = Appointment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
+    protected static ?string $pollingInterval = '10s';
 
 
-    
+
+
+
 
 
     public static function form(Form $form): Form
@@ -90,7 +96,7 @@ class AppointmentResource extends Resource
 
 
                     
-                Repeater::make('patients')
+                TableRepeater::make('patients')
                 ->relationship()
                 ->schema([
                     Select::make('animal_id')
@@ -104,9 +110,9 @@ class AppointmentResource extends Resource
                         ->getOptionLabelFromRecordUsing(fn (Model $record) => ucfirst(optional($record)->name) .' - '. ucfirst(optional($record)->breed))
                         ->searchable(['animal.name', 'animal.breed'])
                         ->preload()
-                        ->required(fn (string $operation): bool => $operation === 'create')
+                      
                         ->label('Pet Name')
-                        ->live()
+                      
                       
                         ,
 
@@ -129,8 +135,11 @@ class AppointmentResource extends Resource
                        
 
                 ])
+                ->withoutHeader()
+                ->hideLabels()
                 ->hint('Let\'s Keep Things One of a Kind, Avoid duplication')
-                ->label('Introduce Your Beloved Pets')
+                ->label('Pets ')
+                ->addActionLabel('Add Pets')
                 ->columns(2)
                 ->columnSpan(6)
                 
@@ -206,7 +215,16 @@ class AppointmentResource extends Resource
             ])
             ->actions([
                 // Tables\Actions\EditAction::make()->button()->outlined()hidden(fn (Appointment $record) => $record->status != 'Accepted'),,
-                Tables\Actions\EditAction::make()->button()->outlined(),
+                Tables\Actions\EditAction::make()->button()->outlined()
+                ->after(function ($record) {
+                    $patients = Patient::where('appointment_id', $record->id)->get();
+
+                    foreach ($patients as $patient) {
+                        $patient->clinic_id = $record->clinic_id; // Set the clinic_id from the appointment
+                        $patient->save();
+                    }
+                })
+                ,
                 Tables\Actions\DeleteAction::make()->button()->outlined(),
             //     ActionGroup::make([
             //   ]),
@@ -214,13 +232,17 @@ class AppointmentResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                    Tables\Actions\DeleteBulkAction::make()
+                ])->label('Delete Records'),
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->user()->id));
+            ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('user',function($query){
+                $query->where('user_id', auth()->user()->id);
+            }))
+            ->poll('1s')
+            ;
     }
 
     public static function getPages(): array

@@ -30,6 +30,8 @@ class AnimalResource extends Resource
     protected static ?string $model = Animal::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-sparkles';
+    protected static ?string $modelLabel = 'Pets';
+
 
 
     
@@ -41,7 +43,7 @@ class AnimalResource extends Resource
             ->schema([
 
                 Section::make()
-                    ->description('Animal Profile ')
+                    ->description('Pet Profile ')
                     ->icon('heroicon-m-sparkles')
 
 

@@ -90,6 +90,8 @@ class ExaminationResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()->color('primary'),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -99,8 +101,10 @@ class ExaminationResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query);
-            ;
+            ->modifyQueryUsing(fn (Builder $query) =>  $query->whereHas('appointment', function ($query) {
+                $query->where('clinic_id', auth()->user()->clinic?->id);
+            })->orWhereDoesntHave('appointment'));
+            
     }
     
     public static function getRelations(): array
