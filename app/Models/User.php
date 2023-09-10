@@ -64,7 +64,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasOne(Veterinarian::class);
     }
 
-    public function hasAnyRole($roles) {
+public function hasAnyRole($roles) {
          return  $this->role()->whereIn('name', $roles)->exists();
        
     }

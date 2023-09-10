@@ -66,12 +66,33 @@ class AppointmentPolicy
 
 
     public function update(User $user, Appointment $appointment): bool
-    {
-        if ($user->hasAnyRole(['Client']) && $appointment->hasStatus(['Accepted','Completed'])) {
-        return false; // Forbid the delete when the user is a client and the appointment status is in the ['Accepted','Completed'] array
-    }
+    {   
+        
 
-    return true;
+
+        if($user->hasAnyRole(['CLient'])){
+           
+            return match($appointment->status){
+                'Accepted'=> false,
+                'Completed'=> false,
+                default=> true,
+            };
+        }
+        if($user->hasAnyRole(['Veterenarian'])){
+            return $appointment->clinic_id == auth()->user()->clinic?->id;
+        }
+
+        return true;
+
+        // return false;
+
+        // if ($user->hasAnyRole(['Client']) && $appointment->hasStatus(['Accepted','Completed'])) {
+        // return false; // Forbid the delete when the user is a client and the appointment status is in the ['Accepted','Completed'] array
+        // }else{
+        //     return true;
+        // }
+
+        //  return true;
     }
 
     public function delete(User $user, Appointment $appointment): bool

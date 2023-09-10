@@ -2,13 +2,10 @@
 
 namespace App\Filament\Client\Resources;
 
-use Closure;
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Animal;
 use App\Models\Clinic;
 use App\Models\Patient;
-use App\Models\Service;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -17,11 +14,8 @@ use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TimePicker;
@@ -36,115 +30,106 @@ class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
-    protected static ?string $pollingInterval = '10s';
-
-
-
-
-
-
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make()
-                    ->description('Select Your Clinic and Schedule
-            ')->icon('heroicon-m-building-storefront')
-                    ->schema([
-                        Select::make('clinic_id')
-                            ->options(Clinic::query()->pluck('name', 'id'))
-                            ->native(false)
-                            ->label('What Clinic?')
-                            ->required()
-                            ->searchable()
-                            
-                            ,
-
-                        DatePicker::make('date')->required()->label('When?')
-                        ->timezone('Asia/Manila')
-                        ->minDate( now()->toDateString())
-                        ->closeOnDateSelection()
-                        ,
-                        TimePicker::make('time')
-                            ->timezone('Asia/Manila')
-                            ->helperText(new HtmlString('(e.g., 02:30:00 PM)'))
-                            ->required()
-                            ->label('What Time?')
-                            
-                            ,
-
-                        RichEditor::make('extra_pet_info')
-                            ->toolbarButtons([
-                                'blockquote',
-                                'bold',
-                                'bulletList',
-                                'codeBlock',
-                                'h2',
-                                'h3',
-                                'italic',
-                                'link',
-                                'orderedList',
-                                'redo',
-                                'strike',
-                                'undo',
-                            ])
-                            ->label('Extra Pet Info (Optional 😊)')
-                            ->helperText(new HtmlString('Add any extra details or notes about your appointment – it\'s your chance to shine! Whether it\'s your pet\'s condition, concerns, or special wishes, we\'re all ears. Let\'s make your visit paw-sitively purr-fect'))
-                         ])->columnSpan(6),
-
-
-                    
-                TableRepeater::make('patients')
-                ->relationship()
+                ->description('Select Your Clinic and Schedule
+        ')->icon('heroicon-m-building-storefront')
                 ->schema([
-                    Select::make('animal_id')
-                    ->label('Your Pet\'s Name')    
-                    ->relationship(
-                            name: 'animal',
-                            modifyQueryUsing: fn (Builder $query) => $query->whereHas('user', function ($query) {
-                                $query->where('user_id', auth()->user()->id);
-                            })
-                        )
-                        ->getOptionLabelFromRecordUsing(fn (Model $record) => ucfirst(optional($record)->name) .' - '. ucfirst(optional($record)->breed))
-                        ->searchable(['animal.name', 'animal.breed'])
-                        ->preload()
-                      
-                        ->label('Pet Name')
-                      
-                      
+                    Select::make('clinic_id')
+                        ->options(Clinic::query()->pluck('name', 'id'))
+                        ->native(false)
+                        ->label('What Clinic?')
+                        ->required()
+                        ->searchable()
+                        
                         ,
 
-                    Select::make('services')
-                    ->label('Pick Services for Your Pet\'s Best ')    
-                    ->relationship(
-                        name: 'services',
-                        titleAttribute: 'name',
-                        modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
-                            $query->whereHas('categories.animals', function ($query) use ($get) {
-                                $query->where('id', $get('animal_id'));
-                            });
-                        })
-                         )
-                         ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
-                        ->multiple()
-                        ->preload()
-                        ->native(false)
-                        ->searchable()
-                       
+                    DatePicker::make('date')->required()->label('When?')
+                    ->timezone('Asia/Manila')
+                    ->minDate( now()->toDateString())
+                    ->closeOnDateSelection()
+                    ,
+                    TimePicker::make('time')
+                        ->timezone('Asia/Manila')
+                        ->helperText(new HtmlString('(e.g., 02:30:00 PM)'))
+                        ->required()
+                        ->label('What Time?')
+                        
+                        ,
 
-                ])
-                ->withoutHeader()
-                ->hideLabels()
-                ->hint('Let\'s Keep Things One of a Kind, Avoid duplication')
-                ->label('Pets ')
-                ->addActionLabel('Add Pets')
-                ->columns(2)
-                ->columnSpan(6)
+                    RichEditor::make('extra_pet_info')
+                        ->toolbarButtons([
+                            'blockquote',
+                            'bold',
+                            'bulletList',
+                            'codeBlock',
+                            'h2',
+                            'h3',
+                            'italic',
+                            'link',
+                            'orderedList',
+                            'redo',
+                            'strike',
+                            'undo',
+                        ])
+                        ->label('Extra Pet Info (Optional 😊)')
+                        ->helperText(new HtmlString('Add any extra details or notes about your appointment – it\'s your chance to shine! Whether it\'s your pet\'s condition, concerns, or special wishes, we\'re all ears. Let\'s make your visit paw-sitively purr-fect'))
+                     ])->columnSpan(6),
+
+
                 
+            TableRepeater::make('patients')
+            ->relationship()
+            ->schema([
+                Select::make('animal_id')
+                ->label('Your Pet\'s Name')    
+                ->relationship(
+                        name: 'animal',
+                        modifyQueryUsing: fn (Builder $query) => $query->whereHas('user', function ($query) {
+                            $query->where('user_id', auth()->user()->id);
+                        })
+                    )
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => ucfirst(optional($record)->name) .' - '. ucfirst(optional($record)->breed))
+                    ->searchable(['animal.name', 'animal.breed'])
+                    ->preload()
+                  
+                    ->label('Pet Name')
+                  
+                  
+                    ,
 
+                Select::make('services')
+                ->label('Pick Services for Your Pet\'s Best ')    
+                ->relationship(
+                    name: 'services',
+                    titleAttribute: 'name',
+                    modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                        $query->whereHas('categories.animals', function ($query) use ($get) {
+                            $query->where('id', $get('animal_id'));
+                        });
+                    })
+                     )
+                     ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
+                    ->multiple()
+                    ->preload()
+                    ->native(false)
+                    ->searchable()
+                   
 
+            ])
+            ->withoutHeader()
+            ->hideLabels()
+            ->hint('Let\'s Keep Things One of a Kind, Avoid duplication')
+            ->label('Pets ')
+            ->addActionLabel('Add Pet')
+            ->columns(2)
+            ->columnSpan(6)
+            
 
 
 
@@ -207,15 +192,16 @@ class AppointmentResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options([
-                        'Approved' => 'Approved',
-                        'Pending' => 'Pending',
-                        'Completed' => 'Completed',
-                    ])->label('By Gender'),
+                ->options([
+                    'Approved' => 'Approved',
+                    'Pending' => 'Pending',
+                    'Completed' => 'Completed',
+                ])->label('By Gender'),
+                SelectFilter::make('clinic_id')
+                ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic'),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make()->button()->outlined()hidden(fn (Appointment $record) => $record->status != 'Accepted'),,
-                Tables\Actions\EditAction::make()->button()->outlined()
+                Tables\Actions\EditAction::make()
                 ->after(function ($record) {
                     $patients = Patient::where('appointment_id', $record->id)->get();
 
@@ -223,12 +209,8 @@ class AppointmentResource extends Resource
                         $patient->clinic_id = $record->clinic_id; // Set the clinic_id from the appointment
                         $patient->save();
                     }
-                })
-                ,
-                Tables\Actions\DeleteAction::make()->button()->outlined(),
-            //     ActionGroup::make([
-            //   ]),
-               
+                }),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -237,18 +219,22 @@ class AppointmentResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('user',function($query){
-                $query->where('user_id', auth()->user()->id);
-            }))
-            ->poll('1s')
-            ;
+            ]);
     }
-
+    
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+    
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageAppointments::route('/'),
+            'index' => Pages\ListAppointments::route('/'),
+            'create' => Pages\CreateAppointment::route('/create'),
+            'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
-    }
+    }    
 }

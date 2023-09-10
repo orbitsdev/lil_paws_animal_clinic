@@ -6,6 +6,7 @@ use Tabs\Tab;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Clinic;
+use App\Models\Patient;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -426,7 +427,7 @@ class AppointmentResource extends Resource
                         ])
                         ->action(function (Appointment $record, array $data): void {
 
-
+                           
                             $veterenarian_id =   match ($data['status']) {
                                 'Accepted' => auth()->user()->id,
                                 'Completed' => auth()->user()->id,
@@ -435,9 +436,25 @@ class AppointmentResource extends Resource
                                 default => null,
                             };
 
-                            $record->veterinarian_id = $veterenarian_id;
-                            $record->status = $data['status'];
-                            $record->save();
+                            $clinic_id =   match ($data['status']) {
+                                'Accepted' => auth()->user()->clinic?->id,
+                                'Completed' => auth()->user()->clinic?->id,
+                                'Pending' => null,
+                                'Rejected' => auth()->user()->clinic?->id,
+                                default => null,
+                            };
+
+                         $record->veterinarian_id = $veterenarian_id;
+                        $record->status = $data['status'];
+
+                         $patients = Patient::where('appointment_id', $record->id)->get();
+                     
+
+                            foreach ($patients as $patient) {
+                                $patient->clinic_id = $clinic_id; // Set the clinic_id from the appointment
+                                $patient->save();
+                            }
+                             $record->save();
 
 
                             // dd($data);
@@ -473,7 +490,9 @@ class AppointmentResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id))
+            ;
     }
 
 

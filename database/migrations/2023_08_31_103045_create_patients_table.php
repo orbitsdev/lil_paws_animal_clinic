@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('appointment_id')->nullable();
             $table->foreignId('clinic_id')->nullable();
             $table->foreignId('animal_id')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

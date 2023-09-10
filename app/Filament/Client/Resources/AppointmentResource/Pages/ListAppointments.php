@@ -4,28 +4,13 @@ namespace App\Filament\Client\Resources\AppointmentResource\Pages;
 
 use Filament\Actions;
 use App\Models\Patient;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
 use App\Filament\Client\Resources\AppointmentResource;
 
-class ManageAppointments extends ManageRecords
+class ListAppointments extends ListRecords
 {
     protected static string $resource = AppointmentResource::class;
 
-
-
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        // $data['user_id'] = auth()->id();
-      
-
-        return $data;
-    }
-
-    protected function handleRecordCreation(array $data): Model
-    {
-        return static::getModel()::create($data);
-    }
     protected function getHeaderActions(): array
     {
         return [
@@ -45,7 +30,7 @@ class ManageAppointments extends ManageRecords
                         $patient->clinic_id = $record->clinic_id; // Set the clinic_id from the appointment
                         $patient->save();
                     }
-                })
+                }),
         ];
     }
 }

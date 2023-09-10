@@ -42,7 +42,7 @@ class Patient extends Model
     }
 
     public function clinic(){
-        return $this->belongsToMany(Clinic::class);
+        return $this->belongsTo(Clinic::class);
     }
     
 }
