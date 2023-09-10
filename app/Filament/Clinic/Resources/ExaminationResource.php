@@ -227,31 +227,39 @@ class ExaminationResource extends Resource
                 // }),
              TextColumn::make('examinations.exam_type')
             ->listWithLineBreaks()
+            
             ->badge()
             ->color('success')
             ->label('Examination')
             ,
+          
              TextColumn::make('examinations.prescriptions.drug')
+             ->listWithLineBreaks()
              ->badge()
-             ->separator(',')
-             ->color('gray')
+             ->color('info')
              ->label('Prescriptions')
              ->formatStateUsing(fn($state)=> ucfirst($state))
+             ->wrap()
             ,
-
+            TextColumn::make('examinations.diagnosis')
+           
+            ->color('success')
+            ->label('Diagnosis')
+            ->wrap()
+            
+            ,
             TextColumn::make('created_at')
             ->formatStateUsing(function ( $record) {
+               
                 if ($record->appointment) {
-                    // If there's an appointment, format its date
-                    return Carbon::parse($record->appointment->date)->format('F d, Y') . ' - Appointment';
-                } else {
-                    // If there's no appointment, format the created_at timestamp and include the clinic name
-                    return $record->created_at->format('F d, Y') . ' - ' . optional($record->clinic)->name;
-                }
+                   
+                    return $record->updated_at->format('h:i A F d, Y ') . ' - Appointment';
+                    // return $record->updated_at->format('F d, Y h:i A') . ' - ' . optional($record->clinic)->name;
+                } 
+                return $record->updated_at->format('F d, Y h:i A') . ' - ' . optional($record->clinic)->name;
 
-                // return \Carbon\Carbon::parse($data)->format('F d, Y h:i:s');
             })
-            ->label('Recorded From'),
+            ->label('Recorded Date'),
         
         
 
