@@ -214,11 +214,47 @@ class ExaminationResource extends Resource
             ->columns([
                 TextColumn::make('animal.name')->label('Pet name')->formatStateUsing(function (Patient $record) {
                     return ucfirst($record->animal?->name);
-                }),
-                TextColumn::make('patients.animal.name')
-                    ->badge()
-                    ->separator(',')
-                    ->label('Prescriptions'),
+                })
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('animal', function($query) use($search){
+                        $query->where('name', 'like', "%{$search}%");
+
+                    });
+                }),                
+                // ->searchable(),
+                // TextColumn::make('animal')->label('Owner ')->formatStateUsing(function (Patient $record) {
+                //     return  ucfirst($record->animal->user->first_name.' '.$record->animal->user->last_name);
+                // }),
+             TextColumn::make('examinations.exam_type')
+            ->listWithLineBreaks()
+            ->badge()
+            ->color('success')
+            ->label('Examination')
+            ,
+             TextColumn::make('examinations.prescriptions.drug')
+             ->badge()
+             ->separator(',')
+             ->color('gray')
+             ->label('Prescriptions')
+             ->formatStateUsing(fn($state)=> ucfirst($state))
+            ,
+
+            TextColumn::make('created_at')
+            ->formatStateUsing(function ( $record) {
+                if ($record->appointment) {
+                    // If there's an appointment, format its date
+                    return Carbon::parse($record->appointment->date)->format('F d, Y') . ' - Appointment';
+                } else {
+                    // If there's no appointment, format the created_at timestamp and include the clinic name
+                    return $record->created_at->format('F d, Y') . ' - ' . optional($record->clinic)->name;
+                }
+
+                // return \Carbon\Carbon::parse($data)->format('F d, Y h:i:s');
+            })
+            ->label('Recorded From'),
+        
+        
+
                 // TextColumn::make('patient_count')->label('Pet name') ->formatStateUsing(function (Patient $record) {
                 //     return ucfirst($record->animal?->name);
                 // }),
@@ -306,12 +342,13 @@ class ExaminationResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id))
-            ->groups([
-                GroupBy::make('animal.name')
-                    ->label('Pet ')
-                    ->collapsible(),
-            ])
-            ->groupsInDropdownOnDesktop();
+            // ->groups([
+            //     GroupBy::make('animal.name')
+            //         ->label('Pet ')
+            //         ->collapsible(),
+            // ])
+            // ->groupsInDropdownOnDesktop()
+            ;
     }
 
     public static function infolist(Infolist $infolist): Infolist
