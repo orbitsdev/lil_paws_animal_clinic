@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Patient;
+use App\Models\Payment;
 use App\Models\Appointment;
 use App\Models\Veterinarian;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,10 @@ class Clinic extends Model
 
     public function users(){
         return $this->hasMany(User::class);
+    }
+
+    public function payments(){
+        return $this->hasMany(Payment::class);
     }
 
 

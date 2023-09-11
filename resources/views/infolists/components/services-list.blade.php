@@ -1,23 +1,35 @@
 <x-dynamic-component :component="$getEntryWrapperView()" :entry="$entry">
-    
-    <div class="text-sm border-t pt-2">
+    <div class="border-[1px] rounded-lg p-4  shadow-md">
+        
         <ul>
+            @php
+                $totalCost = 0; // Initialize the total cost variable
+            @endphp
+    
             @forelse ($getRecord()->services as $service)
-                <li class="mb-2">{{ $service->name }} - ₱ {{number_format($service?->cost) ?? '0' }} </li>
+                @php
+                    $cost = $service->cost;
+                    $totalCost += $cost; // Add the cost to the total
+                @endphp
+                <li class="mb-2 flex justify-between">
+                    <div class="">{{ $service->name }}</div>
+                    <div class="">₱ {{ number_format($cost) }}</div>
+                </li>
             @empty
-                <!-- Handle the empty case if needed -->
+                <li class="">No services added yet.</li>
             @endforelse
         </ul>
-        <div class="border-t pt-2 flex items-center justify-end">
-            <p class="font-bold">
-                Subtotal :
-                @if(!empty($getRecord()->services))
-
-                ₱ {{number_format($getRecord()->services->sum('cost'))}}
-                @endif
-            </p>
+    
+        <div class="border-t mt-4 py-2 flex justify-between">
+            <div class="font-bold ">Subtotal:</div>
+            <div class="font-bold ">₱ {{ number_format($totalCost) }}</div>
+        </div>
+        <div class="border-t py-2 flex justify-between">
+            <div class="font-bold ">Total:</div>
+            <div class="font-bold ">₱ {{ number_format($totalCost) }}</div>
         </div>
     </div>
+    
     
 {{--         
     <table class="w-full">

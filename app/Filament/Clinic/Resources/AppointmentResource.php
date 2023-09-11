@@ -419,8 +419,8 @@ class AppointmentResource extends Resource
                                 ->options([
                                     'Accepted' => 'Accepted',
                                     'Pending' => 'Pending',
-                                    'Completed' => 'Completed',
-                                    'Rejected' => 'Rejected',
+                                    // 'Completed' => 'Completed',
+                                    'Rejected' => 'Reject',
                                 ])
                                 ->required(),
 
@@ -468,19 +468,19 @@ class AppointmentResource extends Resource
                                 default => false,
                             };
                         }),
-                    Tables\Actions\EditAction::make('manage-prescription')->label('Manage Exam & Rx')
-                        ->icon('heroicon-s-pencil')
-                        ->color('success')
-                        ->tooltip('dsad')
-                        ->hidden(function ($record) {
-                            if ($record->hasStatus(['Accepted', 'Completed']) && (auth()->user()->id == $record->veterinarian?->id)) {
-                                return false;
-                            }
+                    // Tables\Actions\EditAction::make('manage-prescription')->label('Manage Exam & Rx')
+                    //     ->icon('heroicon-s-pencil')
+                    //     ->color('success')
+                    //     ->tooltip('dsad')
+                    //     ->hidden(function ($record) {
+                    //         if ($record->hasStatus(['Accepted', 'Completed']) && (auth()->user()->id == $record->veterinarian?->id)) {
+                    //             return false;
+                    //         }
 
-                            return true;
-                        }),
+                    //         return true;
+                    //     }),
                     Tables\Actions\ViewAction::make()->color('primary'),
-                    Tables\Actions\DeleteAction::make(),
+                    // Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Manage Appointment'),
             ])
             ->bulkActions([
@@ -616,7 +616,7 @@ class AppointmentResource extends Resource
                                             ]),
 
                                     ]),
-                                InfoSection::make('Pets & Services')
+                                InfoSection::make('Pets')
 
                                     ->schema([
 
@@ -672,14 +672,6 @@ class AppointmentResource extends Resource
                                                         '2xl' => 2,
                                                     ]),
 
-                                                ViewEntry::make('services')->columnSpan([
-                                                    'sm' => 1,
-                                                    'xl' => 2,
-                                                    '2xl' => 8,
-                                                ])
-                                                    ->label('Requested Services *')
-
-                                                    ->view('infolists.components.services-list'),
 
 
 
@@ -691,7 +683,7 @@ class AppointmentResource extends Resource
                                             ->columnSpan(6),
                                     ]),
                             ]),
-                        Tabs\Tab::make('Pets')
+                        Tabs\Tab::make('Pets & Services')
 
                             ->icon('heroicon-m-sparkles')
                             ->schema([
@@ -769,9 +761,7 @@ class AppointmentResource extends Resource
                                 //                                 TextColumn::make('price')
                                 // ->summarize(Sum::make()->label('Total'))
                             ]),
-                        Tabs\Tab::make('Prescription Details')
-                            ->icon('heroicon-m-newspaper')
-                            ->schema([]),
+                      
 
                     ])
                     ->columnSpan(8),

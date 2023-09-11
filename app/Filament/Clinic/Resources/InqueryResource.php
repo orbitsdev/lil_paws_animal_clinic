@@ -4,237 +4,38 @@ namespace App\Filament\Clinic\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Animal;
-use Livewire\Livewire;
+use App\Models\Clinic;
+use App\Models\Inquery;
 use App\Models\Patient;
-use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\Appointment;
-use App\Models\Examination;
-use Illuminate\Support\Carbon;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\TimePicker;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Infolists\Components\ImageEntry;
-use Filament\Tables\Grouping\Group as GroupBy;
-use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Clinic\Resources\InqueryResource\Pages;
 use Filament\Infolists\Components\Section as InfoSection;
-use Awcodes\FilamentTableRepeater\Components\TableRepeater;
-use App\Filament\Clinic\Resources\ExaminationResource\Pages;
-use App\Filament\Clinic\Resources\ExaminationResource\RelationManagers;
-use App\Filament\Clinic\Resources\ExaminationResource\Pages\EditExamination;
+use App\Filament\Clinic\Resources\InqueryResource\RelationManagers;
 
-class ExaminationResource extends Resource
+class InqueryResource extends Resource
 {
     protected static ?string $model = Patient::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-plus';
-    protected static ?string $modelLabel = 'Pet Record';
-
-    //     protected function getTableQuery(): Builder
-    // {
-    //     Patient::select('patients.*')
-    //     ->join('animals', 'patients.animal_id', '=', 'animals.id')
-    //     ->groupBy('animals.user_id')
-    //     ->get();
-    // }
+    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
+    protected static ?string $modelLabel = 'Inquery';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                // Section::make('Appointment Details')
-                //     ->schema([
-                //         Group::make()
-                //             ->relationship('clinic')
-                //             ->schema([
-                //                 TextInput::make('name')
-                //                     ->label('Clinic')
-                //                     ->required()
-                //                     ->disabled()
-                //                     ->columnSpan([
-                //                         'sm' => 2,
-                //                         'xl' => 3,
-                //                         '2xl' => 4,
-                //                     ])->label('Clinic'),
-
-
-                //             ]),
-                //         Group::make()
-                //             ->relationship('appointment')
-                //             ->schema([
-                //                 DatePicker::make('date')->required()->label('Schedule Date')
-                //                     ->timezone('Asia/Manila')
-                //                     ->closeOnDateSelection()
-                //                     ->displayFormat('d/m/Y')
-                //                     ->disabled(),
-
-                //                 TimePicker::make('time')
-                //                     ->timezone('Asia/Manila')
-                //                     ->required()
-                //                     ->label('Scheduled Time')
-                //                     ->disabled(),
-
-                //                 RichEditor::make('extra_pet_info')
-                //                     ->toolbarButtons([])
-                //                     ->label('Extra Pet Info')
-                //                     ->disabled(),
-
-
-                //             ]),
-
-                //         Select::make('services')
-                //             ->label('Selected Services')
-                //             ->relationship(
-                //                 name: 'services',
-                //                 titleAttribute: 'name',
-                //                 modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
-                //                     $query->whereHas('categories.animals', function ($query) use ($get) {
-                //                         $query->where('id', $get('animal_id'));
-                //                     });
-                //                 })
-                //             )
-                //             ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
-                //             ->multiple()
-                //             ->disabled()
-                //             ->preload()
-                //             ->native(false),
-
-
-
-
-
-
-                //     ])
-
-                //     ->collapsed(true)
-                //     ->hidden(fn (string $operation): bool => $operation === 'create'),
-
-
-                Section::make('Pet Health Records')
-                    ->description('Record and manage pet examinations and prescriptions')
-                    ->schema([
-                        Repeater::make('examinations')
-                            ->relationship()
-                            ->label('Examination')
-                            ->schema([
-                                Grid::make(10)->schema([
-                                    TextInput::make('exam_type')
-                                        ->label('Examination Type')
-                                        ->columnSpan(4),
-
-
-
-                                    TextInput::make('temperature')
-                                        ->columnSpan(2),
-
-                                    TextInput::make('crt')
-                                        ->columnSpan(2),
-
-
-                                    TextInput::make('price')
-                                        ->numeric()
-                                        ->prefix('$')
-                                        ->columnSpan(2)->hidden(),
-
-
-                                    DatePicker::make('examination_date')
-                                        ->columnSpan(2),
-
-                                    TextArea::make('exam_result')
-                                        ->columnSpanFull()
-                                        ->columnSpan(10)
-                                        ->rows(5),
-
-
-
-
-                                    TextArea::make('diagnosis')
-                                        ->columnSpan(10)
-                                        ->rows(5),
-                                ]),
-
-
-
-
-
-                                FileUpload::make('image_result')
-                                    ->disk('public')->image()->directory('examination-ressult')
-                                    ->columnSpanFull()
-                                    ->label('Image Result'),
-
-                                TableRepeater::make('prescriptions')
-                                    ->relationship()
-                                    ->schema([
-                                        TextInput::make('drug'),
-                                        TextInput::make('dosage'),
-                                        TextInput::make('description'),
-                                    ])
-                                    ->addActionLabel('Add To Prescriptions')
-                                    ->columnSpanFull()
-                                    ->withoutHeader()
-                            ])
-                            ->collapsible()
-                            ->maxItems(1),
-                    ]),
-
-                    Section::make('Payments Information')
-                    ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')
-                    ->schema([
-                        
-                        TableRepeater::make('payments')
-                        ->relationship()
-                        ->label('List')
-                        ->columnWidths([
-                            'receipt_image' => '300px',
-                        ])
-                        ->schema([
-                            TextInput::make('title'),
-                            TextInput::make('description'),
-                            TextInput::make('amount')->numeric()->prefix('₱'),
-                            FileUpload::make('receipt_image')
-                            ->disk('public')->image()->directory('receipt')
-                            ->columnSpanFull()
-                            ->label('Proof of payment'),
-                        ])
-                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                            $data['clinic_id'] = auth()->user()->clinic?->id;
-                     
-                            return $data;
-                        })
-                        ->addActionLabel('Add Payment Information')
-                        // ->hideLabels()
-                        ->collapsible()
-                        ->collapsed()
-                        ->columnSpanFull()
-                        ->withoutHeader(),
-                    ])
-                    ->collapsible(true)
-                    ->collapsed()
-
-
+                //
             ]);
     }
 
@@ -299,60 +100,28 @@ class ExaminationResource extends Resource
                     ->wrap()
                     ->label('Recorded'),
 
-
             ])
             ->filters([
-                
-Filter::make('created_at')
-->form([
-    DatePicker::make('created_from'),
-    DatePicker::make('created_until'),
-])
-->query(function (Builder $query, array $data): Builder {
-    return $query
-        ->when(
-            $data['created_from'],
-            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-        )
-        ->when(
-            $data['created_until'],
-            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-        );
-})
-                // TernaryFilter::make('appointment')
-                // ->nullable()
+
+                Tables\Filters\SelectFilter::make('clinic_id')
+                ->label('Clinic')
+                ->options(Clinic::where('id', '!=', auth()->user()->clinic?->id)->pluck('name', 'id')),
+
             ])
             ->actions([
-                ActionGroup::make([
-
-
-                    Tables\Actions\EditAction::make('manage-prescription')->label('Manage Exam & Rx')
-                        ->icon('heroicon-s-pencil')
-                        ->color('success')
-                        ->tooltip('dsad'),
-                    // Tables\Actions\Action::make('view record')->url(fn ($record): string => self::getUrl('record', ['record' => $record])),
-                    Tables\Actions\ViewAction::make()->color('primary'),
-                    Tables\Actions\DeleteAction::make(),
-                ])->tooltip('Manage Appointment'),
-
+                Tables\Actions\ViewAction::make()->color('primary')->button()->outlined(),
+                // Tables\Actions\EditAction::make(),
             ])
-
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id))
-            // ->groups([
-            //     GroupBy::make('animal.name')
-            //         ->label('Pet ')
-            //         ->collapsible(),
-            // ])
-            // ->groupsInDropdownOnDesktop()
-        ;
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', '!=', auth()->user()->clinic?->id))
+            ;
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -538,21 +307,21 @@ Filter::make('created_at')
 
                                     ]),
                             ]),
-                        Tabs\Tab::make('Services , Examination & Prescriptions')
+                        Tabs\Tab::make('Examination & Prescriptions')
 
                             ->icon('heroicon-m-sparkles')
                             ->schema([
-                                InfoSection::make('Services')
-                                    ->schema([
-                                        ViewEntry::make('services')->columnSpan([
-                                            'sm' => 1,
-                                            'xl' => 2,
-                                            '2xl' => 8,
-                                        ])
-                                            ->label('Requested Services *')
+                                // InfoSection::make('Services')
+                                //     ->schema([
+                                //         ViewEntry::make('services')->columnSpan([
+                                //             'sm' => 1,
+                                //             'xl' => 2,
+                                //             '2xl' => 8,
+                                //         ])
+                                //             ->label('Requested Services *')
 
-                                            ->view('infolists.components.services-list'),
-                                    ]),
+                                //             ->view('infolists.components.services-list'),
+                                //     ])->hidden(fn($record)=> $record->clinic_id != auth()->user()->clinic?->id ? true :false),
 
 
 
@@ -604,21 +373,20 @@ Filter::make('created_at')
 
             ]);
     }
-
+    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListExaminations::route('/'),
-            'create' => Pages\CreateExamination::route('/create'),
-            'edit' => Pages\EditExamination::route('/{record}/edit'),
-            'record' => Pages\Record::route('/{record}/record'),
+            'index' => Pages\ListInqueries::route('/'),
+            'create' => Pages\CreateInquery::route('/create'),
+            'edit' => Pages\EditInquery::route('/{record}/edit'),
         ];
-    }
+    }    
 }

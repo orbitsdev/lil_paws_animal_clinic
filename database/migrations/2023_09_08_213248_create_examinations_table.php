@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('image_result')->nullable();
             $table->text('diagnosis')->nullable();
             $table->integer('price')->nullable();
+            // $table->integer('ammount_paid')->nullable();
 
 
             $table->timestamps();
