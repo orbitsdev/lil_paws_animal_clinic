@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Clinic\Resources\NoResource\Widgets\AppointmentChart;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -19,6 +20,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\Clinic\Resources\NoResource\Widgets\StatsOverview;
 
 class ClinicPanelProvider extends PanelProvider
 {
@@ -38,8 +40,10 @@ class ClinicPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Clinic/Widgets'), for: 'App\\Filament\\Clinic\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
+                StatsOverview::class,
+                AppointmentChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,

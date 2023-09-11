@@ -56,7 +56,7 @@ class ExaminationResource extends Resource
     protected static ?string $model = Patient::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
-    protected static ?string $modelLabel = 'Pet Record';
+    protected static ?string $modelLabel = 'Pets Record';
 
     //     protected function getTableQuery(): Builder
     // {
