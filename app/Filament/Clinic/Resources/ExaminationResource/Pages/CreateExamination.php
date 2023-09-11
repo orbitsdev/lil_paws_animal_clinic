@@ -2,13 +2,23 @@
 
 namespace App\Filament\Clinic\Resources\ExaminationResource\Pages;
 
-use App\Filament\Clinic\Resources\ExaminationResource;
 use Filament\Actions;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Clinic\Resources\ExaminationResource;
 
 class CreateExamination extends CreateRecord
 {
     protected static string $resource = ExaminationResource::class;
+
+    protected function handleRecordCreation(array $data): Model
+{
+
+    $data['clinic_id'] = auth()->user()->clinic?->id;
+    $patient = static::getModel()::create($data);
+    return $patient;
+
+}
 
     protected function getRedirectUrl(): string
     {

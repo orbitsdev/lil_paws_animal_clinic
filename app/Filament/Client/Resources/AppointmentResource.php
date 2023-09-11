@@ -86,6 +86,7 @@ class AppointmentResource extends Resource
             TableRepeater::make('patients')
             ->relationship()
             ->schema([
+                
                 Select::make('animal_id')
                 ->label('Your Pet\'s Name')    
                 ->relationship(

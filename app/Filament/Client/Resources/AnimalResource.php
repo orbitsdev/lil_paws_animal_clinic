@@ -42,6 +42,8 @@ class AnimalResource extends Resource
         return $form
             ->schema([
 
+                
+
                 Section::make()
                     ->description('Pet Profile ')
                     ->icon('heroicon-m-sparkles')
@@ -63,6 +65,7 @@ class AnimalResource extends Resource
                         ])->required(),
                         DatePicker::make('date_of_birth'),
                         TextInput::make('weight')->required()->label('Weight'),
+
                         FileUpload::make('image')
                             ->disk('public')
                             ->directory('animal-profile')

@@ -14,7 +14,7 @@
             </div>
             <div class="bg-white shadow-lg dark:bg-gray-800 p-4">
                 <h5 class="text-lg font-semibold mb-2 dark:text-gray-300">Total Revenue</h5>
-                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{number_format($total_revenue)}}</p>
+                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">₱ {{number_format($total_revenue)}}</p>
                 <p class="text-sm mt-2 text-gray-500 dark:text-gray-400">This year</p>
                 <a href="#" class="text-blue-500 hover:underline mt-2 dark:text-blue-400">Download</a>
             </div>
@@ -31,7 +31,7 @@
             
             
             
-            
+{{--             
             <div class="bg-white shadow-lg dark:bg-gray-800 p-4">
                 <h5 class="text-lg font-semibold mb-2 dark:text-gray-300">Appointment Types</h5>
                 <ul class="list-inside list-none  pl-4">
@@ -49,7 +49,7 @@
                     <li class="text-sm text-gray-700 dark:text-gray-400">Dr. Williams: 45 referrals</li>
                     <!-- Add more list items as needed -->
                 </ul>
-            </div>
+            </div> --}}
         </div>
     </div>
     

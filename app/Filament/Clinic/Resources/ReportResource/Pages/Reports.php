@@ -23,11 +23,24 @@ class Reports extends Page
     public $total_revenue=0;
     public $average_animal_category;
     public $categoriesWithAnimalsCount =[];
+    public $topVeterenarian =[];
 
     public function mount(){
         $this->total_patients = Patient::where('clinic_id', auth()->user()->clinic?->id)->count();
         $this->total_appointments = Appointment::where('clinic_id', auth()->user()->clinic?->id)->where('status','Accepted')->count();
-        $this->total_revenue = Payment::where('clinic_id', auth()->user()->clinic?->id)->sum('amount');
+        $this->total_revenue = Payment::where(function($query) {
+            $query->whereHas('patient.appointment', function($subQuery) {
+                $subQuery->whereIn('status', ['Accepted', 'Completed'])
+                    ->where('clinic_id', auth()->user()->clinic?->id);
+            })
+            ->orWhereHas('patient', function($subQuery) {
+                $subQuery->where('clinic_id', auth()->user()->clinic?->id)
+                    ->whereDoesntHave('appointment');
+            });
+        })->orWhereHas('patient', function($query) {
+            $query->where('clinic_id', auth()->user()->clinic?->id);
+        })->sum('amount');
+                 
         $this->categoriesWithAnimalsCount = Category::whereHas('animals.patients', function($query){
             $query->where('clinic_id', auth()->user()->clinic?->id);
         })->select('name')
@@ -37,6 +50,8 @@ class Reports extends Page
                 ->whereColumn('category_id', 'categories.id');
         }, 'animal_count')
         ->get();
+
+        
 
 // Assuming you have defined relationships in your models
 // $this->average_animal_category = Animal::whereHas('patients', function ($query) {

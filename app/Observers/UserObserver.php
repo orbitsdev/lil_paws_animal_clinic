@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,8 +12,15 @@ class UserObserver
      * Handle the User "created" event.
      */
     public function created(User $user): void
-    {
-        //
+    {   
+
+
+        if(auth()->user()->hasAnyRole(['Veterenarian'])){
+            
+            $client_role = Role::whereName('Client')->first();
+            $user->role_id = $client_role->id;
+            $user->save();
+        }
     }
 
     /**

@@ -3,11 +3,15 @@
 namespace App\Filament\Clinic\Resources;
 
 use Filament\Forms;
+use App\Models\Role;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Animal;
+use App\Models\Clinic;
 use Livewire\Livewire;
 use App\Models\Patient;
 use Filament\Forms\Get;
+use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Appointment;
@@ -18,6 +22,7 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Group;
+use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -65,6 +70,181 @@ class ExaminationResource extends Resource
     {
         return $form
             ->schema([
+
+                Section::make('Patient Information')
+                ->description('Please provide the essential details for creating a new patient record. This information is crucial for managing your patients effectively.')
+            
+
+                    ->schema([
+                        
+                        // Select::make('animal.user_id')
+                        // ->options(User::whereHas('role', function($query){
+                        //     $query->where('name', 'Client');
+                        // })->pluck('first_name', 'id'))
+                        // ->label('Pet Owner')
+                        // ->searchable()
+                        // ->native(false)
+                        // ->required(),
+
+                        // Select::make('animal_id')
+                        // ->label("Pet's Name")
+                        // ->relationship('animal', 'id',
+                        // modifyQueryUsing: function (Builder $query, Get $get) {
+                        //     return $query->whereHas('user', function ($query) use ($get) {
+                        //         $query->where('id', $get('animal.user_id'));
+                        //     });
+                        // }
+                        // )                        
+                        // ->preload()
+                        // ->native(false)
+                        // ->searchable()
+                       
+                        // ->getOptionLabelFromRecordUsing(function (Model $record) {
+                        //     return ucfirst(optional($record)->name) . ' - ' . ucfirst(optional($record)->breed);
+                        // })
+
+                        Select::make('animal_id')
+                        ->relationship(
+                            name: 'animal',
+                            titleAttribute: 'name',
+                        )
+                        ->label('Pets Name')
+                        ->getOptionLabelFromRecordUsing(function (Model $record) {
+                            // Get the animal name and capitalize the first letter
+                            $animalName = ucfirst(optional($record)->name);
+                        
+                            // Get the category name from the related category and capitalize the first letter
+                            $categoryName = ucfirst(optional($record->category)->name);
+                        
+                            // Get the user's first name and capitalize the first letter
+                            $firstName = ucfirst(optional($record->user)->first_name);
+                        
+                            // Get the user's last name and capitalize the first letter
+                            $lastName = ucfirst(optional($record->user)->last_name);
+                        
+                            // Create the final label by concatenating the parts
+                            return "$animalName - $categoryName - $firstName $lastName";
+                        })
+                        
+                        ->preload()
+                        ->required()
+                        ->searchable()
+                        ->createOptionForm([
+                            Section::make()
+                            ->description('Pet Profile ')->schema([
+                                Select::make('user_id')
+                                ->relationship(
+                                    name: 'user',
+                                    titleAttribute: 'first_name',
+                                    modifyQueryUsing: fn (Builder $query) => $query->whereHas('role', function($query){
+                                        $query->where('name', 'Client');
+                                    }),
+                                )
+                               
+                                ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->first_name} {$record->last_name} ")
+                                ->preload()
+                                ->required()
+                                ->label('Pet Owner')
+                                ->searchable()
+                                ->native(false)
+                                ->createOptionForm([
+                                    FileUpload::make('profile')
+                                    ->disk('public')
+                                    ->directory('user-profile')
+                                    ->image()
+                                    ->imageEditor()
+                                    ->imageEditorAspectRatios([
+                                        '16:9',
+                                        '4:3',
+                                        '1:1',
+                                    ])
+                                    // ->imageEditorMode(2)
+                                    ->columnSpan(2)
+                                    ->required()
+                                    ,
+                                    Section::make()
+                                    ->description('This will be display as user account')
+                                    ->schema([
+                                        TextInput::make('first_name')->required(),
+                                        TextInput::make('last_name')->required(),
+                                        TextInput::make('phone_number')->required()->numeric(),
+                                        TextInput::make('address')->required(),
+                                        TextInput::make('email')->required()->unique(ignoreRecord: true),
+
+                                        // Select::make('role_id')
+                                        // ->required()
+                                        // ->label('Role')
+                                        // ->options(Role::all()->pluck('name', 'id'))
+                                        // ->searchable()
+                                        // ->live()
+                                        // ,
+                    
+                                        // Select::make('clinic_id')
+                                        // ->required()
+                                        // ->label('Clinic')
+                                        // ->options(Clinic::all()->pluck('name', 'id'))
+                                        // ->searchable()
+                                      
+                                        // ->hidden(function(Get $get){
+                                        //     $role = Role::find($get('role_id'));
+                                        //     if(!empty($role)){
+                                        //         return $role->name != 'Veterenarian';
+                                        //     }
+                                        // })
+                                        // ,
+                                        
+                                        
+                                        TextInput::make('password')
+                                        ->label(fn (string $operation) => $operation =='create' ? 'Password' : 'New Password')
+                                        ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                                        ->dehydrated(fn (?string $state): bool => filled($state))
+                                        ->required(fn (string $operation): bool => $operation === 'create')
+                                        
+                                        ,
+                                    ]),
+                                        
+                                    ])
+                            ]),
+
+                            Section::make()
+                            ->description('Pet Profile ')
+                            ->icon('heroicon-m-sparkles')
+        
+        
+                            ->schema([
+                                TextInput::make('name')->required()->label('Pet Name'),
+                                Select::make('category_id')
+                                ->options(Category::pluck('name', 'id'))
+                                ->required()
+                                ->label('Pet Category')
+                                ->native(false)
+                                ->searchable()
+                                ,
+                                TextInput::make('breed')->required()->label('Pet Breed'),
+                                Select::make('sex')->options([
+                                    'Male' => 'Male',
+                                    'Female' => 'Female',
+                                ])->required(),
+                                DatePicker::make('date_of_birth'),
+                                TextInput::make('weight')->required()->label('Weight'),
+        
+                                FileUpload::make('image')
+                                    ->disk('public')
+                                    ->directory('animal-profile')
+                                    ->image()
+                                    ->imageEditor()
+                                    ->imageEditorMode(2)
+                                    ->required()
+        
+                            ]),
+                        ])
+                      
+                        
+
+                    ])
+                    ->collapsible()
+                    ->collapsed()
+                    ,
                 // Section::make('Appointment Details')
                 //     ->schema([
                 //         Group::make()
@@ -195,10 +375,19 @@ class ExaminationResource extends Resource
                                     ->addActionLabel('Add To Prescriptions')
                                     ->columnSpanFull()
                                     ->withoutHeader()
+                                    ->defaultItems(0)
+                                    ->collapsible()
+                                    ->collapsed()
                             ])
+                            ->addActionLabel('Add Examination')
+                            ->defaultItems(0)
                             ->collapsible()
+                            ->collapsed()
                             ->maxItems(1),
-                    ]),
+                    ])
+                    ->collapsible()
+                    ->collapsed()
+                    ,
 
                     Section::make('Payments Information')
                     ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')

@@ -15,7 +15,7 @@ class AnimalObserver
     {   
 
         $user = Auth::user();
-        if ($user) {
+        if ($user->hasAnyRole(['Client'])) {
             $animal->user_id = $user->id;
             $animal->save();
         }
