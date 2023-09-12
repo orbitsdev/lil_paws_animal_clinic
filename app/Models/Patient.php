@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use App\Models\Animal;
 use App\Models\Clinic;
 use App\Models\Payment;
@@ -54,4 +55,14 @@ class Patient extends Model
     public function payments(){
         return $this->hasMany(Payment::class);
     }
+
+    // public function veterenarian(){
+    //     return $this->hasOne(User::class);
+    // }
+
+    public function veterinarian(){
+        return $this->belongsTo(User::class);
+    }
+
+
 }

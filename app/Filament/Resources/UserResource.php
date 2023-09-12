@@ -149,7 +149,9 @@ class UserResource extends Resource
             ->filters([
                 SelectFilter::make('role_id')
                 ->options(Role::all()->pluck('name', 'id'))
-                ->searchable(),
+                ->searchable()
+                ->label('Role')
+                ,
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->button()->outlined(),
@@ -162,7 +164,12 @@ class UserResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
+            ])
+            ->groups([
+                'role.name',
+                
             ]);
+            ;
     }
     
     public static function getRelations(): array

@@ -385,6 +385,7 @@ class ExaminationResource extends Resource
                             ->collapsed()
                             ->maxItems(1),
                     ])
+                  
                     ->collapsible()
                     ->collapsed()
                     ,
@@ -415,6 +416,7 @@ class ExaminationResource extends Resource
                         })
                         ->addActionLabel('Add Payment Information')
                         // ->hideLabels()
+                        ->defaultItems(0)
                         ->collapsible()
                         ->collapsed()
                         ->columnSpanFull()
@@ -529,7 +531,9 @@ Filter::make('created_at')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ])
+                ->label('Delete')
+                ,
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),

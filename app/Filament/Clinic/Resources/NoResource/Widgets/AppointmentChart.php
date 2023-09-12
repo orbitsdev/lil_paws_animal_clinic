@@ -45,24 +45,31 @@ class AppointmentChart extends ChartWidget
 
     protected function fetchChartData()
     {
-        $currentMonth = now()->format('Y-m');
+        $currentMonth = now()->timezone('Asia/Manila')->format('Y-m');
 
         // Query the Appointment model to get the count of appointments for each day of the current month
-        $data = Appointment::whereHas('clinic', function ($query) {
-            $query->where('id', auth()->user()->clinic->id);
-        })
-            ->whereYear('date', '=', now()->year)
-            ->whereMonth('date', '=', now()->month)
-            ->orderBy('date')
-            ->get()
-            ->groupBy(function ($date) {
-                return Carbon::parse($date->date)->format('F j');
-            })
-            ->map(function ($item) {
-                return $item->count(); // Count appointments for each day
-            })
-            ->values()
-            ->toArray();
+       
+        $dataQuery = Appointment::query()
+    ->whereYear('date', now()->year)
+    ->whereMonth('date', now()->month)
+    ->orderBy('date');
+
+if (auth()->user()->hasAnyRole(['Veterenarian'])) {
+    $dataQuery->whereHas('clinic', function ($query) {
+        $query->where('id', auth()->user()->clinic?->id);
+    });
+}
+
+$data = $dataQuery->get()
+    ->groupBy(function ($date) {
+        return Carbon::parse($date->date)->format('F j');
+    })
+    ->map(function ($item) {
+        return $item->count(); // Count appointments for each day
+    })
+    ->values()
+    ->toArray();
+
 
         return $data;
     }

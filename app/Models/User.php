@@ -7,14 +7,15 @@ use Filament\Panel;
 use App\Models\Role;
 use App\Models\Animal;
 use App\Models\Clinic;
+use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Veterinarian;
 use Laravel\Sanctum\HasApiTokens;
+use Filament\Models\Contracts\HasName;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Filament\Models\Contracts\HasName;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -102,9 +103,18 @@ public function hasAnyRole($roles) {
     public function appointment(){
         return $this->hasOne(Appointment::class,'user_id');
     }
+    public function veterenarianAppointment(){
+        return $this->hasOne(Appointment::class,'veterinarian_id');
+    }
     public function veteremaroanAppointment(){
         return $this->hasOne(Appointment::class);
     }
 
+    public function veterenarianPatients(){
+        return $this->hasMany(Patient::class,'veterinarian_id');
+    }
+    public function veterenarianPatient(){
+        return $this->hasOne(Patient::class,'veterinarian_id');
+    }
 
 }

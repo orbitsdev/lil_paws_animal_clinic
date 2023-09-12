@@ -11,6 +11,7 @@ use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use App\Filament\Clinic\Resources\ReportResource;
+use Illuminate\Support\Facades\Auth;
 
 class Reports extends Page
 {
@@ -21,11 +22,20 @@ class Reports extends Page
     public $total_patients=0;
     public $total_appointments=0;
     public $total_revenue=0;
+    public $upcoming_schedule;
     public $average_animal_category;
     public $categoriesWithAnimalsCount =[];
     public $topVeterenarian =[];
 
+
+    public function export(){
+        dd('dasd');
+    }
+
     public function mount(){
+        $clinic_id = auth()->user()->clinic?->id;
+        $this->upcoming_schedule = Appointment::where('clinic_id', $clinic_id)->whereDate('date', '> ', now())->where('status','Accepted')->get();
+       
         $this->total_patients = Patient::where('clinic_id', auth()->user()->clinic?->id)->count();
         $this->total_appointments = Appointment::where('clinic_id', auth()->user()->clinic?->id)->where('status','Accepted')->count();
         $this->total_revenue = Payment::where(function($query) {
@@ -51,18 +61,15 @@ class Reports extends Page
         }, 'animal_count')
         ->get();
 
-        
-
-// Assuming you have defined relationships in your models
-// $this->average_animal_category = Animal::whereHas('patients', function ($query) {
-//     $query->selectRaw('category_id, COUNT(*) as patient_count')
-//         ->groupBy('category_id');
-// })->with('patients.clinic')->get();
-
 
     }
+
+
     // public function getHeader(): ?View
     // {
     //     return view('filament.custom.report');
     // }
+
+
+    
 }
