@@ -31,11 +31,11 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('client')
             ->login()
-            ->registration(ClientRegister::Class)
+            ->registration(ClientRegister::class)
             // ->passwordReset()
             // ->emailVerification()
             ->colors([
-                'primary' => Color::Fuchsia,
+                'primary' => Color::Emerald,
             ])
             ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\\Filament\\Client\\Resources')
             ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\\Filament\\Client\\Pages')

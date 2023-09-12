@@ -31,7 +31,7 @@ class ClinicPanelProvider extends PanelProvider
             ->path('clinic')
             ->login()
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => Color::Cyan,
             ])
             ->discoverResources(in: app_path('Filament/Clinic/Resources'), for: 'App\\Filament\\Clinic\\Resources')
             ->discoverPages(in: app_path('Filament/Clinic/Pages'), for: 'App\\Filament\\Clinic\\Pages')

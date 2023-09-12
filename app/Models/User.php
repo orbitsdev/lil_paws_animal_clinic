@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Animal;
 use App\Models\Clinic;
 use App\Models\Patient;
+use App\Models\Admission;
 use App\Models\Appointment;
 use App\Models\Veterinarian;
 use Laravel\Sanctum\HasApiTokens;
@@ -115,6 +116,10 @@ public function hasAnyRole($roles) {
     }
     public function veterenarianPatient(){
         return $this->hasOne(Patient::class,'veterinarian_id');
+    }
+
+    public function admissionVeterenarian(){
+        return $this->hasMany(Admission::class,'veterinarian_id');
     }
 
 }

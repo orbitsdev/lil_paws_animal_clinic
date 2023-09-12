@@ -7,6 +7,7 @@ use App\Models\Animal;
 use App\Models\Clinic;
 use App\Models\Payment;
 use App\Models\Service;
+use App\Models\Admission;
 use App\Models\Appointment;
 use App\Models\Examination;
 use App\Models\PatientService;
@@ -62,6 +63,10 @@ class Patient extends Model
 
     public function veterinarian(){
         return $this->belongsTo(User::class);
+    }
+
+    public function admissions(){
+        return $this->hasMany(Admission::class);
     }
 
 

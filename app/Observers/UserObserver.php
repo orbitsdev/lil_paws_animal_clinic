@@ -14,13 +14,13 @@ class UserObserver
     public function created(User $user): void
     {   
 
-
-        if(auth()->user()->hasAnyRole(['Veterenarian'])){
+       
+        // if(auth()->user()->hasAnyRole(['Veterenarian'])){
             
-            $client_role = Role::whereName('Client')->first();
-            $user->role_id = $client_role->id;
-            $user->save();
-        }
+        //     $client_role = Role::whereName('Client')->first();
+        //     $user->role_id = $client_role->id;
+        //     $user->save();
+        // }
     }
 
     /**
