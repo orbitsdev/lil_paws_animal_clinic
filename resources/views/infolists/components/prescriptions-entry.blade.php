@@ -11,7 +11,7 @@
                 </div>
             @empty
                 <div class="col-span-3">
-                    <div class="bg-blue-100 text-blue-500 border border-blue-400 rounded p-4">
+                    <div class="bg-blue-100 text-blue-500 border border-blue-400 rounded p-2 w-full">
                         No items found.
                     </div>
                 </div>

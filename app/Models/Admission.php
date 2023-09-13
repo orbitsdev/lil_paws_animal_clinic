@@ -19,7 +19,7 @@ class Admission extends Model
     }
 
     public function veterenarian(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'veterinarian_id');
     }
 
 }

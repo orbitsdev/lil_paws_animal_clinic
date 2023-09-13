@@ -68,6 +68,9 @@ class Patient extends Model
     public function admissions(){
         return $this->hasMany(Admission::class);
     }
+    public function admission(){
+        return $this->hasOne(Admission::class);
+    }
 
 
 }
