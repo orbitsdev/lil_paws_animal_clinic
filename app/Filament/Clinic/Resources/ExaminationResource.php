@@ -1062,7 +1062,7 @@ class ExaminationResource extends Resource
                                                 '2xl' => 8,
                                             ])
                                             ->defaultImageUrl(url('/images/placeholder.png')),
-                                                    
+
                                                 ]) 
                                                 ->columnSpanFull()
                                                 ->label('Monitors')
@@ -1085,11 +1085,55 @@ class ExaminationResource extends Resource
 
 
                             ])
-                            
                             ,
 
+                            Tabs\Tab::make('Payment Details')
+
+                            ->icon('heroicon-m-banknotes')
+                            ->iconPosition(IconPosition::After)
+                            ->schema([
+                                RepeatableEntry::make('payments')
+                                ->columns([
+                                    'sm' => 3,
+                                    'xl' => 6,
+                                    '2xl' => 8,
+                                ])
+                                ->schema([
+                                    TextEntry::make('title')
+                                    ->label('Paytment Title')
+                                    ->color('gray')  
+                                    ->columnSpan(2),
+                                    TextEntry::make('description')
+                                    ->label('Paytment Description')
+                                    ->color('gray')  
+                                    ->columnSpan(2),
+                                    TextEntry::make('amount')
+                                    ->label('Paytment Ammount')
+                                    ->color('gray')  
+                                    ->money('PHP')
+                                    ->columnSpan(2),
+
+                                    ImageEntry::make('receipt_image')
+                                    ->disk('public')
+                                    ->height(60)
+                                    ->url(fn ($state) => $state ? Storage::disk('public')->url($state) : asset('/images/placeholder.png'))
+
+                                    ->openUrlInNewTab()
+                                    ->label('Proof Of Payment ')
+                                    ->columnSpan([
+                                        'sm' => 1,
+                                        'xl' => 2,
+                                        '2xl' => 2,
+                                    ])
+                                    ->defaultImageUrl(url('/images/placeholder.png')),
+
+                                ])
+                                ->columnSpanFull()
+                                ->label('Payments')
+                                ]),
+
                     ])
-                    ->activeTab(4)   
+                    ->activeTab(5)   
                     ->columnSpan(8),
 
             ]);
