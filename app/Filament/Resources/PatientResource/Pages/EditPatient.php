@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\AppointmentResource\Pages;
+namespace App\Filament\Resources\PatientResource\Pages;
 
-use App\Filament\Resources\AppointmentResource;
+use App\Filament\Resources\PatientResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditAppointment extends EditRecord
+class EditPatient extends EditRecord
 {
-    protected static string $resource = AppointmentResource::class;
+    protected static string $resource = PatientResource::class;
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

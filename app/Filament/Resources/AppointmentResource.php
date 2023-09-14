@@ -17,11 +17,15 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
@@ -30,6 +34,7 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AppointmentResource\Pages;
 use Filament\Infolists\Components\Section as InfoSection;
+use Awcodes\FilamentTableRepeater\Components\TableRepeater;
 use App\Filament\Resources\AppointmentResource\RelationManagers;
 
 class AppointmentResource extends Resource
@@ -39,12 +44,144 @@ class AppointmentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
     protected static ?string $modelLabel = 'Appointment Request';
 
-    protected static ?string $navigationGroup = 'Office';
+    protected static ?string $navigationGroup = 'Management';
     protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([]);
+            ->schema([
+
+                Section::make()
+                ->description('Select Your Clinic and Schedule
+        ')->icon('heroicon-m-building-storefront')
+                ->schema([
+                    Select::make('clinic_id')
+                        ->options(Clinic::query()->pluck('name', 'id'))
+                        ->native(false)
+                        ->label('What Clinic?')
+                        ->required()
+                        ->searchable()
+                        ,
+                        Select::make('veterinarian_id')
+                        ->label('Select Veterenarian ')
+                        ->relationship(
+                            name: 'veterinarian',
+                            modifyQueryUsing: fn (Builder $query, Get $get) =>  $query->whereHas('clinic', function ($query) use ($get) {
+                                $query->where('id', $get('clinic_id'));
+                            })
+                        )
+
+                        ->afterStateUpdated(function (?string $state, ?string $old, Get $get, Set $set) {
+                            if (!empty($state)) {
+                            }
+                        })
+                        ->required()
+                        ->getOptionLabelFromRecordUsing(fn (Model $record) => $record?->first_name . ' ' . $record->last_name . ' - ' . $record->clinic->name)
+                        ->live()
+                        ->helperText(new HtmlString('Select veterinarian base on clinic that you selected else it will not be reflected'))
+
+
+                        ->native(false)
+                        ->preload()
+                        ->searchable(),
+                     
+
+                    DatePicker::make('date')->required()->label('When?')
+                    ->timezone('Asia/Manila')
+                    ->minDate( now()->toDateString())
+                    ->closeOnDateSelection()
+                    ,
+                    TimePicker::make('time')
+                        ->timezone('Asia/Manila')
+                        ->helperText(new HtmlString('(e.g., 02:30:00 PM)'))
+                        ->required()
+                        ->label('What Time?')
+                        
+                        ,
+
+                    RichEditor::make('extra_pet_info')
+                        ->toolbarButtons([
+                            'blockquote',
+                            'bold',
+                            'bulletList',
+                            'codeBlock',
+                            'h2',
+                            'h3',
+                            'italic',
+                            'link',
+                            'orderedList',
+                            'redo',
+                            'strike',
+                            'undo',
+                        ])
+                        ->label('Extra Pet Info (Optional 😊)')
+                        ->helperText(new HtmlString('Add any extra details or notes about your appointment – it\'s your chance to shine! Whether it\'s your pet\'s condition, concerns, or special wishes, we\'re all ears. Let\'s make your visit paw-sitively purr-fect')),
+
+                        Select::make('status')
+                        ->label('Appointment Status') 
+                        ->options([
+                            'Accepted' => 'Accepted',
+                            'Completed' => 'Completed',
+                            'Pending' => 'Pending',
+                            'Rejected' => 'Rejected',
+                        ])
+                        ->required()
+                        ,
+                       
+
+                     ])->columnSpan(6),
+
+                     
+                            
+
+                
+            TableRepeater::make('patients')
+            ->relationship()
+            ->schema([
+              
+                Select::make('animal_id')
+                ->label('Your Pet\'s Name')    
+                ->relationship(
+                        name: 'animal',
+                        modifyQueryUsing: fn (Builder $query) => $query->whereHas('user')
+                    )
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => ucfirst(optional($record)->name) .' - '. ucfirst(optional($record)->breed). ' - ( '. $record?->user?->first_name. ''. $record?->user?->last_name.')')
+                    ->searchable(['animal.name', 'animal.breed'])
+                    ->preload()
+                    ->helperText(new HtmlString('Pet Name - Breed - (Owner) Make sure the ownder is the same'))
+                    ->label('Pet Name')
+                                      ,
+
+                Select::make('services')
+                ->label('Pick Services for Your Pet\'s Best ')    
+                ->relationship(
+                    name: 'services',
+                    titleAttribute: 'name',
+                    modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                        $query->whereHas('categories.animals', function ($query) use ($get) {
+                            $query->where('id', $get('animal_id'));
+                        });
+                    })
+                     )
+                     ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
+                     ->helperText(new HtmlString('Select Services for Your Pet'))
+                    ->multiple()
+                    ->preload()
+                    ->native(false)
+                    ->searchable()
+                   
+
+            ])
+            ->withoutHeader()
+            ->hideLabels()
+            ->hint('Let\'s Keep Things One of a Kind, Avoid duplication')
+            ->label('Pets ')
+            ->addActionLabel('Add Pet')
+            ->columns(2)
+            ->columnSpan(6)
+            
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -59,11 +196,17 @@ class AppointmentResource extends Resource
                                 ->orWhere('last_name', 'like', "%{$search}%");
                         });
                     }),
-                // TextColumn::make('patient.animal.user.first_name')
-                // ->formatStateUsing(fn (Appointment $state): string => $state ? ucfirst($state->animal->user->first_name . ' ' . $state->animal->user->last_name) : '')
-                // ->sortable()
-                // ->label('Pet Owner')
-                //
+                TextColumn::make('patient.animal.name')
+                ->formatStateUsing(fn ($state): string => ucfirst($state))
+                ->sortable()
+                ->label('Pet Owner')
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('patient.animal', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%");
+                    });
+                })
+                ,
+                
                 TextColumn::make('clinic.name')
                     ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state)
                     ->sortable()
@@ -117,8 +260,7 @@ class AppointmentResource extends Resource
             ->actions([
                 ActionGroup::make([
 
-                    // Tables\Actions\EditAction::make(),
-
+                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details')->modalWidth('5xl'),
                     Tables\Actions\Action::make('update')
                         ->icon('heroicon-s-pencil-square')
                         ->label('Manage Request')
@@ -151,7 +293,7 @@ class AppointmentResource extends Resource
                                 ->preload()
                                 ->required()
                                 ->searchable(),
-                            Select::make('veterenarian_id')
+                            Select::make('veterinarian_id')
                                 ->label('Select Veterenarian ')
                                 ->relationship(
                                     name: 'veterinarian',
@@ -228,7 +370,10 @@ class AppointmentResource extends Resource
 
                            
                         }),
-                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details')->modalWidth('5xl'),
+                    
+                 
+                    Tables\Actions\EditAction::make()->color('info')->label('Edit Appointment'),
+                    Tables\Actions\DeleteAction::make(),
 
                 ]),
             ])
@@ -330,8 +475,8 @@ class AppointmentResource extends Resource
                                         '2xl' => 8,
                                     ])
                                     ->schema([
-                                        TextEntry::make('user')->columnSpan(6)->label('Owner')
-                                            ->formatStateUsing(fn (Appointment $record): string => ucfirst($record->user->first_name) . ' ' . ucfirst($record->user->last_name))
+                                        TextEntry::make('patient.animal.user')->columnSpan(6)->label('Owner')
+                                        ->formatStateUsing(fn ($record)=> $record->patient?->animal?->user?->first_name. ' '.$record->patient?->animal?->user?->last_name)
                                             ->label('Name')
                                             ->color('gray')
                                             ->columnSpan([
@@ -341,23 +486,23 @@ class AppointmentResource extends Resource
                                             ]),
 
 
-                                        TextEntry::make('user')->columnSpan(6)->label('Phone Number')
-                                            ->formatStateUsing(fn (Appointment $record): string => !empty($record->user->phone_number) ? $record->user->phone_number : 'N/S')
+                                        TextEntry::make('patient.animal.user')->columnSpan(6)->label('Phone Number')
+                                            ->formatStateUsing(fn ($record): string => !empty($record->patient?->animal?->user?->phone_number) ? $record->patient?->animal?->user?->phone_number : 'N/S')
                                             ->color('gray')
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
                                                 '2xl' => 4,
                                             ]),
-                                        TextEntry::make('user')->columnSpan(6)->label('Address')
-                                            ->formatStateUsing(fn (Appointment $record): string => !empty($record->user->address) ? $record->user->address : 'N/S')
+                                        TextEntry::make('patient.animal.user')->columnSpan(6)->label('Address')
+                                            ->formatStateUsing(fn ($record): string => !empty($record->patient?->animal?->user?->address) ? $record->patient?->animal?->user?->address : 'N/S')
                                             ->color('gray')
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
                                                 '2xl' => 4,
                                             ]),
-                                        TextEntry::make('user.email')->columnSpan(6)->label('Email')
+                                        TextEntry::make('patient.animal.user.email')->columnSpan(6)->label('Email')
                                             ->color('gray')
                                             ->columnSpan([
                                                 'sm' => 2,

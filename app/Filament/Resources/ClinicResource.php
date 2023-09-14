@@ -27,8 +27,9 @@ class ClinicResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
-    protected static ?string $navigationGroup = 'Office';
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'Management';
+
+    protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form
     {

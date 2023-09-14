@@ -15,6 +15,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -119,8 +120,11 @@ class AnimalResource extends Resource
                     ])
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button()->outlined(),
-                Tables\Actions\DeleteAction::make()->button()->outlined(),
+                ActionGroup::make([
+                    
+                    Tables\Actions\EditAction::make()->button()->outlined(),
+                    Tables\Actions\DeleteAction::make()->button()->outlined(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

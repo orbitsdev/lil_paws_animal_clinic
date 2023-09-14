@@ -1,28 +1,19 @@
 <?php
 
-namespace App\Filament\Clinic\Resources;
+namespace App\Filament\Resources;
 
 use Filament\Forms;
-use App\Models\Role;
-use App\Models\User;
 use Filament\Tables;
-use App\Models\Animal;
 use App\Models\Clinic;
-use Livewire\Livewire;
 use App\Models\Patient;
-use Filament\Forms\Get;
 use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\Appointment;
-use App\Models\Examination;
-use Illuminate\Support\Carbon;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Group;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
@@ -37,453 +28,430 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TimePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Infolists\Components\ImageEntry;
-use Filament\Tables\Grouping\Group as GroupBy;
+use App\Filament\Resources\PatientResource\Pages;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Grid as InfoGrid;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists\Components\Section as InfoSection;
 use Awcodes\FilamentTableRepeater\Components\TableRepeater;
-use App\Filament\Clinic\Resources\ExaminationResource\Pages;
-use App\Filament\Clinic\Resources\ExaminationResource\RelationManagers;
-use Thiktak\FilamentSimpleListEntry\Infolists\Components\SimpleListEntry;
-use App\Filament\Clinic\Resources\ExaminationResource\Pages\EditExamination;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Filament\Resources\PatientResource\RelationManagers;
 
 
-
-class ExaminationResource extends Resource
+class PatientResource extends Resource
 {
     protected static ?string $model = Patient::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
     protected static ?string $modelLabel = 'Medical Record';
+    protected static ?string $navigationGroup = 'Management';
 
-    //     protected function getTableQuery(): Builder
-    // {
-    //     Patient::select('patients.*')
-    //     ->join('animals', 'patients.animal_id', '=', 'animals.id')
-    //     ->groupBy('animals.user_id')
-    //     ->get();
-    // }
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-
                 Section::make('Patient Information')
-                    ->description('Please provide the essential details for creating a new patient record. This information is crucial for managing your patients effectively.')
+                ->description('Please provide the essential details for creating a new patient record. This information is crucial for managing your patients effectively.')
 
 
-                    ->schema([
+                ->schema([
 
 
-                        Select::make('animal_id')
+                    Select::make('animal_id')
+                        ->relationship(
+                            name: 'animal',
+                            titleAttribute: 'name',
+                        )
+                        ->label('Pets Name')
+                        ->getOptionLabelFromRecordUsing(function (Model $record) {
+                            // Get the animal name and capitalize the first letter
+                            $animalName = ucfirst(optional($record)->name);
+
+                            // Get the category name from the related category and capitalize the first letter
+                            $categoryName = ucfirst(optional($record->category)->name);
+
+                            // Get the user's first name and capitalize the first letter
+                            $firstName = ucfirst(optional($record->user)->first_name);
+
+                            // Get the user's last name and capitalize the first letter
+                            $lastName = ucfirst(optional($record->user)->last_name);
+
+                            // Create the final label by concatenating the parts
+                            return "$animalName - $categoryName - $firstName $lastName";
+                        })
+
+                        ->preload()
+                        ->required()
+                        ->searchable()
+                        ->helperText(new HtmlString('<small>Pet Name - Breed - Pet Owner</small'))
+                        ->createOptionForm([
+                            Section::make()
+                                ->description('Pet Profile ')->schema([
+                                    Select::make('user_id')
+                                        ->relationship(
+                                            name: 'user',
+                                            titleAttribute: 'first_name',
+                                            modifyQueryUsing: fn (Builder $query) => $query->whereHas('role', function ($query) {
+                                                $query->where('name', 'Client');
+                                            }),
+                                        )
+
+                                        ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->first_name} {$record->last_name} ")
+                                        ->preload()
+                                        ->required()
+                                        ->label('Pet Owner')
+                                        ->searchable()
+                                        ->native(false)
+                                        ->createOptionForm([
+                                            FileUpload::make('profile')
+                                                ->disk('public')
+                                                ->directory('user-profile')
+                                                ->image()
+                                                ->imageEditor()
+                                                ->imageEditorAspectRatios([
+                                                    '16:9',
+                                                    '4:3',
+                                                    '1:1',
+                                                ])
+                                                // ->imageEditorMode(2)
+                                                ->columnSpan(2)
+                                                ->required(),
+                                            Section::make()
+                                                ->description('This will be display as user account')
+                                                ->schema([
+                                                    TextInput::make('first_name')->required(),
+                                                    TextInput::make('last_name')->required(),
+                                                    TextInput::make('phone_number')->required()->numeric(),
+                                                    TextInput::make('address')->required(),
+                                                    TextInput::make('email')->required()->unique(ignoreRecord: true),
+
+    
+                                                    TextInput::make('password')
+                                                        ->label(fn (string $operation) => $operation == 'create' ? 'Password' : 'New Password')
+                                                        ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                                                        ->dehydrated(fn (?string $state): bool => filled($state))
+                                                        ->required(fn (string $operation): bool => $operation === 'create'),
+                                                ]),
+
+                                        ])
+                                ]),
+
+                             
+
+                            Section::make()
+                                ->description('Pet Profile ')
+                                ->icon('heroicon-m-sparkles')
+
+
+                                ->schema([
+                                    TextInput::make('name')->required()->label('Pet Name'),
+                                    Select::make('category_id')
+                                        ->options(Category::pluck('name', 'id'))
+                                        ->required()
+                                        ->label('Pet Category')
+                                        ->native(false)
+                                        ->searchable(),
+                                    TextInput::make('breed')->required()->label('Pet Breed'),
+                                    Select::make('sex')->options([
+                                        'Male' => 'Male',
+                                        'Female' => 'Female',
+                                    ])->required(),
+                                    DatePicker::make('date_of_birth'),
+                                    TextInput::make('weight')->required()->label('Weight'),
+
+                                    FileUpload::make('image')
+                                        ->disk('public')
+                                        ->directory('animal-profile')
+                                        ->image()
+                                        ->imageEditor()
+                                        ->imageEditorMode(2)
+                                        ->required()
+
+                                ]),
+                            ]),
+
+                            Select::make('clinic_id')
                             ->relationship(
-                                name: 'animal',
+                                name: 'clinic',
                                 titleAttribute: 'name',
                             )
-                            ->label('Pets Name')
-                            ->getOptionLabelFromRecordUsing(function (Model $record) {
-                                // Get the animal name and capitalize the first letter
-                                $animalName = ucfirst(optional($record)->name);
-
-                                // Get the category name from the related category and capitalize the first letter
-                                $categoryName = ucfirst(optional($record->category)->name);
-
-                                // Get the user's first name and capitalize the first letter
-                                $firstName = ucfirst(optional($record->user)->first_name);
-
-                                // Get the user's last name and capitalize the first letter
-                                $lastName = ucfirst(optional($record->user)->last_name);
-
-                                // Create the final label by concatenating the parts
-                                return "$animalName - $categoryName - $firstName $lastName";
-                            })
-
+                            ->label('Clinic Name')
                             ->preload()
                             ->required()
                             ->searchable()
-                            ->helperText(new HtmlString('<small>Pet Name - Breed - Pet Owner</small'))
-                            ->createOptionForm([
-                                Section::make()
-                                    ->description('Pet Profile ')->schema([
-                                        Select::make('user_id')
-                                            ->relationship(
-                                                name: 'user',
-                                                titleAttribute: 'first_name',
-                                                modifyQueryUsing: fn (Builder $query) => $query->whereHas('role', function ($query) {
-                                                    $query->where('name', 'Client');
-                                                }),
-                                            )
-
-                                            ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->first_name} {$record->last_name} ")
-                                            ->preload()
-                                            ->required()
-                                            ->label('Pet Owner')
-                                            ->searchable()
-                                            ->native(false)
-                                            ->createOptionForm([
-                                                FileUpload::make('profile')
-                                                    ->disk('public')
-                                                    ->directory('user-profile')
-                                                    ->image()
-                                                    ->imageEditor()
-                                                    ->imageEditorAspectRatios([
-                                                        '16:9',
-                                                        '4:3',
-                                                        '1:1',
-                                                    ])
-                                                    // ->imageEditorMode(2)
-                                                    ->columnSpan(2)
-                                                    ->required(),
-                                                Section::make()
-                                                    ->description('This will be display as user account')
-                                                    ->schema([
-                                                        TextInput::make('first_name')->required(),
-                                                        TextInput::make('last_name')->required(),
-                                                        TextInput::make('phone_number')->required()->numeric(),
-                                                        TextInput::make('address')->required(),
-                                                        TextInput::make('email')->required()->unique(ignoreRecord: true),
-
-                                                        // Select::make('role_id')
-                                                        // ->required()
-                                                        // ->label('Role')
-                                                        // ->options(Role::all()->pluck('name', 'id'))
-                                                        // ->searchable()
-                                                        // ->live()
-                                                        // ,
-
-                                                        // Select::make('clinic_id')
-                                                        // ->required()
-                                                        // ->label('Clinic')
-                                                        // ->options(Clinic::all()->pluck('name', 'id'))
-                                                        // ->searchable()
-
-                                                        // ->hidden(function(Get $get){
-                                                        //     $role = Role::find($get('role_id'));
-                                                        //     if(!empty($role)){
-                                                        //         return $role->name != 'Veterenarian';
-                                                        //     }
-                                                        // })
-                                                        // ,
-
-
-                                                        TextInput::make('password')
-                                                            ->label(fn (string $operation) => $operation == 'create' ? 'Password' : 'New Password')
-                                                            ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                                                            ->dehydrated(fn (?string $state): bool => filled($state))
-                                                            ->required(fn (string $operation): bool => $operation === 'create'),
-                                                    ]),
-
-                                            ])
-                                    ]),
-
-                                Section::make()
-                                    ->description('Pet Profile ')
-                                    ->icon('heroicon-m-sparkles')
-
-
-                                    ->schema([
-                                        TextInput::make('name')->required()->label('Pet Name'),
-                                        Select::make('category_id')
-                                            ->options(Category::pluck('name', 'id'))
-                                            ->required()
-                                            ->label('Pet Category')
-                                            ->native(false)
-                                            ->searchable(),
-                                        TextInput::make('breed')->required()->label('Pet Breed'),
-                                        Select::make('sex')->options([
-                                            'Male' => 'Male',
-                                            'Female' => 'Female',
-                                        ])->required(),
-                                        DatePicker::make('date_of_birth'),
-                                        TextInput::make('weight')->required()->label('Weight'),
-
-                                        FileUpload::make('image')
-                                            ->disk('public')
-                                            ->directory('animal-profile')
-                                            ->image()
-                                            ->imageEditor()
-                                            ->imageEditorMode(2)
-                                            ->required()
-
-                                    ]),
-                            ])
+                            ,
 
 
 
-                    ])
-                    ->collapsible()
-                // ->collapsed()
-                ,
-                Section::make('Patient Health Records')
-                    ->description('Record and manage pet examinations and prescriptions')
-                    ->schema([
-                        Repeater::make('examinations')
-                            ->relationship()
-                            ->label('Examination')
-                            ->schema([
-                                Grid::make(10)->schema([
-                                    TextInput::make('exam_type')
-                                        ->label('Examination Type')
-                                        ->columnSpan(4),
+                ])
+                ->collapsible()
+            // ->collapsed()
+            ,
+            Section::make('Patient Health Records')
+                ->description('Record and manage pet examinations and prescriptions')
+                ->schema([
+                    Repeater::make('examinations')
+                        ->relationship()
+                        ->label('Examination')
+                        ->schema([
+                            Grid::make(10)->schema([
+                                TextInput::make('exam_type')
+                                    ->label('Examination Type')
+                                    ->columnSpan(4),
 
 
 
-                                    TextInput::make('temperature')
-                                        ->label('Examination Temperature')
-                                        ->columnSpan(2),
+                                TextInput::make('temperature')
+                                    ->label('Examination Temperature')
+                                    ->columnSpan(2),
 
-                                    TextInput::make('crt')
-                                        ->label('Examination CRT')
-                                        ->columnSpan(2),
-
-
-                                    TextInput::make('price')
-                                        ->label('Examination Price')
-                                        ->numeric()
-                                        ->prefix('$')
-                                        ->columnSpan(2)->hidden(),
+                                TextInput::make('crt')
+                                    ->label('Examination CRT')
+                                    ->columnSpan(2),
 
 
-                                    DatePicker::make('examination_date')
-                                        ->columnSpan(2),
-
-                                    TextArea::make('exam_result')
-                                        ->label('Examination Result')
-                                        ->columnSpanFull()
-                                        ->columnSpan(10)
-                                        ->rows(2),
+                                TextInput::make('price')
+                                    ->label('Examination Price')
+                                    ->numeric()
+                                    ->prefix('$')
+                                    ->columnSpan(2)->hidden(),
 
 
+                                DatePicker::make('examination_date')
+                                    ->columnSpan(2),
 
-
-                                    TextArea::make('diagnosis')
-                                        ->label('Examination Diagnosis')
-                                        ->columnSpan(10)
-                                        ->rows(2),
-                                ]),
-
-
-
-
-
-                                FileUpload::make('image_result')
-                                    ->disk('public')->image()->directory('examination-ressult')
+                                TextArea::make('exam_result')
+                                    ->label('Examination Result')
                                     ->columnSpanFull()
-                                    ->label('Examination Image Result'),
+                                    ->columnSpan(10)
+                                    ->rows(2),
 
-                                TableRepeater::make('prescriptions')
-                                    ->relationship()
-                                    ->schema([
+
+
+
+                                TextArea::make('diagnosis')
+                                    ->label('Examination Diagnosis')
+                                    ->columnSpan(10)
+                                    ->rows(2),
+                            ]),
+
+
+
+
+
+                            FileUpload::make('image_result')
+                                ->disk('public')->image()->directory('examination-ressult')
+                                ->columnSpanFull()
+                                ->label('Examination Image Result'),
+
+                            TableRepeater::make('prescriptions')
+                                ->relationship()
+                                ->schema([
+                                    TextInput::make('drug')
+                                        ->label('Prescription Drug'),
+                                    TextInput::make('dosage')
+                                        ->label('Prescription Dosage'),
+                                    TextInput::make('description')
+                                        ->label('Prescription Description'),
+                                ])
+                                ->addActionLabel('Add Prescription')
+                                ->columnSpanFull()
+                                ->withoutHeader()
+                                ->defaultItems(0)
+                                ->collapsible()
+                                ->collapsed(),
+
+
+                            TableRepeater::make('treatments')
+                                ->relationship()
+                                ->label('Examination Treatments')
+                                ->schema([
+                                    TextInput::make('treatment'),
+                                    TextInput::make('treatment_price')->numeric(),
+                                    DatePicker::make('treatment_date')
+
+                                ])
+                                ->columnSpanFull()
+                                ->withoutHeader()
+                                ->collapsible()
+                                ->collapsed()
+                                ->addActionLabel('Add Treatment')
+                                ->defaultItems(0),
+                        ])
+                        ->addActionLabel('Add Examination')
+                        ->defaultItems(0)
+                        ->collapsible()
+
+                        ->maxItems(1),
+                ])
+
+                ->collapsible()
+                ->collapsed(),
+
+            Section::make('Admissions , Treatments Plan & Monitoring')
+                ->description('Record and manage pet examinations and prescriptions')
+                ->schema([
+                    Repeater::make('admissions')
+                        ->relationship()
+                        ->label('Admission')
+                        ->schema([
+                            Grid::make(8)->schema([
+
+                                Select::make('veterinarian_id')
+                                    ->relationship(
+                                        name: 'veterenarian',
+                                        titleAttribute: 'first_name',
+                                        modifyQueryUsing: fn (Builder $query) => $query->whereHas('role', function ($query) {
+                                            $query->where('name', 'Veterenarian');
+                                        })->whereHas('clinic', function ($query) {
+                                            $query->where('id', auth()->user()->clinic?->id);
+                                        })
+                                    )
+                                    ->label('Admission Veterenarian')
+                                    ->columnSpan(2),
+
+                                DatePicker::make('admission_date')
+                                    ->columnSpan(2),
+
+                                TimePicker::make('admission_time')
+                                    ->timezone('Asia/Manila')
+                                    ->columnSpan(2),
+
+                                Select::make('status')
+                                    ->options([
+                                        'Admitted' => 'Admitted',
+                                        'Discharged' => 'Discharged',
+
+                                    ])->label('Admission Status')
+                                    ->columnSpan(2),
+                            ]),
+
+                            Repeater::make('treatmentplans')
+                                ->relationship()
+                                ->schema([
+
+                                    Grid::make(8)->schema([
                                         TextInput::make('drug')
-                                            ->label('Prescription Drug'),
+                                            ->columnSpan(2)
+                                            ->label('Treatment Plan Drug'),
                                         TextInput::make('dosage')
-                                            ->label('Prescription Dosage'),
-                                        TextInput::make('description')
-                                            ->label('Prescription Description'),
-                                    ])
-                                    ->addActionLabel('Add Prescription')
-                                    ->columnSpanFull()
-                                    ->withoutHeader()
-                                    ->defaultItems(0)
-                                    ->collapsible()
-                                    ->collapsed(),
+                                            ->label('Treatment Plan dosage')
+                                            ->columnSpan(2),
+                                        DatePicker::make('date')
+                                            ->columnSpan(2)
+                                            ->label('Treatment Plan Date'),
+                                        TimePicker::make('time')
+                                            ->label('Treatment Plan Time')
+                                            ->columnSpan(2)
+                                            ->timezone('Asia/Manila'),
+                                        TextArea::make('remarks')
+                                            ->label('Treatment Plan Remarks')
+                                            ->columnSpanFull(),
+                                    ])->columnSpanFull(),
 
 
-                                TableRepeater::make('treatments')
-                                    ->relationship()
-                                    ->label('Examination Treatments')
-                                    ->schema([
-                                        TextInput::make('treatment'),
-                                        TextInput::make('treatment_price')->numeric(),
-                                        DatePicker::make('treatment_date')
+                                    Repeater::make('monitors')
+                                        ->relationship()
+                                        ->label('Monitoring Record')
+                                        ->schema([
+                                            Grid::make(8)->schema([
+                                                DatePicker::make('date')
+                                                    ->label('Monitoring Date')
+                                                    ->columnSpan(2),
+                                                TimePicker::make('time')
+                                                    ->label('Monitoring Time')
+                                                    ->columnSpan(2),
+                                                TextInput::make('activity')
+                                                    ->label('Monitoring Activity')
+                                                    ->columnSpan(2),
+                                                TextInput::make('details')
+                                                    ->label('Monitoring Details')
+                                                    ->columnSpan(2),
+                                                TextArea::make('observation')
+                                                    ->label('Monitoring Observation')
+                                                    ->columnSpan(4)
+                                                    ->rows(2),
 
-                                    ])
-                                    ->columnSpanFull()
-                                    ->withoutHeader()
-                                    ->collapsible()
-                                    ->collapsed()
-                                    ->addActionLabel('Add Treatment')
-                                    ->defaultItems(0),
-                            ])
-                            ->addActionLabel('Add Examination')
-                            ->defaultItems(0)
-                            ->collapsible()
+                                                TextArea::make('remarks')
+                                                    ->columnSpanFull()
+                                                    ->columnSpan(4)
+                                                    ->label('Monitoring Remarks')
+                                                    ->rows(2),
 
-                            ->maxItems(1),
-                    ])
+                                                FileUpload::make('monitor_image')
+                                                    ->disk('public')->image()->directory('monitoring-image')
+                                                    ->columnSpanFull()
+                                                    ->label('Monitoring Image'),
 
-                    ->collapsible()
-                    ->collapsed(),
-
-                Section::make('Admissions , Treatments Plan & Monitoring')
-                    ->description('Record and manage pet examinations and prescriptions')
-                    ->schema([
-                        Repeater::make('admissions')
-                            ->relationship()
-                            ->label('Admission')
-                            ->schema([
-                                Grid::make(8)->schema([
-
-                                    Select::make('veterinarian_id')
-                                        ->relationship(
-                                            name: 'veterenarian',
-                                            titleAttribute: 'first_name',
-                                            modifyQueryUsing: fn (Builder $query) => $query->whereHas('role', function ($query) {
-                                                $query->where('name', 'Veterenarian');
-                                            })->whereHas('clinic', function ($query) {
-                                                $query->where('id', auth()->user()->clinic?->id);
-                                            })
-                                        )
-                                        ->label('Admission Veterenarian')
-                                        ->columnSpan(2),
-
-                                    DatePicker::make('admission_date')
-                                        ->columnSpan(2),
-
-                                    TimePicker::make('admission_time')
-                                        ->timezone('Asia/Manila')
-                                        ->columnSpan(2),
-
-                                    Select::make('status')
-                                        ->options([
-                                            'Admitted' => 'Admitted',
-                                            'Discharged' => 'Discharged',
-
-                                        ])->label('Admission Status')
-                                        ->columnSpan(2),
-                                ]),
-
-                                Repeater::make('treatmentplans')
-                                    ->relationship()
-                                    ->schema([
-
-                                        Grid::make(8)->schema([
-                                            TextInput::make('drug')
-                                                ->columnSpan(2)
-                                                ->label('Treatment Plan Drug'),
-                                            TextInput::make('dosage')
-                                                ->label('Treatment Plan dosage')
-                                                ->columnSpan(2),
-                                            DatePicker::make('date')
-                                                ->columnSpan(2)
-                                                ->label('Treatment Plan Date'),
-                                            TimePicker::make('time')
-                                                ->label('Treatment Plan Time')
-                                                ->columnSpan(2)
-                                                ->timezone('Asia/Manila'),
-                                            TextArea::make('remarks')
-                                                ->label('Treatment Plan Remarks')
-                                                ->columnSpanFull(),
-                                        ])->columnSpanFull(),
+                                            ]),
+                                        ])
+                                        // ->withoutHeader()
+                                        ->defaultItems(0)
+                                        ->addActionLabel('Add Monitoring')
+                                        ->collapsible()
+                                        ->columnSpanFull()
 
 
-                                        Repeater::make('monitors')
-                                            ->relationship()
-                                            ->label('Monitoring Record')
-                                            ->schema([
-                                                Grid::make(8)->schema([
-                                                    DatePicker::make('date')
-                                                        ->label('Monitoring Date')
-                                                        ->columnSpan(2),
-                                                    TimePicker::make('time')
-                                                        ->label('Monitoring Time')
-                                                        ->columnSpan(2),
-                                                    TextInput::make('activity')
-                                                        ->label('Monitoring Activity')
-                                                        ->columnSpan(2),
-                                                    TextInput::make('details')
-                                                        ->label('Monitoring Details')
-                                                        ->columnSpan(2),
-                                                    TextArea::make('observation')
-                                                        ->label('Monitoring Observation')
-                                                        ->columnSpan(4)
-                                                        ->rows(2),
-
-                                                    TextArea::make('remarks')
-                                                        ->columnSpanFull()
-                                                        ->columnSpan(4)
-                                                        ->label('Monitoring Remarks')
-                                                        ->rows(2),
-
-                                                    FileUpload::make('monitor_image')
-                                                        ->disk('public')->image()->directory('monitoring-image')
-                                                        ->columnSpanFull()
-                                                        ->label('Monitoring Image'),
-
-                                                ]),
-                                            ])
-                                            // ->withoutHeader()
-                                            ->defaultItems(0)
-                                            ->addActionLabel('Add Monitoring')
-                                            ->collapsible()
-                                            ->columnSpanFull()
-
-
-                                    ])
-                                    ->label('Admission Treatment Plans')
-                                    ->addActionLabel('Add Treatment Plan')
-                                    ->columnSpanFull()
-                                    // ->withoutHeader()
-                                    ->defaultItems(0)
-                                    ->collapsible()
+                                ])
+                                ->label('Admission Treatment Plans')
+                                ->addActionLabel('Add Treatment Plan')
+                                ->columnSpanFull()
+                                // ->withoutHeader()
+                                ->defaultItems(0)
+                                ->collapsible()
 
 
 
-                            ])
-                            ->defaultItems(0)
-                            ->collapsible()
-                            ->addActionLabel('Add Admission')
-                            ->maxItems(1),
-                    ])
-                    ->collapsible()
-                    ->collapsed(),
+                        ])
+                        ->defaultItems(0)
+                        ->collapsible()
+                        ->addActionLabel('Add Admission')
+                        ->maxItems(1),
+                ])
+                ->collapsible()
+                ->collapsed(),
 
 
-                Section::make('Payments Information')
-                    ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')
-                    ->schema([
+            Section::make('Payments Information')
+                ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')
+                ->schema([
 
-                        TableRepeater::make('payments')
-                            ->relationship()
-                            ->label('List')
-                            ->columnWidths([
-                                'receipt_image' => '300px',
-                            ])
-                            ->schema([
-                                TextInput::make('title'),
-                                TextInput::make('description'),
-                                TextInput::make('amount')->numeric()->prefix('₱'),
-                                FileUpload::make('receipt_image')
-                                    ->disk('public')->image()->directory('receipt')
-                                    ->columnSpanFull()
-                                    ->label('Proof of payment'),
-                            ])
-                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                                $data['clinic_id'] = auth()->user()->clinic?->id;
+                    TableRepeater::make('payments')
+                        ->relationship()
+                        ->label('List')
+                        ->columnWidths([
+                            'receipt_image' => '300px',
+                        ])
+                        ->schema([
+                            TextInput::make('title'),
+                            TextInput::make('description'),
+                            TextInput::make('amount')->numeric()->prefix('₱'),
+                            FileUpload::make('receipt_image')
+                                ->disk('public')->image()->directory('receipt')
+                                ->columnSpanFull()
+                                ->label('Proof of payment'),
+                        ])
+                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                            $data['clinic_id'] = auth()->user()->clinic?->id;
 
-                                return $data;
-                            })
-                            ->addActionLabel('Add Payment Information')
-                            // ->hideLabels()
-                            ->defaultItems(0)
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpanFull()
-                            ->withoutHeader(),
-                    ])
-                    ->collapsible(true)
-                    ->collapsed()
-
+                            return $data;
+                        })
+                        ->addActionLabel('Add Payment Information')
+                        // ->hideLabels()
+                        ->defaultItems(0)
+                        ->collapsible()
+                        ->collapsed()
+                        ->columnSpanFull()
+                        ->withoutHeader(),
+                ])
+                ->collapsible(true)
+                ->collapsed()
 
             ]);
     }
@@ -492,6 +460,7 @@ class ExaminationResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('clinic.name')->label('Clinic')->badge('primary'),
                 TextColumn::make('animal.name')->label('Pet name')->formatStateUsing(function (Patient $record) {
                     return ucfirst($record->animal?->name);
                 })
@@ -527,40 +496,31 @@ class ExaminationResource extends Resource
                     })
                     ->wrap()
                     ->label('Recorded'),
-
-
             ])
             ->filters([
-
+                SelectFilter::make('clinic_id')
+                ->multiple()
+                ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic'),
                 Filter::make('created_at')
-                    ->form([
-                        DatePicker::make('created_from'),
-                        DatePicker::make('created_until'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    })
-             
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        );
+                })
             ])
             ->actions([
                 ActionGroup::make([
-
-
-                   
-                    // Tables\Actions\Action::make('view record')->url(fn ($record): string => self::getUrl('record', ['record' => $record])),
                     Tables\Actions\ViewAction::make()->color('primary')->modalWidth('7xl')->label('View Details'),
-                    Tables\Actions\EditAction::make('manage-prescription')->label('Manage Record')
-                        ->icon('heroicon-s-pencil')
-                        ->color('success')
-                        ->tooltip('dsad'),
                     Tables\Actions\Action::make('Download')->label('Download Record')->icon('heroicon-s-arrow-down-tray')->color('primary')
                     ->url(function(Patient $record){
                         return route('download-medical-record', $record->id);
@@ -574,28 +534,22 @@ class ExaminationResource extends Resource
                             return false;
                         }
                     }),
-                    Tables\Actions\DeleteAction::make(),
-                ])->tooltip('Manage Appointment'),
+                    Tables\Actions\EditAction::make()->color('info'),
+                    Tables\Actions\DeleteAction::make()
+                ]),
 
             ])
-
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ])
-                    ->label('Delete'),
+                ]),
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id))
-            // ->groups([
-            //     GroupBy::make('animal.name')
-            //         ->label('Pet ')
-            //         ->collapsible(),
-            // ])
-            // ->groupsInDropdownOnDesktop()
-        ;
+            ->groups([
+                'clinic.name',
+            ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -1135,21 +1089,20 @@ class ExaminationResource extends Resource
 
             ]);
     }
-
+    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListExaminations::route('/'),
-            'create' => Pages\CreateExamination::route('/create'),
-            'edit' => Pages\EditExamination::route('/{record}/edit'),
-            'record' => Pages\Record::route('/{record}/record'),
+            'index' => Pages\ListPatients::route('/'),
+            'create' => Pages\CreatePatient::route('/create'),
+            'edit' => Pages\EditPatient::route('/{record}/edit'),
         ];
-    }
+    }    
 }

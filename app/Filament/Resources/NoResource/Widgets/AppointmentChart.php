@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clinic\Resources\NoResource\Widgets;
+namespace App\Filament\Resources\NoResource\Widgets;
 
 use App\Models\Appointment;
 use Illuminate\Support\Carbon;
@@ -9,9 +9,9 @@ use Filament\Widgets\ChartWidget;
 class AppointmentChart extends ChartWidget
 {
     protected static ?string $heading = 'Appointment Chart Per Month';
-
     protected static bool $isLazy = true;
     protected int | string | array $columnSpan = 'full';
+
     protected function getData(): array
     {
 
@@ -54,12 +54,7 @@ class AppointmentChart extends ChartWidget
             ->whereMonth('date', now()->month)
             ->orderBy('date');
 
-        if (auth()->user()->hasAnyRole(['Veterenarian'])) {
-            $dataQuery->whereHas('clinic', function ($query) {
-                $query->where('id', auth()->user()->clinic?->id);
-            });
-        }
-
+  
         $data = $dataQuery->get()
             ->groupBy(function ($date) {
                 return Carbon::parse($date->date)->format('F j');

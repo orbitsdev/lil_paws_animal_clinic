@@ -32,9 +32,10 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     // protected static ?string $activeNavigationIcon = 'heroicon-s-users';
 
-    protected static ?string $navigationGroup = 'System';
+    protected static ?string $navigationGroup = 'System Access';
 
     protected static ?string $navigationLabel = 'Accounts';
+    protected static ?int $navigationSort = 1;
 
     public $role;
 

@@ -49,14 +49,7 @@ class StatsOverview extends BaseWidget
 
             )
             ->color('success'),
-            // Stat::make(
-            //     'Total Appointments Completed',  
-            //     Appointment::whereHas('clinic', function($query) {
-            //         $query->where('id', auth()->user()->clinic?->id)->where('status', 'Completed');
-            //     })->count()
-
-            // )
-            // ->color('success'),
+          
             Stat::make(
                 'Total Appointments Rejected',  
                 Appointment::whereHas('clinic', function($query) {
@@ -67,7 +60,7 @@ class StatsOverview extends BaseWidget
             ->color('success'),
             Stat::make(
                 'Total Revenue ',  
-               format_number( Payment::where(function($query) {
+                number_format( Payment::where(function($query) {
                 $query->whereHas('patient.appointment', function($subQuery) {
                     $subQuery->whereIn('status', ['Accepted', 'Completed'])
                         ->where('clinic_id', auth()->user()->clinic?->id);
