@@ -1,231 +1,78 @@
 <?php
 
-namespace App\Filament\Clinic\Resources;
+namespace App\Filament\Resources;
 
-use Tabs\Tab;
+use Closure;
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Clinic;
 use App\Models\Patient;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Appointment;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\ViewEntry;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Infolists\Components\ImageEntry;
-use Filament\Forms\Components\Tabs as FormTabs;
 use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Tabs\Tab as FormChildTab;
+use App\Filament\Resources\AppointmentResource\Pages;
 use Filament\Infolists\Components\Section as InfoSection;
-use Awcodes\FilamentTableRepeater\Components\TableRepeater;
-use App\Filament\Clinic\Resources\AppointmentResource\Pages;
-use App\Filament\Clinic\Resources\AppointmentResource\RelationManagers;
+use App\Filament\Resources\AppointmentResource\RelationManagers;
 
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
+    protected static ?string $modelLabel = 'Appointment Request';
 
-    protected static ?string $modelLabel = 'Appointments Request';
-
+    protected static ?string $navigationGroup = 'Office';
+    protected static ?int $navigationSort = 2;
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-
-                Section::make('Appointment Details')
-                    ->schema([
-
-                        Group::make()
-                            ->relationship('clinic')
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('Clinic')
-                                    ->required()
-                                    ->disabled()
-                                    ->columnSpan([
-                                        'sm' => 2,
-                                        'xl' => 3,
-                                        '2xl' => 4,
-                                    ])->label('Clinic'),
-                            ]),
-                        DatePicker::make('date')->required()->label('Schedule Date')
-                            ->timezone('Asia/Manila')
-                            ->closeOnDateSelection()
-                            ->displayFormat('d/m/Y')
-                            ->disabled(),
-
-                        TimePicker::make('time')
-                            ->timezone('Asia/Manila')
-                            ->required()
-                            ->label('Scheduled Time')
-                            ->disabled(),
-
-                        RichEditor::make('extra_pet_info')
-                            ->toolbarButtons([])
-                            ->label('Extra Pet Info')
-                            ->disabled(),
-                        Group::make()
-                            ->relationship('patient')
-                            ->schema([
-
-                                Select::make('services')
-                                    ->label('Selected Services')
-                                    ->relationship(
-                                        name: 'services',
-                                        titleAttribute: 'name',
-                                        modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
-                                            $query->whereHas('categories.animals', function ($query) use ($get) {
-                                                $query->where('id', $get('animal_id'));
-                                            });
-                                        })
-                                    )
-                                    ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
-                                    ->multiple()
-                                    ->disabled()
-                                    ->preload()
-                                    ->native(false),
-                            ]),
-                    ]),
-
-                Section::make('Pet Health Records')
-                    ->description('Record and manage pet examinations and prescriptions')
-                    ->schema([
-                        Repeater::make('patients')
-                            ->relationship()
-                            ->schema([
-                                Group::make()
-                                    ->relationship('animal')
-                                    ->schema([
-                                        TextInput::make('name')
-                                            ->label('Name')
-                                            ->required()
-                                            ->disabled(),
-                                    ]),
-
-
-
-
-                                Repeater::make('examinations')
-                                    ->relationship()
-                                    ->label('Examination')
-                                    ->schema([
-                                        Grid::make(10)->schema([
-                                            TextInput::make('exam_type')
-                                                ->label('Examination Type')
-                                                ->columnSpan(2),
-
-
-
-                                            TextInput::make('temperature')
-                                                ->columnSpan(2),
-
-                                            TextInput::make('crt')
-                                                ->columnSpan(2),
-
-
-                                            TextInput::make('price')
-                                                ->numeric()
-                                                ->prefix('$')
-                                                ->columnSpan(2),
-
-
-                                            DatePicker::make('examination_date')
-                                                ->columnSpan(2),
-
-                                            TextArea::make('exam_result')
-                                                ->columnSpanFull()
-                                                ->columnSpan(5)
-                                                ->rows(5),
-
-
-
-
-                                            TextArea::make('diagnosis')
-                                                ->columnSpan(5)
-                                                ->rows(5),
-                                        ]),
-
-
-
-
-
-                                        FileUpload::make('image_result')
-                                            ->disk('public')->image()->directory('examination-ressult')
-                                            ->columnSpanFull(),
-
-                                        TableRepeater::make('prescriptions')
-                                            ->relationship()
-                                            ->schema([
-                                                TextInput::make('drug'),
-                                                TextInput::make('dosage'),
-                                                TextInput::make('description'),
-                                            ])
-
-                                            ->columnSpanFull()
-                                            ->withoutHeader()
-
-
-                                    ])
-                                    ->collapsible()
-
-                                    ->maxItems(1),
-
-
-
-
-                            ])
-
-                            ->columnSpanFull()
-                            ->addable(false)
-                            ->deletable(false)
-                            ->label('Pets'),
-                    ]),
-
-
-
-            ]);
+            ->schema([]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-
-                TextColumn::make('user')
+                TextColumn::make('patient.animal.user')
                     ->formatStateUsing(fn ($state): string => $state ? ucfirst($state->first_name . ' ' . $state->last_name) : '')
-                    ->sortable()
-                    ->label('Pet Owner')
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('patient.animal.user', function ($query) use ($search) {
+                            $query->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                    }),
+                // TextColumn::make('patient.animal.user.first_name')
+                // ->formatStateUsing(fn (Appointment $state): string => $state ? ucfirst($state->animal->user->first_name . ' ' . $state->animal->user->last_name) : '')
+                // ->sortable()
+                // ->label('Pet Owner')
+                //
                 TextColumn::make('clinic.name')
                     ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state)
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('clinic', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
+                    }),
+
                 TextColumn::make('date')->date()->color('warning'),
                 TextColumn::make('time')->date('h:i:s A'),
                 TextColumn::make('patients.animal.name')
@@ -233,8 +80,9 @@ class AppointmentResource extends Resource
                     ->separator(',')
                     ->label('Patients')
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query
-                            ->where('name', 'like', "%{$search}%");
+                        return $query->whereHas('patients.animal', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
                     }),
 
 
@@ -252,16 +100,24 @@ class AppointmentResource extends Resource
                         'Completed' => 'heroicon-s-check-circle',
                         'Rejected' => 'heroicon-o-x-mark',
                     })
-
                     ->searchable(),
             ])
             ->filters([
                 SelectFilter::make('clinic_id')
-                    ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic')
-                    ->default(fn () => auth()->user()->clinic?->id)
+                    ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic'),
+                SelectFilter::make('status')
+                    ->options([
+                        'Accepted' => 'Accepted',
+                        'Completed' => 'Completed',
+                        'Pending' => 'Pending',
+                        'Rejected' => 'Rejected',
+                    ])->label('By Status')
+
             ])
             ->actions([
                 ActionGroup::make([
+
+                    // Tables\Actions\EditAction::make(),
 
                     Tables\Actions\Action::make('update')
                         ->icon('heroicon-s-pencil-square')
@@ -283,77 +139,108 @@ class AppointmentResource extends Resource
                                     'Rejected' => 'Reject',
                                 ])
                                 ->required(),
+                            Select::make('clinic_id')
+                                ->relationship(
+                                    name: 'clinic',
+                                    titleAttribute: 'name'
+                                )
+                                ->afterStateUpdated(function (?string $state, ?string $old, Get $get, Set $set) {
+                                })
+
+                                ->native(false)
+                                ->preload()
+                                ->required()
+                                ->searchable(),
+                            Select::make('veterenarian_id')
+                                ->label('Select Veterenarian ')
+                                ->relationship(
+                                    name: 'veterinarian',
+                                    modifyQueryUsing: fn (Builder $query, Get $get) =>  $query->whereHas('clinic', function ($query) use ($get) {
+                                        $query->where('id', $get('clinic_id'));
+                                    })
+                                )
+
+                                ->afterStateUpdated(function (?string $state, ?string $old, Get $get, Set $set) {
+                                    if (!empty($state)) {
+                                    }
+                                })
+                                ->required()
+                                ->getOptionLabelFromRecordUsing(fn (Model $record) => $record?->first_name . ' ' . $record->last_name . ' - ' . $record->clinic->name)
+                                ->live()
+                                ->helperText(new HtmlString('Select veterinarian base on clinic that you selected else it will not be reflected'))
+
+
+                                ->native(false)
+                                ->preload()
+                                ->searchable(),
 
                         ])
                         ->action(function (Appointment $record, array $data): void {
+                            $l = [$data['clinic_id'], $data['veterenarian_id']];
 
+                            $vetExist = User::where('id', (int)$data['veterenarian_id'])
+                                ->whereHas('clinic', function ($query) use ($data) {
+                                    $query->where('id', $data['clinic_id']);
+                                })
+                                ->first();
 
-                            $veterenarian_id =   match ($data['status']) {
-                                'Accepted' => auth()->user()->id,
-                                'Completed' => auth()->user()->id,
-                                'Pending' => null,
-                                'Rejected' => auth()->user()->id,
-                                default => null,
-                            };
+                           
 
-                            $clinic_id =   match ($data['status']) {
-                                'Accepted' => auth()->user()->clinic?->id,
-                                'Completed' => auth()->user()->clinic?->id,
-                                'Pending' => null,
-                                'Rejected' => auth()->user()->clinic?->id,
-                                default => null,
-                            };
+                            if($vetExist){
 
-                            $record->veterinarian_id = $veterenarian_id;
-                            $record->status = $data['status'];
+                                $veterenarian_id =   match ($data['status']) {
+                                    'Accepted' => (int)$data['veterenarian_id'],
+                                    'Completed' => (int)$data['veterenarian_id'],
+                                    'Pending' => null,
+                                    'Rejected' => (int)$data['veterenarian_id'],
+                                    default => null,
+                                };
+    
+                                $clinic_id =   match ($data['status']) {
+                                    'Accepted' => $data['clinic_id'],
+                                    'Completed' => $data['clinic_id'],
+                                    'Pending' => null,
+                                    'Rejected' => $data['clinic_id'],
+                                    default => null,
+                                };
+    
+                                $record->veterinarian_id = $veterenarian_id;
+                                $record->status = $data['status'];
+    
+                                $patients = Patient::where('appointment_id', $record->id)->get();
+    
+    
+                                foreach ($patients as $patient) {
+                                    $patient->clinic_id = $clinic_id; // Set the clinic_id from the appointment
+                                    $patient->save();
+                                }
+                                $record->save();
 
-                            $patients = Patient::where('appointment_id', $record->id)->get();
+                            }else{
 
-
-                            foreach ($patients as $patient) {
-                                $patient->clinic_id = $clinic_id; // Set the clinic_id from the appointment
-                                $patient->save();
+                                return;
                             }
-                            $record->save();
 
 
-        
-                        })->hidden(function ($record) {
-                            return match ($record->status) {
-                                'Accepted' => auth()->user()->id == $record?->veterinarian?->id ? false : true,
-                                'Completed' => auth()->user()->id == $record?->veterinarian?->id ? false : true,
-                                'Rejected' => auth()->user()->id == $record?->veterinarian?->id ? false : true,
-                                default => false,
-                            };
+
+
+
+
+                           
                         }),
-                    // Tables\Actions\EditAction::make('manage-prescription')->label('Manage Exam & Rx')
-                    //     ->icon('heroicon-s-pencil')
-                    //     ->color('success')
-                    //     ->tooltip('dsad')
-                    //     ->hidden(function ($record) {
-                    //         if ($record->hasStatus(['Accepted', 'Completed']) && (auth()->user()->id == $record->veterinarian?->id)) {
-                    //             return false;
-                    //         }
+                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details')->modalWidth('5xl'),
 
-                    //         return true;
-                    //     }),
-                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details'),
-                    // Tables\Actions\DeleteAction::make(),
-                ])->tooltip('Manage Appointment'),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ])
-                    ->label('Delete Records'),
+                ]),
             ])
             ->emptyStateActions([
-                // Tables\Actions\CreateAction::make(),
-            ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id));
+                Tables\Actions\CreateAction::make(),
+            ]);
     }
-
-
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
@@ -552,7 +439,7 @@ class AppointmentResource extends Resource
                                             ->columnSpan(6),
                                     ]),
                             ]),
-                       
+
 
                     ])
                     ->columnSpan(8),

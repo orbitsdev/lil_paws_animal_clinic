@@ -62,7 +62,7 @@ class Patient extends Model
     // }
 
     public function veterinarian(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'veterinarian_id');
     }
 
     public function admissions(){
