@@ -479,7 +479,7 @@ class AppointmentResource extends Resource
 
                     //         return true;
                     //     }),
-                    Tables\Actions\ViewAction::make()->color('primary'),
+                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details'),
                     // Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Manage Appointment'),
             ])
@@ -539,7 +539,8 @@ class AppointmentResource extends Resource
                                                 'xl' => 2,
                                                 '2xl' => 2,
                                             ])
-                                            ->label('Clinic'),
+                                            ->color('gray')
+                                            ->label('Appointment Clinic'),
 
 
                                         TextEntry::make('date')
@@ -549,7 +550,8 @@ class AppointmentResource extends Resource
                                                 '2xl' => 2,
                                             ])
                                             ->date()
-                                            ->label('Date Schedule'),
+                                            ->color('gray')
+                                            ->label('Appointment Date '),
 
 
 
@@ -561,7 +563,8 @@ class AppointmentResource extends Resource
                                             ])
 
                                             ->date('H:i:s A')->timeZone('Asia/Manila')
-                                            ->label('Time Schedule'),
+                                            ->color('gray')
+                                            ->label('Appointment Time '),
 
 
                                         TextEntry::make('extra_pet_info')
@@ -572,7 +575,7 @@ class AppointmentResource extends Resource
                                             ])
 
                                             ->markdown()
-                                            ->label('Extra Details'),
+                                            ->label('Appointment Extra Details'),
 
                                     ]),
                                 InfoSection::make('Pet Owner ')
@@ -587,6 +590,7 @@ class AppointmentResource extends Resource
                                         TextEntry::make('user')->columnSpan(6)->label('Owner')
                                             ->formatStateUsing(fn (Appointment $record): string => ucfirst($record->user->first_name) . ' ' . ucfirst($record->user->last_name))
                                             ->label('Name')
+                                            ->color('gray')
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
@@ -596,7 +600,7 @@ class AppointmentResource extends Resource
 
                                         TextEntry::make('user')->columnSpan(6)->label('Phone Number')
                                             ->formatStateUsing(fn (Appointment $record): string => !empty($record->user->phone_number) ? $record->user->phone_number : 'N/S')
-
+                                            ->color('gray')
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
@@ -604,13 +608,14 @@ class AppointmentResource extends Resource
                                             ]),
                                         TextEntry::make('user')->columnSpan(6)->label('Address')
                                             ->formatStateUsing(fn (Appointment $record): string => !empty($record->user->address) ? $record->user->address : 'N/S')
-
+                                            ->color('gray')
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
                                                 '2xl' => 4,
                                             ]),
                                         TextEntry::make('user.email')->columnSpan(6)->label('Email')
+                                        ->color('gray')
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
@@ -630,6 +635,7 @@ class AppointmentResource extends Resource
                                                     ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
                                                     ->openUrlInNewTab()
                                                     ->label('Pet Profile Image ')
+                                                  
                                                     ->columnSpan([
                                                         'sm' => 1,
                                                         'xl' => 2,
@@ -637,6 +643,7 @@ class AppointmentResource extends Resource
                                                     ]),
                                                 TextEntry::make('animal.name')
                                                     ->label('Name')
+                                                    ->color('gray')
                                                     ->columnSpan([
                                                         'sm' => 1,
                                                         'xl' => 2,
@@ -644,6 +651,7 @@ class AppointmentResource extends Resource
                                                     ]),
                                                 TextEntry::make('animal.breed')
                                                     ->label('Breed')
+                                                    ->color('gray')
                                                     ->columnSpan([
                                                         'sm' => 1,
                                                         'xl' => 2,
@@ -651,6 +659,7 @@ class AppointmentResource extends Resource
                                                     ]),
                                                 TextEntry::make('animal.sex')
                                                     ->label('Sex')
+                                                    ->color('gray')
                                                     ->columnSpan([
                                                         'sm' => 1,
                                                         'xl' => 2,
@@ -660,6 +669,7 @@ class AppointmentResource extends Resource
                                                     ->date()
                                                     ->hintIcon('heroicon-m-calendar-days')
                                                     ->label('Birth date')
+                                                    ->color('gray')
                                                     ->columnSpan([
                                                         'sm' => 1,
                                                         'xl' => 2,
@@ -668,6 +678,7 @@ class AppointmentResource extends Resource
 
                                                 TextEntry::make('animal.weight')
                                                     ->label('Weight')
+                                                    ->color('gray')
                                                     ->columnSpan([
                                                         'sm' => 1,
                                                         'xl' => 2,
@@ -680,89 +691,89 @@ class AppointmentResource extends Resource
 
                                             ])
                                         
-                                            ->label('Pet\'s Name')
+                                            ->label('Pets Name')
                                             ->contained(false)
                                             ->columnSpan(6),
                                     ]),
                             ]),
-                        Tabs\Tab::make('Pets & Services')
+                        // Tabs\Tab::make('Pets & Services')
 
-                            ->icon('heroicon-m-sparkles')
-                            ->schema([
-                                RepeatableEntry::make('patients')
-                                    ->schema([
+                        //     ->icon('heroicon-m-sparkles')
+                        //     ->schema([
+                        //         RepeatableEntry::make('patients')
+                        //             ->schema([
 
-                                        ImageEntry::make('animal.image')
-                                            ->disk('public')
-                                            ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
-                                            ->openUrlInNewTab()
-                                            ->label('Pet Profile Image ')
-                                            ->columnSpan([
-                                                'sm' => 1,
-                                                'xl' => 2,
-                                                '2xl' => 8,
-                                            ]),
-                                        TextEntry::make('animal.name')
-                                            ->label('Name')
-                                            ->columnSpan([
-                                                'sm' => 1,
-                                                'xl' => 2,
-                                                '2xl' => 2,
-                                            ]),
-                                        TextEntry::make('animal.breed')
-                                            ->label('Breed')
-                                            ->columnSpan([
-                                                'sm' => 1,
-                                                'xl' => 2,
-                                                '2xl' => 2,
-                                            ]),
-                                        TextEntry::make('animal.sex')
-                                            ->label('Sex')
-                                            ->columnSpan([
-                                                'sm' => 1,
-                                                'xl' => 2,
-                                                '2xl' => 2,
-                                            ]),
-                                        TextEntry::make('animal.date_of_birth')
-                                            ->date()
-                                            ->hintIcon('heroicon-m-calendar-days')
-                                            ->label('Birth date')
-                                            ->columnSpan([
-                                                'sm' => 1,
-                                                'xl' => 2,
-                                                '2xl' => 2,
-                                            ]),
+                        //                 ImageEntry::make('animal.image')
+                        //                     ->disk('public')
+                        //                     ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
+                        //                     ->openUrlInNewTab()
+                        //                     ->label('Pet Profile Image ')
+                        //                     ->columnSpan([
+                        //                         'sm' => 1,
+                        //                         'xl' => 2,
+                        //                         '2xl' => 8,
+                        //                     ]),
+                        //                 TextEntry::make('animal.name')
+                        //                     ->label('Name')
+                        //                     ->columnSpan([
+                        //                         'sm' => 1,
+                        //                         'xl' => 2,
+                        //                         '2xl' => 2,
+                        //                     ]),
+                        //                 TextEntry::make('animal.breed')
+                        //                     ->label('Breed')
+                        //                     ->columnSpan([
+                        //                         'sm' => 1,
+                        //                         'xl' => 2,
+                        //                         '2xl' => 2,
+                        //                     ]),
+                        //                 TextEntry::make('animal.sex')
+                        //                     ->label('Sex')
+                        //                     ->columnSpan([
+                        //                         'sm' => 1,
+                        //                         'xl' => 2,
+                        //                         '2xl' => 2,
+                        //                     ]),
+                        //                 TextEntry::make('animal.date_of_birth')
+                        //                     ->date()
+                        //                     ->hintIcon('heroicon-m-calendar-days')
+                        //                     ->label('Birth date')
+                        //                     ->columnSpan([
+                        //                         'sm' => 1,
+                        //                         'xl' => 2,
+                        //                         '2xl' => 2,
+                        //                     ]),
 
-                                        TextEntry::make('animal.weight')
-                                            ->label('Weight')
-                                            ->columnSpan([
-                                                'sm' => 1,
-                                                'xl' => 2,
-                                                '2xl' => 2,
-                                            ]),
+                        //                 TextEntry::make('animal.weight')
+                        //                     ->label('Weight')
+                        //                     ->columnSpan([
+                        //                         'sm' => 1,
+                        //                         'xl' => 2,
+                        //                         '2xl' => 2,
+                        //                     ]),
 
-                                        ViewEntry::make('services')->columnSpan([
-                                            'sm' => 1,
-                                            'xl' => 2,
-                                            '2xl' => 8,
-                                        ])
-                                            ->label('Requested Services *')
+                        //                 ViewEntry::make('services')->columnSpan([
+                        //                     'sm' => 1,
+                        //                     'xl' => 2,
+                        //                     '2xl' => 8,
+                        //                 ])
+                        //                     ->label('Requested Services *')
 
-                                            ->view('infolists.components.services-list'),
-
-
+                        //                     ->view('infolists.components.services-list'),
 
 
-                                    ])
+
+
+                        //             ])
                                  
-                                    ->label('Pet\'s Name')
-                                    ->contained(false)
+                        //             ->label('Pet\'s Name')
+                        //             ->contained(false)
                                   
-                                    ->columnSpan(6),
+                        //             ->columnSpan(6),
 
-                                //                                 TextColumn::make('price')
-                                // ->summarize(Sum::make()->label('Total'))
-                            ]),
+                        //         //                                 TextColumn::make('price')
+                        //         // ->summarize(Sum::make()->label('Total'))
+                        //     ]),
                       
 
                     ])

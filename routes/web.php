@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\User;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\Appointment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\AppointmentExport;
 use App\Exports\ClinicPatientExport;
 use App\Exports\ClinicPaymentExport;
@@ -36,3 +38,25 @@ Route::get('/total-revenue', function () {
  
     return Excel::download(new ClinicPaymentExport,  now()->format('F-Y').'-total-revenue.xlsx');
 });
+Route::get('/medical-record', function () {
+        $patient = Patient::first();
+        return view('layout.medical-record', [
+            'patient' => $patient
+        ]);
+   
+});
+
+
+Route::get('/test-pdf/{patient}', function ($patient) {
+      
+    $patient = Patient::find($patient);
+    $data = [
+        'patient' => $patient
+    ];
+    
+    $pdf = Pdf::loadView('layout.medical-record', $data);
+    $filename = $patient->animal?->name.'-'.now()->format('m-y');
+    return $pdf->download($filename.'.pdf');
+})->middleware(['auth'])->name('download-medical-record');
+
+

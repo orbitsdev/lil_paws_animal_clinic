@@ -19,6 +19,7 @@ use App\Models\Examination;
 use Illuminate\Support\Carbon;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Group;
@@ -53,6 +54,9 @@ use App\Filament\Clinic\Resources\ExaminationResource\Pages;
 use App\Filament\Clinic\Resources\ExaminationResource\RelationManagers;
 use Thiktak\FilamentSimpleListEntry\Infolists\Components\SimpleListEntry;
 use App\Filament\Clinic\Resources\ExaminationResource\Pages\EditExamination;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 class ExaminationResource extends Resource
 {
@@ -107,6 +111,7 @@ class ExaminationResource extends Resource
                             ->preload()
                             ->required()
                             ->searchable()
+                            ->helperText(new HtmlString('<small>Pet Name - Breed - Pet Owner</small'))
                             ->createOptionForm([
                                 Section::make()
                                     ->description('Pet Profile ')->schema([
@@ -576,7 +581,20 @@ class ExaminationResource extends Resource
                         ->color('success')
                         ->tooltip('dsad'),
                     // Tables\Actions\Action::make('view record')->url(fn ($record): string => self::getUrl('record', ['record' => $record])),
-                    Tables\Actions\ViewAction::make()->color('primary')->modalWidth('7xl'),
+                    Tables\Actions\ViewAction::make()->color('primary')->modalWidth('7xl')->label('View Details'),
+                    Tables\Actions\Action::make('Download')->label('Download Record')->icon('heroicon-s-arrow-down-tray')->color('primary')
+                    ->url(function(Patient $record){
+                        return route('download-medical-record', $record->id);
+                    })
+                    ->openUrlInNewTab()
+                    ->hidden(function(Patient $record){
+                        if($record->patient){
+                            return false;
+                        }else{
+
+                            return false;
+                        }
+                    }),
                     Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Manage Appointment'),
 
