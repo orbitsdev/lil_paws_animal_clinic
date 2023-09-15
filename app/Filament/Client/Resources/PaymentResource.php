@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clinic\Resources;
+namespace App\Filament\Client\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
@@ -8,16 +8,14 @@ use App\Models\Payment;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Clinic\Resources\PaymentResource\Pages;
-use App\Filament\Clinic\Resources\PaymentResource\RelationManagers;
+use App\Filament\Client\Resources\PaymentResource\Pages;
+use App\Filament\Client\Resources\PaymentResource\RelationManagers;
 
 class PaymentResource extends Resource
 {
@@ -25,33 +23,28 @@ class PaymentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
 
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-
-                Section::make('Record Payment')
-                ->description('This information will be included in the clinic report as a clear proof of payment, ensuring transparency.')
-    ->schema([
-        TextInput::make('title')
-        ->maxLength(191)
-        ->columnSpanFull()
-        ->columnSpanFull(),
-        
-    Textarea::make('description')
-        ->maxLength(65535)
-        ->columnSpanFull(),
-    TextInput::make('amount')
-    ->prefix('₱')
-        ->numeric()
-        ->columnSpanFull(),
-        FileUpload::make('receipt_image')
-        ->disk('public')->image()->directory('receipt')
-        ->columnSpanFull()
-        ->label('Proof of payment'),
-    ]),
-              
-               
+                TextInput::make('title')
+                ->maxLength(191)
+                ->columnSpanFull()
+                ->columnSpanFull(),
+                
+             Textarea::make('description')
+                ->maxLength(65535)
+                ->columnSpanFull(),
+            TextInput::make('amount')
+            ->prefix('₱')
+                ->numeric()
+                ->columnSpanFull(),
+                FileUpload::make('receipt_image')
+                ->disk('public')->image()->directory('receipt')
+                ->columnSpanFull()
+                ->label('Proof of payment'),
+                   
             ]);
     }
 
@@ -59,16 +52,16 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('patient_id')
-                ->formatStateUsing(function( $record){
-                    if($record->patient){
-                        return ucfirst($record?->patient?->animal?->user?->first_name.' '.$record?->patient?->animal?->user?->last_name);
-                    }
+                // Tables\Columns\TextColumn::make('patient_id')
+                // ->formatStateUsing(function( $record){
+                //     if($record->patient){
+                //         return ucfirst($record?->patient?->animal?->user?->first_name.' '.$record?->patient?->animal?->user?->last_name);
+                //     }
 
-                    return 'N/A';
-                })->label('Patient Owner')
-                ->color('gray')
-                ,
+                //     return 'N/A';
+                // })->label('Patient Owner')
+                // ->color('gray')
+                // ,
                  
 
               
@@ -81,7 +74,14 @@ class PaymentResource extends Resource
                     }
 
                     return 'N/A';
-                })->label('Patient Name')
+                })->label('Pet Name')
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('patient.animal', function($query) use($search){
+                        $query->where('name', 'like', "%{$search}%");
+                    });
+                        
+                })
+
                 ->color('gray')
                 ,
                  
@@ -104,18 +104,12 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->date('Y-m-d H:i: A')
                     ->label('Created')
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -123,9 +117,11 @@ class PaymentResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id));
+            ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('patient.animal.user', function($query){
+                $query->where('id', auth()->user()->id);
+            }));
     }
     
     public static function getRelations(): array
@@ -139,8 +135,8 @@ class PaymentResource extends Resource
     {
         return [
             'index' => Pages\ListPayments::route('/'),
-            'create' => Pages\CreatePayment::route('/create'),
-            'edit' => Pages\EditPayment::route('/{record}/edit'),
+            // 'create' => Pages\CreatePayment::route('/create'),
+            // 'edit' => Pages\EditPayment::route('/{record}/edit'),
         ];
     }    
 }

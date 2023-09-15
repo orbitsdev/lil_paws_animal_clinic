@@ -32,7 +32,10 @@ class PatientResource extends Resource
 {
     protected static ?string $model = Patient::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-plus';
+
+    protected static ?string $modelLabel = 'Medical Record';
+    
 
     public static function form(Form $form): Form
     {
@@ -46,7 +49,7 @@ class PatientResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('clinic.name')->label('Clinic')->badge('primary'),
+                TextColumn::make('clinic.name')->label('Clinic')->badge('primary')->searchable(),
                 TextColumn::make('animal.name')->label('Pet name')->formatStateUsing(function (Patient $record) {
                     return ucfirst($record->animal?->name);
                 })
@@ -58,16 +61,19 @@ class PatientResource extends Resource
                 TextColumn::make('animal.category.name')->label('Pet type')->formatStateUsing(function (Patient $record) {
                     return ucfirst($record->animal?->category?->name);
                 }),
+                TextColumn::make('animal.breed')->label('Pet type')->formatStateUsing(function (Patient $record) {
+                    return ucfirst($record->animal?->breed);
+                })->label('breed'),
            
-                TextColumn::make('animal')->label('Owner')->formatStateUsing(function (Patient $record) {
-                    return ucfirst($record->animal?->user?->first_name . ' ' . $record->animal?->user?->last_name);
-                })
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereHas('animal.user', function ($query) use ($search) {
-                            $query->where('first_name', 'like', "%{$search}%")
-                                ->orWhere('last_name', 'like', "%{$search}%");
-                        });
-                    }),
+                // TextColumn::make('animal')->label('Owner')->formatStateUsing(function (Patient $record) {
+                //     return ucfirst($record->animal?->user?->first_name . ' ' . $record->animal?->user?->last_name);
+                // })
+                //     ->searchable(query: function (Builder $query, string $search): Builder {
+                //         return $query->whereHas('animal.user', function ($query) use ($search) {
+                //             $query->where('first_name', 'like', "%{$search}%")
+                //                 ->orWhere('last_name', 'like', "%{$search}%");
+                //         });
+                //     }),
 
               
                 TextColumn::make('created_at')
@@ -131,7 +137,7 @@ class PatientResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('animal.user', function($query){
                 $query->where('user_id', auth()->user()->id);

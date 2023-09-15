@@ -25,12 +25,22 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Awcodes\FilamentTableRepeater\Components\TableRepeater;
 use App\Filament\Client\Resources\AppointmentResource\Pages;
 use App\Filament\Client\Resources\AppointmentResource\RelationManagers;
+use Filament\Tables\Actions\ActionGroup;
 
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
+    public static function getNavigationBadge(): ?string
+{
+    return static::getModel()::where('status','Pending')->count();
+}
+
+public static function getNavigationBadgeColor(): ?string
+{
+    return static::getModel()::where('status','Pending')->count() > 0 ? 'primary' : 'gray';
+}
 
     public static function form(Form $form): Form
     {
@@ -202,16 +212,20 @@ class AppointmentResource extends Resource
                 ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                ->after(function ($record) {
-                    $patients = Patient::where('appointment_id', $record->id)->get();
-
-                    foreach ($patients as $patient) {
-                        $patient->clinic_id = $record->clinic_id; // Set the clinic_id from the appointment
-                        $patient->save();
-                    }
-                }),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                    ->after(function ($record) {
+                        $patients = Patient::where('appointment_id', $record->id)->get();
+    
+                        foreach ($patients as $patient) {
+                            $patient->clinic_id = $record->clinic_id; // Set the clinic_id from the appointment
+                            $patient->save();
+                        }
+                    }),
+                    Tables\Actions\DeleteAction::make()
+                ]),
+             
+             
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -220,7 +234,9 @@ class AppointmentResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->poll('5s')
+            ;
     }
     
     public static function getRelations(): array
@@ -234,7 +250,7 @@ class AppointmentResource extends Resource
     {
         return [
             'index' => Pages\ListAppointments::route('/'),
-            'create' => Pages\CreateAppointment::route('/create'),
+            // 'create' => Pages\CreateAppointment::route('/create'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
     }    

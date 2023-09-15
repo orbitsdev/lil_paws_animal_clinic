@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Medical Record Report</title>
     <style>
 
@@ -357,7 +358,7 @@
                     <tr>
                         <td>{{ $payment?->title }}</td>
                         <td>{{ $payment?->description }}</td>
-                        <td>{{ $payment?->amount }}</td>
+                        <td>{{ number_format($payment?->amount) }}</td>
                     </tr>
                    
                 @empty
@@ -369,7 +370,7 @@
                 @if ($patient->payments)
                     <tr>
                         <td colspan="2"><strong>Total Amount:</strong></td>
-                        <td><strong>₱ {{ number_format($patient->payments->sum('amount')) }}</strong></td>
+                        <td><strong> Php {{ number_format($patient->payments->sum('amount')) }}</strong></td>
                     </tr>
                 @endif
             </table>

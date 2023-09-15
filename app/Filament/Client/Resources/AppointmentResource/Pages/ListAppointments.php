@@ -4,6 +4,7 @@ namespace App\Filament\Client\Resources\AppointmentResource\Pages;
 
 use Filament\Actions;
 use App\Models\Patient;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\ListRecords;
 use App\Filament\Client\Resources\AppointmentResource;
 

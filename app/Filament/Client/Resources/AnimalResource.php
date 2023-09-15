@@ -122,8 +122,8 @@ class AnimalResource extends Resource
             ->actions([
                 ActionGroup::make([
                     
-                    Tables\Actions\EditAction::make()->button()->outlined(),
-                    Tables\Actions\DeleteAction::make()->button()->outlined(),
+                    Tables\Actions\EditAction::make()->color('primary'),
+                    Tables\Actions\DeleteAction::make(),
                 ]),
             ])
             ->bulkActions([

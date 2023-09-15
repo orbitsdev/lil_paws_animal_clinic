@@ -47,11 +47,10 @@ class PatientResource extends Resource
     protected static ?string $model = Patient::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
+
     protected static ?string $modelLabel = 'Medical Record';
     protected static ?string $navigationGroup = 'Management';
-
     protected static ?int $navigationSort = 3;
-
     public static function form(Form $form): Form
     {
         return $form
@@ -329,7 +328,26 @@ class PatientResource extends Resource
                                         'Discharged' => 'Discharged',
 
                                     ])->label('Admission Status')
+                                   
                                     ->columnSpan(2),
+
+                                    ImageEntry::make('veterenarian.profile')
+                                    ->disk('public')
+                                    ->url(fn ($state) => $state ? Storage::disk('public')->url($state) : asset('/images/placeholder.png'))
+
+                                    ->openUrlInNewTab()
+                                    ->label('Monitor Image')
+                                    ->columnSpan([
+                                        'sm' => 1,
+                                        'xl' => 2,
+                                        '2xl' => 8,
+                                    ])
+                                    ->defaultImageUrl(url('/images/placeholder.png')),
+
+                                       
+
+
+
                             ]),
 
                             Repeater::make('treatmentplans')

@@ -67,7 +67,12 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
 public function hasAnyRole($roles) {
-         return  $this->role()->whereIn('name', $roles)->exists();
+
+    if($this->role()->whereIn('name', $roles)->first()){
+            return true;
+    }
+    return false;
+
        
     }
    

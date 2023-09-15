@@ -66,7 +66,10 @@ class ClientPanelProvider extends PanelProvider
             ])
             ->plugins([
                 LightSwitchPlugin::make(),
-            ]);
+            ])
+            
+            ->topNavigation()
             ;
+            
     }
 }

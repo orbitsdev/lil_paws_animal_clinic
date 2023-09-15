@@ -1,23 +1,25 @@
 <?php
 
-namespace App\Filament\Clinic\Resources;
+namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Clinic;
 use App\Models\Payment;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\PaymentResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Clinic\Resources\PaymentResource\Pages;
-use App\Filament\Clinic\Resources\PaymentResource\RelationManagers;
+use App\Filament\Resources\PaymentResource\RelationManagers;
 
 class PaymentResource extends Resource
 {
@@ -25,14 +27,27 @@ class PaymentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
 
+
+    protected static ?string $navigationGroup = 'Management';
+    protected static ?int $navigationSort = 9;
+
+
+
+    // protected static ?int $navigationSort = 4;
+
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-
                 Section::make('Record Payment')
                 ->description('This information will be included in the clinic report as a clear proof of payment, ensuring transparency.')
     ->schema([
+        Select::make('clinic_id')
+    ->relationship(name: 'clinic', titleAttribute: 'name')->label('Clinic To Record Payment')
+    ->preload()
+    ->native('false')
+    ,
         TextInput::make('title')
         ->maxLength(191)
         ->columnSpanFull()
@@ -50,8 +65,6 @@ class PaymentResource extends Resource
         ->columnSpanFull()
         ->label('Proof of payment'),
     ]),
-              
-               
             ]);
     }
 
@@ -59,60 +72,31 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('patient_id')
-                ->formatStateUsing(function( $record){
-                    if($record->patient){
-                        return ucfirst($record?->patient?->animal?->user?->first_name.' '.$record?->patient?->animal?->user?->last_name);
-                    }
-
-                    return 'N/A';
-                })->label('Patient Owner')
-                ->color('gray')
+                Tables\Columns\TextColumn::make('clinic.name')
+                ->searchable()
+                ->badge()
                 ,
-                 
-
-              
-                Tables\Columns\TextColumn::make('clinic_id')
-                ->formatStateUsing(function( $record){
-
-                    if($record->patient){
-
-                        return ucfirst($record?->patient?->animal?->name);
-                    }
-
-                    return 'N/A';
-                })->label('Patient Name')
-                ->color('gray')
-                ,
-                 
-                  
-              
                 Tables\Columns\TextColumn::make('title')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('amount')
-                    ->searchable()
-                
-                    ,
-                Tables\Columns\TextColumn::make('description')
-                ->wrap()
-                    ->sortable(),
-                    ImageColumn::make('receipt_image')->url(fn (Payment $record): null|string => $record->profile ?  Storage::disk('public')->url($record->profile) : null)
-                    ->openUrlInNewTab()
-                    ->height(90)
-                    ->width(90)
-                    ,
-                Tables\Columns\TextColumn::make('created_at')
-                    ->date('Y-m-d H:i: A')
-                    ->label('Created')
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
+                ->searchable(),
+            Tables\Columns\TextColumn::make('amount')
+                ->searchable()
+            
+                ,
+            Tables\Columns\TextColumn::make('description')
+            ->wrap()
+                ->sortable(),
+                ImageColumn::make('receipt_image')->url(fn (Payment $record): null|string => $record->profile ?  Storage::disk('public')->url($record->profile) : null)
+                ->openUrlInNewTab()
+                ->height(90)
+                ->width(90)
+                ,
+            Tables\Columns\TextColumn::make('created_at')
+                ->date('Y-m-d H:i: A')
+                ->label('Created')
             ])
             ->filters([
-                //
+                SelectFilter::make('clinic_id')
+                ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -124,8 +108,7 @@ class PaymentResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id));
+            ]);
     }
     
     public static function getRelations(): array
