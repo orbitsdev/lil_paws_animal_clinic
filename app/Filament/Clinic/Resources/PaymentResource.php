@@ -68,8 +68,14 @@ class PaymentResource extends Resource
                     return 'N/A';
                 })->label('Patient Owner')
                 ->color('gray')
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('patient.animal.user', function ($query) use ($search) {
+                        $query->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+                })
                 ,
-                 
+
 
               
                 Tables\Columns\TextColumn::make('clinic_id')
