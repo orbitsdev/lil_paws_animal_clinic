@@ -588,7 +588,16 @@ class ExaminationResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id))
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->whereHas('appointment', function ($query) {
+                    $query->whereIn('status', ['Accepted', 'Completed'])
+                        ->where('clinic_id', auth()->user()->clinic?->id);
+                })
+                ->orWhereDoesntHave('appointment')
+                ->where('clinic_id', auth()->user()->clinic);
+            })
+            
+            
             // ->groups([
             //     GroupBy::make('animal.name')
             //         ->label('Pet ')

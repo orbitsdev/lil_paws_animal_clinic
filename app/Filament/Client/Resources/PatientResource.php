@@ -141,7 +141,10 @@ class PatientResource extends Resource
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('animal.user', function($query){
                 $query->where('user_id', auth()->user()->id);
-            }));
+            }
+            )
+            )
+            ;
     }
 
     
