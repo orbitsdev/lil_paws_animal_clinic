@@ -384,7 +384,10 @@ class AppointmentResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ->poll('5s')
+
+            ;
     }
     public static function infolist(Infolist $infolist): Infolist
     {

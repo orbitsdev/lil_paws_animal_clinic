@@ -370,8 +370,8 @@ class AppointmentResource extends Resource
                 // Tables\Actions\CreateAction::make(),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id))
+            ->poll('5s');
             
-            ;
     }
 
 
