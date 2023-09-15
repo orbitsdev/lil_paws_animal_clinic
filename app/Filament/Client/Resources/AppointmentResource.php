@@ -235,8 +235,11 @@ public static function getNavigationBadgeColor(): ?string
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->poll('5s')
-            ;
+            ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('patient.animal.user', function($query){
+                $query->where('id', auth()->user()->id);
+            }))
+            ->poll('5s');
+            
     }
     
     public static function getRelations(): array

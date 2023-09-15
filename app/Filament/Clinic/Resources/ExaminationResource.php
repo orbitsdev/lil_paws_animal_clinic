@@ -492,14 +492,12 @@ class ExaminationResource extends Resource
     {
         return $table
             ->columns([
+
+                // TextColumn::make('clinic.name')->label('Clinic')->badge('primary'),
                 TextColumn::make('animal.name')->label('Pet name')->formatStateUsing(function (Patient $record) {
                     return ucfirst($record->animal?->name);
-                })
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereHas('animal', function ($query) use ($search) {
-                            $query->where('name', 'like', "%{$search}%");
-                        });
-                    }),
+                })->searchable(),
+                    
                 TextColumn::make('animal.category.name')->label('Pet type')->formatStateUsing(function (Patient $record) {
                     return ucfirst($record->animal?->category?->name);
                 }),
@@ -512,7 +510,8 @@ class ExaminationResource extends Resource
                             $query->where('first_name', 'like', "%{$search}%")
                                 ->orWhere('last_name', 'like', "%{$search}%");
                         });
-                    }),
+                    })
+                    ->badge(),
 
               
                 TextColumn::make('created_at')
@@ -528,26 +527,25 @@ class ExaminationResource extends Resource
                     ->wrap()
                     ->label('Recorded'),
 
-
             ])
             ->filters([
 
                 Filter::make('created_at')
-                    ->form([
-                        DatePicker::make('created_from'),
-                        DatePicker::make('created_until'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    })
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        );
+                })
              
             ])
             ->actions([
@@ -588,14 +586,25 @@ class ExaminationResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
+            // ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes());
             ->modifyQueryUsing(function (Builder $query) {
-                $query->whereHas('appointment', function ($query) {
-                    $query->whereIn('status', ['Accepted', 'Completed'])
-                        ->where('clinic_id', auth()->user()->clinic?->id);
-                })
-                ->orWhereDoesntHave('appointment')
-                ->where('clinic_id', auth()->user()->clinic);
+                $clinicId = auth()->user()->clinic?->id;
+            
+                $query->where(function ($query) use ($clinicId) {
+                    $query->where(function ($query) use ($clinicId) {
+                        $query->whereHas('appointment', function ($query) use ($clinicId) {
+                            $query->whereIn('status', ['Accepted', 'Completed'])
+                                ->where('clinic_id', $clinicId);
+                        });
+                    });
+            
+                    $query->orWhere(function ($query) use ($clinicId) {
+                        $query->whereDoesntHave('appointment')
+                            ->where('clinic_id', $clinicId);
+                    });
+                });
             })
+            
             
             
             // ->groups([
