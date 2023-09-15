@@ -97,15 +97,22 @@ class AnimalResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user')
-                ->formatStateUsing(fn ($state): string => $state ? ucfirst($state->first_name . ' ' . $state->last_name) : '')
+                Tables\Columns\TextColumn::make('user_id')
+                ->formatStateUsing(function( $record){
+                    if($record->user){
+                        return ucfirst($record?->user?->first_name.' '.$record?->user?->last_name);
+                    }
+
+                    return 'N/A';
+                })->label('Pet Owner')
+                ->color('gray')
                 ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('patient.animal.user', function ($query) use ($search) {
+                    return $query->whereHas('user', function ($query) use ($search) {
                         $query->where('first_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%");
                     });
                 })
-                ->searchable(),
+                ,
                 ImageColumn::make('image')->url(fn (Animal $record): null|string => $record->image ?  Storage::disk('public')->url($record->image) : null)
                     ->openUrlInNewTab()
                     ->height(200)
@@ -119,6 +126,7 @@ class AnimalResource extends Resource
                 ->label('Category')
                 ->badge()
                 ->color('primary')
+                ->searchable()
                 ,
                 TextColumn::make('breed')->searchable(),
                 TextColumn::make('sex')
@@ -136,7 +144,9 @@ class AnimalResource extends Resource
                 ->options([
                     'Male' => 'Male',
                     'Female' => 'Female',
-                ])
+                ]),
+                // SelectFilter::make('category')
+                // ->options(Category::pluck('name','id')),
             ])
             ->actions([
                 ActionGroup::make([
