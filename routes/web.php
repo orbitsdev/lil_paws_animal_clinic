@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Clinic;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\Appointment;
@@ -8,6 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\AppointmentExport;
 use App\Exports\ClinicPatientExport;
 use App\Exports\ClinicPaymentExport;
+use App\Http\Controllers\LogoutController;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +49,9 @@ Route::get('/medical-record', function () {
 });
 
 
+
+
+
 Route::get('/test-pdf/{patient}', function ($patient) {
       
     $patient = Patient::find($patient);
@@ -60,3 +65,8 @@ Route::get('/test-pdf/{patient}', function ($patient) {
 })->middleware(['auth'])->name('download-medical-record');
 
 
+Route::get('/clinic-request', function(){
+    return view('clinic-request');   
+})->middleware(['auth'])->name('clinic-request',['except' => ['login']]);
+
+Route::post('/auth/logout',[LogoutController::class,'logout'])->name('logout.filament');

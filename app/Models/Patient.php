@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Models\Admission;
 use App\Models\Appointment;
 use App\Models\Examination;
+use App\Models\ClinicServices;
 use App\Models\PatientService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -71,6 +72,13 @@ class Patient extends Model
     public function admission(){
         return $this->hasOne(Admission::class);
     }
+    
+
+    public function clinic_services(){
+        return $this->belongsToMany(ClinicServices::class,'clinic_services','patient_id','clinic_services_id');
+    }
+
+
 
 
 }

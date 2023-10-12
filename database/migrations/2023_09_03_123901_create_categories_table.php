@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('clinic_id')->nullable();
             $table->string('name')->nullable();
+            $table->boolean('archived')->default(false)->nullable();
             $table->timestamps();
         });
     }

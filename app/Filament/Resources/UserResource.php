@@ -62,7 +62,11 @@ class UserResource extends Resource
                 ->schema([
                     TextInput::make('first_name')->required(),
                     TextInput::make('last_name')->required(),
-                    TextInput::make('phone_number')->required()->numeric(),
+                    TextInput::make('phone_number')
+                    
+                    ->minLength(11)
+                    ->maxLength(11)
+                    ->required(),
                     TextInput::make('address')->required(),
                     TextInput::make('email')->required()->unique(ignoreRecord: true),
                     Select::make('role_id')

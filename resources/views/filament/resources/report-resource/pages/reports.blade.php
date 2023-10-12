@@ -35,7 +35,7 @@
                     @endif
                 </div>
         
-                <div class="bg-white shadow-lg dark:bg-gray-800 p-4">
+                {{-- <div class="bg-white shadow-lg dark:bg-gray-800 p-4">
                     <h5 class="text-lg font-semibold mb-2 dark:text-gray-300">Total Revenue</h5>
                     <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">₱ {{number_format($total_revenue)}}</p>
         
@@ -49,7 +49,7 @@
                         </a>
                     </div>
                     @endif
-                </div>
+                </div> --}}
             </div>
         </div>
         

@@ -17,7 +17,7 @@
                 </div>
                 @endif
             </div>
-    
+{{--     
             <div class="bg-white shadow-lg dark:bg-gray-800 p-4">
                 <h5 class="text-lg font-semibold mb-2 dark:text-gray-300">Total Patient</h5>
                 <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{number_format($total_patients)}}</p>
@@ -32,7 +32,7 @@
                     </a>
                 </div>
                 @endif
-            </div>
+            </div> --}}
     
             <div class="bg-white shadow-lg dark:bg-gray-800 p-4">
                 <h5 class="text-lg font-semibold mb-2 dark:text-gray-300">Total Revenue</h5>

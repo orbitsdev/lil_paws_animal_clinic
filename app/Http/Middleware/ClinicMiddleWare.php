@@ -23,10 +23,27 @@ class ClinicMiddleWare
         }
         
         if ($user->hasAnyRole(['Veterenarian']) && (!$user->clinic)) {
+            
             abort(403, 'Unauthorized action.');
+         
+
+
         }
+
+         return  match($user->clinic->status){
+                'pending'=>  redirect('clinic-request'),
+                'rejected'=> redirect('clinic-request'),
+                    default=>  $next($request),
+            };
+
+
+            
+
+
+
+
         
-        return $next($request);
+
 
     }
 }

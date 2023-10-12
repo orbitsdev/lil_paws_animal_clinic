@@ -436,40 +436,40 @@ class PatientResource extends Resource
                 ->collapsed(),
 
 
-            Section::make('Payments Information')
-                ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')
-                ->schema([
+            // Section::make('Payments Information')
+            //     ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')
+            //     ->schema([
 
-                    TableRepeater::make('payments')
-                        ->relationship()
-                        ->label('List')
-                        ->columnWidths([
-                            'receipt_image' => '300px',
-                        ])
-                        ->schema([
-                            TextInput::make('title'),
-                            TextInput::make('description'),
-                            TextInput::make('amount')->numeric()->prefix('₱'),
-                            FileUpload::make('receipt_image')
-                                ->disk('public')->image()->directory('receipt')
-                                ->columnSpanFull()
-                                ->label('Proof of payment'),
-                        ])
-                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                            $data['clinic_id'] = auth()->user()->clinic?->id;
+            //         TableRepeater::make('payments')
+            //             ->relationship()
+            //             ->label('List')
+            //             ->columnWidths([
+            //                 'receipt_image' => '300px',
+            //             ])
+            //             ->schema([
+            //                 TextInput::make('title'),
+            //                 TextInput::make('description'),
+            //                 TextInput::make('amount')->numeric()->prefix('₱'),
+            //                 FileUpload::make('receipt_image')
+            //                     ->disk('public')->image()->directory('receipt')
+            //                     ->columnSpanFull()
+            //                     ->label('Proof of payment'),
+            //             ])
+            //             ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+            //                 $data['clinic_id'] = auth()->user()->clinic?->id;
 
-                            return $data;
-                        })
-                        ->addActionLabel('Add Payment Information')
-                        // ->hideLabels()
-                        ->defaultItems(0)
-                        ->collapsible()
-                        ->collapsed()
-                        ->columnSpanFull()
-                        ->withoutHeader(),
-                ])
-                ->collapsible(true)
-                ->collapsed()
+            //                 return $data;
+            //             })
+            //             ->addActionLabel('Add Payment Information')
+            //             // ->hideLabels()
+            //             ->defaultItems(0)
+            //             ->collapsible()
+            //             ->collapsed()
+            //             ->columnSpanFull()
+            //             ->withoutHeader(),
+            //     ])
+            //     ->collapsible(true)
+            //     ->collapsed()
 
             ]);
     }
@@ -1056,50 +1056,50 @@ class PatientResource extends Resource
                             ])
                             ,
 
-                            Tabs\Tab::make('Payment Details')
+                            // Tabs\Tab::make('Payment Details')
 
-                            ->icon('heroicon-m-banknotes')
-                            ->iconPosition(IconPosition::After)
-                            ->schema([
-                                RepeatableEntry::make('payments')
-                                ->columns([
-                                    'sm' => 3,
-                                    'xl' => 6,
-                                    '2xl' => 8,
-                                ])
-                                ->schema([
-                                    TextEntry::make('title')
-                                    ->label('Paytment Title')
-                                    ->color('gray')  
-                                    ->columnSpan(2),
-                                    TextEntry::make('description')
-                                    ->label('Paytment Description')
-                                    ->color('gray')  
-                                    ->columnSpan(2),
-                                    TextEntry::make('amount')
-                                    ->label('Paytment Ammount')
-                                    ->color('gray')  
-                                    ->money('PHP')
-                                    ->columnSpan(2),
+                            // ->icon('heroicon-m-banknotes')
+                            // ->iconPosition(IconPosition::After)
+                            // ->schema([
+                            //     RepeatableEntry::make('payments')
+                            //     ->columns([
+                            //         'sm' => 3,
+                            //         'xl' => 6,
+                            //         '2xl' => 8,
+                            //     ])
+                            //     ->schema([
+                            //         TextEntry::make('title')
+                            //         ->label('Paytment Title')
+                            //         ->color('gray')  
+                            //         ->columnSpan(2),
+                            //         TextEntry::make('description')
+                            //         ->label('Paytment Description')
+                            //         ->color('gray')  
+                            //         ->columnSpan(2),
+                            //         TextEntry::make('amount')
+                            //         ->label('Paytment Ammount')
+                            //         ->color('gray')  
+                            //         ->money('PHP')
+                            //         ->columnSpan(2),
 
-                                    ImageEntry::make('receipt_image')
-                                    ->disk('public')
-                                    ->height(60)
-                                    ->url(fn ($state) => $state ? Storage::disk('public')->url($state) : asset('/images/placeholder.png'))
+                            //         ImageEntry::make('receipt_image')
+                            //         ->disk('public')
+                            //         ->height(60)
+                            //         ->url(fn ($state) => $state ? Storage::disk('public')->url($state) : asset('/images/placeholder.png'))
 
-                                    ->openUrlInNewTab()
-                                    ->label('Proof Of Payment ')
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'xl' => 2,
-                                        '2xl' => 2,
-                                    ])
-                                    ->defaultImageUrl(url('/images/placeholder.png')),
+                            //         ->openUrlInNewTab()
+                            //         ->label('Proof Of Payment ')
+                            //         ->columnSpan([
+                            //             'sm' => 1,
+                            //             'xl' => 2,
+                            //             '2xl' => 2,
+                            //         ])
+                            //         ->defaultImageUrl(url('/images/placeholder.png')),
 
-                                ])
-                                ->columnSpanFull()
-                                ->label('Payments')
-                                ]),
+                            //     ])
+                            //     ->columnSpanFull()
+                            //     ->label('Payments')
+                            //     ]),
 
                     ])
                     ->activeTab(5)   

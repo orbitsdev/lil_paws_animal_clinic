@@ -11,13 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clinics', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->nullable();
-            $table->string('address')->nullable();
-            $table->string('image')->nullable();
-            $table->timestamps();
-        });
+            Schema::create('clinics', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->nullable();
+                $table->string('name')->nullable();
+                
+                $table->text('valid_id')->nullable();
+            
+                $table->string('address')->nullable();
+                $table->string('image')->nullable();
+                $table->string('status')->default('pending')->nullable();
+                $table->boolean('from_request')->default(false)->nullable();
+                $table->timestamps();
+            });
     }
 
     /**

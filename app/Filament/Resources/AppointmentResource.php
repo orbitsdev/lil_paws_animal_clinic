@@ -44,7 +44,8 @@ class AppointmentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
     protected static ?string $modelLabel = 'Appointment Request';
 
-    protected static ?string $navigationGroup = 'Management';
+    protected static ?string $navigationGroup = 'Request';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

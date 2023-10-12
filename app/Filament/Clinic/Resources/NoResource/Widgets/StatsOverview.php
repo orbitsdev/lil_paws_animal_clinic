@@ -58,22 +58,22 @@ class StatsOverview extends BaseWidget
 
             )
             ->color('success'),
-            Stat::make(
-                'Total Revenue ',  
-                number_format( Payment::where(function($query) {
-                $query->whereHas('patient.appointment', function($subQuery) {
-                    $subQuery->whereIn('status', ['Accepted', 'Completed'])
-                        ->where('clinic_id', auth()->user()->clinic?->id);
-                })
-                ->orWhereHas('patient', function($subQuery) {
-                    $subQuery->where('clinic_id', auth()->user()->clinic?->id)
-                        ->whereDoesntHave('appointment');
-                });
-            })->orWhereHas('patient', function($query) {
-                $query->where('clinic_id', auth()->user()->clinic?->id);
-            })->sum('amount'))
-            )
-            ->color('success'),
+            // Stat::make(
+            //     'Total Revenue ',  
+            //     number_format( Payment::where(function($query) {
+            //     $query->whereHas('patient.appointment', function($subQuery) {
+            //         $subQuery->whereIn('status', ['Accepted', 'Completed'])
+            //             ->where('clinic_id', auth()->user()->clinic?->id);
+            //     })
+            //     ->orWhereHas('patient', function($subQuery) {
+            //         $subQuery->where('clinic_id', auth()->user()->clinic?->id)
+            //             ->whereDoesntHave('appointment');
+            //     });
+            // })->orWhereHas('patient', function($query) {
+            //     $query->where('clinic_id', auth()->user()->clinic?->id);
+            // })->sum('amount'))
+            // )
+            // ->color('success'),
 
 
 
