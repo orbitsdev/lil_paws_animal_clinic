@@ -64,6 +64,9 @@ class ExaminationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
     protected static ?string $modelLabel = 'Medical Record';
+    protected static ?string $navigationGroup = 'Management';
+    protected static ?int $navigationSort = 7;
+
 
     //     protected function getTableQuery(): Builder
     // {
@@ -449,40 +452,40 @@ class ExaminationResource extends Resource
                     ->collapsed(),
 
 
-                Section::make('Payments Information')
-                    ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')
-                    ->schema([
+                // Section::make('Payments Information')
+                //     ->description('Keep track of  payments easily. you can add report payment details here. (If you had)')
+                //     ->schema([
 
-                        TableRepeater::make('payments')
-                            ->relationship()
-                            ->label('List')
-                            ->columnWidths([
-                                'receipt_image' => '300px',
-                            ])
-                            ->schema([
-                                TextInput::make('title'),
-                                TextInput::make('description'),
-                                TextInput::make('amount')->numeric()->prefix('₱'),
-                                FileUpload::make('receipt_image')
-                                    ->disk('public')->image()->directory('receipt')
-                                    ->columnSpanFull()
-                                    ->label('Proof of payment'),
-                            ])
-                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                                $data['clinic_id'] = auth()->user()->clinic?->id;
+                //         TableRepeater::make('payments')
+                //             ->relationship()
+                //             ->label('List')
+                //             ->columnWidths([
+                //                 'receipt_image' => '300px',
+                //             ])
+                //             ->schema([
+                //                 TextInput::make('title'),
+                //                 TextInput::make('description'),
+                //                 TextInput::make('amount')->numeric()->prefix('₱'),
+                //                 FileUpload::make('receipt_image')
+                //                     ->disk('public')->image()->directory('receipt')
+                //                     ->columnSpanFull()
+                //                     ->label('Proof of payment'),
+                //             ])
+                //             ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                //                 $data['clinic_id'] = auth()->user()->clinic?->id;
 
-                                return $data;
-                            })
-                            ->addActionLabel('Add Payment Information')
-                            // ->hideLabels()
-                            ->defaultItems(0)
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpanFull()
-                            ->withoutHeader(),
-                    ])
-                    ->collapsible(true)
-                    ->collapsed()
+                //                 return $data;
+                //             })
+                //             ->addActionLabel('Add Payment Information')
+                //             // ->hideLabels()
+                //             ->defaultItems(0)
+                //             ->collapsible()
+                //             ->collapsed()
+                //             ->columnSpanFull()
+                //             ->withoutHeader(),
+                //     ])
+                //     ->collapsible(true)
+                //     ->collapsed()
 
 
             ]);

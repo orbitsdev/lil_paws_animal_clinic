@@ -32,11 +32,11 @@ class StatsOverview extends BaseWidget
 
             )
             ->color('success'),
-            Stat::make(
-                'Total Revenue ',  
-               number_format(Payment::sum('amount'))
-            )
-            ->color('success'),
+            // Stat::make(
+            //     'Total Revenue ',  
+            //    number_format(Payment::sum('amount'))
+            // )
+            // ->color('success'),
         ];
     }
 }

@@ -56,6 +56,7 @@ public static function getNavigationBadgeColor(): ?string
                         ->label('What Clinic?')
                         ->required()
                         ->searchable()
+                        ->helperText(new HtmlString('Pet will only show up if category is supported by the clinic'))
                         
                         ,
 
@@ -114,22 +115,22 @@ public static function getNavigationBadgeColor(): ?string
                   
                     ,
 
-                Select::make('services')
-                ->label('Pick Services for Your Pet\'s Best ')    
-                ->relationship(
-                    name: 'services',
-                    titleAttribute: 'name',
-                    modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
-                        $query->whereHas('categories.animals', function ($query) use ($get) {
-                            $query->where('id', $get('animal_id'));
-                        });
-                    })
-                     )
-                     ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
-                    ->multiple()
-                    ->preload()
-                    ->native(false)
-                    ->searchable()
+                // Select::make('services')
+                // ->label('Pick Services for Your Pet\'s Best ')    
+                // ->relationship(
+                //     name: 'services',
+                //     titleAttribute: 'name',
+                //     modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                //         $query->whereHas('categories.animals', function ($query) use ($get) {
+                //             $query->where('id', $get('animal_id'));
+                //         });
+                //     })
+                //      )
+                //      ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
+                //     ->multiple()
+                //     ->preload()
+                //     ->native(false)
+                //     ->searchable()
                    
 
             ])

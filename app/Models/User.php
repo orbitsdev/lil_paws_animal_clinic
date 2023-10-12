@@ -127,4 +127,12 @@ public function hasAnyRole($roles) {
         return $this->hasMany(Admission::class,'veterinarian_id');
     }
 
+    // public function ownerclinic(){
+    //     return $this->hasOne(Clinic::class, 'user_id');
+    // }
+    public function ownedClinic()
+    {
+        return $this->hasOne(Clinic::class, 'user_id', 'id');
+    }
+
 }

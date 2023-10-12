@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Clinic\Resources\NoResource\Widgets\AppointmentChart;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -13,6 +12,8 @@ use Awcodes\LightSwitch\LightSwitchPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use App\Filament\Clinic\Resources\ReportResource;
+use App\Filament\Clinic\Pages\Auth\ClinicRegister;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -21,6 +22,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use App\Filament\Clinic\Resources\NoResource\Widgets\StatsOverview;
+use App\Filament\Clinic\Resources\NoResource\Widgets\AppointmentChart;
 
 class ClinicPanelProvider extends PanelProvider
 {
@@ -30,6 +32,9 @@ class ClinicPanelProvider extends PanelProvider
             ->id('clinic')
             ->path('clinic')
             ->login()
+            ->registration(ClinicRegister::class)
+          
+        
             ->colors([
                 'primary' => Color::Cyan,
             ])
@@ -37,6 +42,7 @@ class ClinicPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Clinic/Pages'), for: 'App\\Filament\\Clinic\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                
             ])
             ->discoverWidgets(in: app_path('Filament/Clinic/Widgets'), for: 'App\\Filament\\Clinic\\Widgets')
             ->widgets([

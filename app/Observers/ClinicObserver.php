@@ -34,6 +34,14 @@ class ClinicObserver
                 Storage::disk('public')->delete($clinic->image);
             }
         }
+        if(!empty($clinic->valid_id)){
+
+            if(Storage::disk('public')->exists($clinic->valid_id)){
+                Storage::disk('public')->delete($clinic->valid_id);
+            }
+        }
+      
+        
     }
 
     /**

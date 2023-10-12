@@ -65,7 +65,9 @@ class AnimalResource extends Resource
                             'Female' => 'Female',
                         ])->required(),
                         DatePicker::make('date_of_birth'),
-                        TextInput::make('weight')->required()->label('Weight'),
+                        TextInput::make('weight')->required()->label('Weight')
+                        ->maxLength(5)
+                        ,
 
                         FileUpload::make('image')
                             ->disk('public')

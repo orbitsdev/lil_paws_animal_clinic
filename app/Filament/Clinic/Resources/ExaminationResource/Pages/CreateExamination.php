@@ -10,7 +10,7 @@ use App\Filament\Clinic\Resources\ExaminationResource;
 class CreateExamination extends CreateRecord
 {
     protected static string $resource = ExaminationResource::class;
-
+    protected static bool $canCreateAnother = false;
     protected function handleRecordCreation(array $data): Model
 {
 

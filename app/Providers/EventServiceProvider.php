@@ -11,21 +11,23 @@ use App\Models\Service;
 use App\Models\Admission;
 use App\Models\Appointment;
 use App\Models\Examination;
-use App\Models\TreatmentPlan;
 use App\Models\Veterinarian;
+use App\Models\TreatmentPlan;
+use App\Models\AllowedCategory;
 use App\Observers\UserObserver;
 use App\Observers\AnimalObserver;
 use App\Observers\ClinicObserver;
+use App\Observers\MonitorObserver;
 use App\Observers\PatientObserver;
 use App\Observers\ServiceObserver;
 use App\Observers\AdmissionObserver;
 use Illuminate\Support\Facades\Event;
 use App\Observers\AppointmentObserver;
 use App\Observers\ExaminationObserver;
-use App\Observers\MonitorObserver;
-use App\Observers\TreatmentPlanObserver;
 use Illuminate\Auth\Events\Registered;
 use App\Observers\VeterinarianObserver;
+use App\Observers\TreatmentPlanObserver;
+use App\Observers\AllowedCategoryObserver;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -58,7 +60,7 @@ class EventServiceProvider extends ServiceProvider
         Admission::observe(AdmissionObserver::class);
         Monitor::observe(MonitorObserver::class);
         TreatmentPlan::observe(TreatmentPlanObserver::class);
-        
+        AllowedCategory::observe(AllowedCategoryObserver::class);
     }
 
     /**
