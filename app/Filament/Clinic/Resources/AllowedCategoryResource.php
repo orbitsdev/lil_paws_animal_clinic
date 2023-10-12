@@ -24,6 +24,9 @@ class AllowedCategoryResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
     protected static ?string $navigationGroup = 'Management';
 
+    protected static ?string $modelLabel = 'Set Pet Categories';
+
+
 
     public static function form(Form $form): Form
     {
@@ -32,6 +35,8 @@ class AllowedCategoryResource extends Resource
                 Select::make('category_id')
                 ->relationship(name: 'category', titleAttribute: 'name')
                 ->searchable()
+                ->unique(ignoreRecord: true)
+                
                 ->preload()
                 ->required()
                 ->native(false)

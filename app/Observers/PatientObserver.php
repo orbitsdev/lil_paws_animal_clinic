@@ -28,6 +28,7 @@ class PatientObserver
     public function deleted(Patient $patient): void
     {
         $patient->patientServices()->delete();
+        $patient->patientClinicService()->delete();
        
     }
 

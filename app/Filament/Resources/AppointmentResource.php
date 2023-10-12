@@ -154,10 +154,10 @@ class AppointmentResource extends Resource
                     ->label('Pet Name')
                                       ,
 
-                Select::make('services')
+                Select::make('clinicServices')
                 ->label('Pick Services for Your Pet\'s Best ')    
                 ->relationship(
-                    name: 'services',
+                    name: 'clinicServices',
                     titleAttribute: 'name',
                     modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
                         $query->whereHas('categories.animals', function ($query) use ($get) {

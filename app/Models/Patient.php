@@ -12,6 +12,7 @@ use App\Models\Appointment;
 use App\Models\Examination;
 use App\Models\ClinicServices;
 use App\Models\PatientService;
+use App\Models\PatientClinicServices;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -74,9 +75,22 @@ class Patient extends Model
     }
     
 
-    public function clinic_services(){
-        return $this->belongsToMany(ClinicServices::class,'clinic_services','patient_id','clinic_services_id');
-    }
+    // public function clinicServices(){
+    //     return $this->belongsTo(ClinicServices::class, 'patient_clinic_services', 'patient_id','clinic_services_id');
+    // }
+
+    // public function patientClinicServices(){
+    //     return $this->hasMany(PatientClinicServices::class);
+    // }
+    // public function patientClinicService(){
+    //     return $this->hasOne(PatientClinicServices::class);
+    // }
+
+
+
+    
+    
+    
 
 
 

@@ -10,8 +10,10 @@ use App\Models\ClinicServices;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\CheckboxList;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Clinic\Resources\ClinicServicesResource\Pages;
 use App\Filament\Clinic\Resources\ClinicServicesResource\RelationManagers;
@@ -29,19 +31,46 @@ class ClinicServicesResource extends Resource
     {
         return $form
             ->schema([
-               
-               TextInput::make('name')
-               ->required()
+
+                TextInput::make('name')
+                    ->required()
                     ->maxLength(191)
                     ->columnSpanFull()
-                    ->label('Service Name')
-                    ,
-               
-               TextInput::make('cost')
-               ->required()
+                    ->label('Service Name'),
+
+                TextInput::make('cost')
+                    ->required()
                     ->numeric()
                     ->columnSpanFull()
                     ->prefix('₱'),
+
+                CheckboxList::make('allowedCategories')
+                ->relationship(
+                    name: 'allowedCategories',
+                    titleAttribute: 'id')
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->category->name}")
+                    ->bulkToggleable()
+                    ->searchable()
+                    ->label('What pet can avail this service')
+                    ,
+
+
+                   
+                
+                // Select::make('allowedCategories')
+                // ->label('Pick Category')    
+                // ->relationship(
+                //     name: 'allowedCategories',
+                //     titleAttribute: 'id'
+
+                //     )
+                //     ->multiple()
+                //     ->preload()
+                //     ->native(false)
+                //     ->searchable()
+                //     ->required()
+                //     ->columnSpanFull()
+                //     ,
             ]);
     }
 
@@ -50,14 +79,24 @@ class ClinicServicesResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                ->searchable(),
-            TextColumn::make('cost')
-                ->money('PHP')
-                ->sortable(),
-               TextColumn::make('created_at')
+                    ->searchable(),
+                TextColumn::make('cost')
+                    ->money('PHP')
+                    ->sortable(),
+                // TextColumn::make('categories.name')
+                // ->badge()
+                // ->wrap()
+                // ->listWithLineBreaks()
+                // ->separator(',')
+                // ->color('primary')
+                // ->label('For')
+                // ,
+
+
+                TextColumn::make('created_at')
                     ->date()
-                 
-               
+
+
             ])
             ->filters([
                 //
@@ -75,14 +114,14 @@ class ClinicServicesResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -90,5 +129,5 @@ class ClinicServicesResource extends Resource
             'create' => Pages\CreateClinicServices::route('/create'),
             'edit' => Pages\EditClinicServices::route('/{record}/edit'),
         ];
-    }    
+    }
 }
