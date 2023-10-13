@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Clinic\Resources\AllowedCategoryResource\Pages;
 use App\Filament\Clinic\Resources\AllowedCategoryResource\RelationManagers;
+use App\Models\Category;
 
 class AllowedCategoryResource extends Resource
 {
@@ -33,22 +34,12 @@ class AllowedCategoryResource extends Resource
         return $form
             ->schema([
                 Select::make('category_id')
-                ->relationship(name: 'category', titleAttribute: 'name')
-                ->searchable()
-                ->unique(ignoreRecord: true)
-                
-                ->preload()
+                ->options(Category::pluck('name','id'))
+                ->searchable()                
                 ->required()
                 ->native(false)
                 ->columnSpanFull()
-
-                ->createOptionForm([
-                    Forms\Components\TextInput::make('name')
-                    ->label('New Category')
-                    ->maxLength(191)
-                    ->required(),
-                ])
-                ,
+                ->label('Category Name'),
               
             ]);
     }

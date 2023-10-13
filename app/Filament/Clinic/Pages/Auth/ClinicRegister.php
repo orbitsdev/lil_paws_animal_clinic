@@ -123,6 +123,7 @@ Wizard::make([
         $data['role_id']= $client_role->id;
 
         $modified_user_data = [
+            'profile'=> $data['profile'],
             'first_name'=> $data['first_name'],
             'last_name'=> $data['last_name'],
             'phone_number'=> $data['phone_number'],
