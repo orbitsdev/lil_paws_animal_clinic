@@ -59,6 +59,15 @@ class ClinicServicesResource extends Resource
                     ->numeric()
                     ->columnSpanFull()
                     ->prefix('₱'),
+
+                    // Select::make('categories')
+                    // ->label('Pick Category')    
+                    // ->relationship(name: 'categories', titleAttribute: 'name')
+                    //     ->multiple()
+                    //     ->preload()
+                    //     ->native(false)
+                    //     ->searchable()
+                    //     ->required(),
             ]);
     }
 

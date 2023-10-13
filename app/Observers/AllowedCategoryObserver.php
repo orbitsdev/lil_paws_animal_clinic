@@ -36,7 +36,7 @@ class AllowedCategoryObserver
      */
     public function deleted(AllowedCategory $allowedCategory): void
     {
-        //
+        $allowedCategory->clinicServices()->detach();
     }
 
     /**

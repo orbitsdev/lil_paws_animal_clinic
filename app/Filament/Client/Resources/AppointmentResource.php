@@ -16,16 +16,17 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\CheckboxList;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Awcodes\FilamentTableRepeater\Components\TableRepeater;
 use App\Filament\Client\Resources\AppointmentResource\Pages;
 use App\Filament\Client\Resources\AppointmentResource\RelationManagers;
-use Filament\Tables\Actions\ActionGroup;
 
 class AppointmentResource extends Resource
 {
@@ -115,22 +116,43 @@ public static function getNavigationBadgeColor(): ?string
                   
                     ,
 
-                // Select::make('services')
-                // ->label('Pick Services for Your Pet\'s Best ')    
-                // ->relationship(
-                //     name: 'services',
-                //     titleAttribute: 'name',
-                //     modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
-                //         $query->whereHas('categories.animals', function ($query) use ($get) {
-                //             $query->where('id', $get('animal_id'));
-                //         });
-                //     })
-                //      )
-                //      ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
-                //     ->multiple()
-                //     ->preload()
-                //     ->native(false)
-                //     ->searchable()
+                    // CheckboxList::make('clinicServices')
+                    // ->relationship(
+                    //     name: 'clinicServices',
+                    //     titleAttribute: 'id')
+                    //                       ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
+
+                    //     ->bulkToggleable()
+                        
+                    //   ->label('Pick Services for Your Pet\'s Best ')   
+                       
+                    
+                    //     ,   
+    
+
+                Select::make('clinicServices')
+                ->label('Pick Services for Your Pet\'s Best ')    
+                ->relationship(
+                    name: 'clinicServices',
+                    titleAttribute: 'name',
+                    modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                        $query->whereHas('allowedCategories.category.animals', function ($query) use ($get) {
+                            $query->where('id', $get('animal_id'));
+                        })
+                        ->when($get('../../clinic_id'), function ($query) use ($get) {
+                            $query->whereHas('allowedCategories', function($query) use($get){
+                                $query->where('clinic_id', $get('../../clinic_id'));
+                            });
+                        });
+                        
+                        ;
+                    })
+                     )
+                     ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))
+                    ->multiple()
+                    ->preload()
+                    ->native(false)
+                    ->searchable()
                    
 
             ])
@@ -139,7 +161,7 @@ public static function getNavigationBadgeColor(): ?string
             ->hint('Let\'s Keep Things One of a Kind, Avoid duplication')
             ->label('Pets ')
             ->addActionLabel('Add Pet')
-            ->columns(2)
+            ->columns()
             ->columnSpan(6)
             
 

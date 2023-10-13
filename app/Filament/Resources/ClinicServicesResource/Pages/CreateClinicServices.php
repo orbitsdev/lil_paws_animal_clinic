@@ -10,7 +10,7 @@ class CreateClinicServices extends CreateRecord
 {
     protected static string $resource = ClinicServicesResource::class;
     protected static bool $canCreateAnother = false;
-
+    
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
