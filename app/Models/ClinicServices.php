@@ -22,7 +22,7 @@ class ClinicServices extends Model
     }
 
     public function patients(){
-        return $this->belongsTo(Patient::class, 'patient_clinic_services', 'clinic_services_id', 'patient_id');
+        return $this->belongsToMany(Patient::class, 'patient_clinic_services', 'clinic_services_id', 'patient_id');
     }
 
     

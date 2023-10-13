@@ -75,16 +75,16 @@ class Patient extends Model
     }
     
 
-    // public function clinicServices(){
-    //     return $this->belongsTo(ClinicServices::class, 'patient_clinic_services', 'patient_id','clinic_services_id');
-    // }
+    public function clinicServices(){
+        return $this->belongsToMany(ClinicServices::class, 'patient_clinic_services', 'patient_id','clinic_services_id');
+    }
 
-    // public function patientClinicServices(){
-    //     return $this->hasMany(PatientClinicServices::class);
-    // }
-    // public function patientClinicService(){
-    //     return $this->hasOne(PatientClinicServices::class);
-    // }
+    public function patientClinicServices(){
+        return $this->hasMany(PatientClinicServices::class);
+    }
+    public function patientClinicService(){
+        return $this->hasOne(PatientClinicServices::class);
+    }
 
 
 

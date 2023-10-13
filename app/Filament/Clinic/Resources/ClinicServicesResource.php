@@ -51,8 +51,10 @@ class ClinicServicesResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->category->name}")
                     ->bulkToggleable()
                     ->searchable()
-                    ->label('What pet can avail this service')
-                    ,
+                    ->label('Pet Categories For This Service')
+                   
+                
+                    ,   
 
 
                    
@@ -79,18 +81,20 @@ class ClinicServicesResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Service Name')
+                    ,
                 TextColumn::make('cost')
                     ->money('PHP')
                     ->sortable(),
-                // TextColumn::make('categories.name')
-                // ->badge()
-                // ->wrap()
-                // ->listWithLineBreaks()
-                // ->separator(',')
-                // ->color('primary')
-                // ->label('For')
-                // ,
+                TextColumn::make('allowedCategories.category.name')
+                ->badge()
+                ->wrap()
+                ->listWithLineBreaks()
+                ->separator(',')
+                ->color('primary')
+                ->label('Allowed Pet Categories')
+                ,
 
 
                 TextColumn::make('created_at')
