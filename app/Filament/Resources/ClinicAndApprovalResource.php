@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -188,11 +189,45 @@ class ClinicAndApprovalResource extends Resource
                 ])->label('Status'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+
+                    Tables\Actions\Action::make('Management')
+                    ->icon('heroicon-s-pencil-square')
+                    ->label('Manage Request')
+                    ->color('success')
+                    ->fillForm(function (Clinic $record, array $data) {
+                        return [
+                            'status' => $record->status
+                        ];
+                    })
+                    ->form([
+
+                        Select::make('status')
+                            ->label('Request Status')
+                            ->options([
+                                'accepted' => 'Accepted',
+                                'pending' => 'Pending',
+                                'completed' => 'Completed',
+                                'rejected' => 'Reject',
+                            ])
+                            
+                            ->required()
+                            
+                            ,
+
+                    ])
+                    ->action(function (Clinic $record, array $data): void {
+                        $record->status = $data['status'];
+                        $record->save();
+                    })
+                    ,
+                    Tables\Actions\EditAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    
                 ]),
             ])
             ->emptyStateActions([
