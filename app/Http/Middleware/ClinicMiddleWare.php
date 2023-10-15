@@ -33,6 +33,7 @@ class ClinicMiddleWare
          return  match($user->clinic->status){
                 'pending'=>  redirect('clinic-request'),
                 'rejected'=> redirect('clinic-request'),
+                // 'accepted'=> redirect('clinic'),
                     default=>  $next($request),
             };
 

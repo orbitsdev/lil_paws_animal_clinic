@@ -86,6 +86,13 @@ class Patient extends Model
         return $this->hasOne(PatientClinicServices::class);
     }
 
+    public function requestAccess(){
+        return $this->hasMany(RequestAccess::class);
+    }
+
+
+   
+
 
 
     

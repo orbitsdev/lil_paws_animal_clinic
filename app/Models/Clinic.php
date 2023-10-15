@@ -59,4 +59,13 @@ class Clinic extends Model
     public function allowedCategory(){
         return $this->hasMany(AllowedCategory::class);
     }
+
+    public function recieveRequestAccess(){
+        return $this->hasMany(RequestAccess::class ,'from_clinic_id');
+    }
+    public function sendRequestAccess(){
+        return $this->hasMany(RequestAccess::class ,'to_clinic_id');
+    }
+
+    
 }

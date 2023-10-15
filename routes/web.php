@@ -10,6 +10,7 @@ use App\Exports\AppointmentExport;
 use App\Exports\ClinicPatientExport;
 use App\Exports\ClinicPaymentExport;
 use App\Http\Controllers\LogoutController;
+use App\Http\Middleware\ClinicMiddleWare;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 
