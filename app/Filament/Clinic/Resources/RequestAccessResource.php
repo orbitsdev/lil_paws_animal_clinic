@@ -20,6 +20,12 @@ class RequestAccessResource extends Resource
     protected static ?string $model = RequestAccess::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-arrow-down';
+    protected static ?string $modelLabel = 'Access Log Request';
+    protected static ?int $navigationSort = 2;
+
+    // protected static ?string $navigationGroup = 'Request';
+
+
 
     public static function form(Form $form): Form
     {
@@ -97,7 +103,7 @@ class RequestAccessResource extends Resource
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->label('Send New Request'),
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $clinicId = auth()->user()->clinic?->id;
