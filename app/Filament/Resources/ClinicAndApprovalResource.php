@@ -7,12 +7,14 @@ use Filament\Tables;
 use App\Models\Clinic;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use App\Models\ClinicAndApproval;
 use Filament\Tables\Grouping\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
+use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -22,9 +24,15 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Infolists\Components\Section as InfoSection;
 use App\Filament\Resources\ClinicAndApprovalResource\Pages;
 use App\Filament\Resources\ClinicAndApprovalResource\RelationManagers;
+
 
 class ClinicAndApprovalResource extends Resource
 {
@@ -101,9 +109,10 @@ class ClinicAndApprovalResource extends Resource
             Select::make('status')
             ->label('Request Status')
             ->options([
-                'accepted' => 'Accepted',
+                'accepted' => 'Accept',
                 'pending' => 'Pending',
-                'rejected' => 'Rejected',
+                'rejected' => 'Reject',
+                'completed' => 'Complete',
             ])
             ->label('Status')
             ->required(),
@@ -191,6 +200,8 @@ class ClinicAndApprovalResource extends Resource
             ->actions([
                 ActionGroup::make([
 
+                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details')->modalWidth('5xl'),
+
                     Tables\Actions\Action::make('Management')
                     ->icon('heroicon-s-pencil-square')
                     ->label('Manage Request')
@@ -245,6 +256,134 @@ class ClinicAndApprovalResource extends Resource
             ;
     }
     
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                InfoSection::make('Veterinarian  Details')
+
+
+                ->columns([
+                    'sm' => 3,
+                    'xl' => 6,
+                    '2xl' => 8,
+                ])
+                ->schema([
+                    
+                    TextEntry::make('owner')->columnSpan(6)->label('Owner')
+                    ->formatStateUsing(fn ($record)=> $record->owner?->first_name. ' '.$record->owner?->last_name)
+                        ->label('Name')
+                        ->color('gray')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'xl' => 3,
+                            '2xl' => 4,
+                        ]),
+
+
+                    TextEntry::make('owner')->columnSpan(6)->label('Phone Number')
+                        ->formatStateUsing(fn ($record): string => !empty($record->owner?->phone_number) ? $record->owner?->phone_number : 'N/S')
+                        ->color('gray')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'xl' => 3,
+                            '2xl' => 4,
+                        ]),
+                    TextEntry::make('owner')->columnSpan(6)->label('Address')
+                        ->formatStateUsing(fn ($record): string => !empty($record->owner?->address) ? $record->owner?->address : 'N/S')
+                        ->color('gray')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'xl' => 3,
+                            '2xl' => 4,
+                        ]),
+                    TextEntry::make('owner.email')->columnSpan(6)->label('Email')
+                        ->color('gray')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'xl' => 3,
+                            '2xl' => 4,
+                        ]),
+
+                        ImageEntry::make('valid_id')
+                        ->disk('public')
+                        ->width(400)
+                        ->height(400)
+                        ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
+                        ->openUrlInNewTab()
+                        ->label('Valid ID ')
+
+                        ->columnSpan([
+                            'sm' => 1,
+                            'xl' => 2,
+                            '2xl' => 8,
+                        ]),
+
+                ]),
+
+                InfoSection::make('Clinic Details')
+
+
+                ->columns([
+                    'sm' => 3,
+                    'xl' => 6,
+                    '2xl' => 8,
+                ])
+                ->schema([  
+
+                    TextEntry::make('status')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'xl' => 8,
+                        '2xl' => 8,
+                    ])
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'accepted' => 'success',
+                        'pending' => 'info',
+                        'completed' => 'success',
+                        'rejected' => 'danger',
+                    })
+                    ->label('Request Status')
+                    ->formatStateUsing(fn (string $state): string => ucfirst ($state))
+                    ,
+
+                    TextEntry::make('.name')
+                    ->label('Clinic Name')
+                    ->color('gray')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'xl' => 2,
+                        '2xl' => 2,
+                    ]),
+                TextEntry::make('address')
+                    ->label('Breed')
+                    ->color('gray')
+                    ->columnSpan([
+                        'sm' => 1,
+                        'xl' => 2,
+                        '2xl' => 2,
+                    ])
+                    ->label('Business Location'),
+
+                    ImageEntry::make('image')
+                    ->disk('public')
+                    ->width(400)
+                    ->height(400)
+                    ->url(fn ($state): string =>  $state ? Storage::url($state) : null)
+                    ->openUrlInNewTab()
+                    ->label('Business  Image')
+
+
+                    ->columnSpanFull()
+              
+
+                    
+
+                ]),
+            ]);
+    }
     public static function getRelations(): array
     {
         return [

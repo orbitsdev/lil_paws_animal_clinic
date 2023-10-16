@@ -45,10 +45,7 @@ class Clinic extends Model
         return $this->hasMany(Category::class);
     }
 
-    public function owner()
-    {
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
+   
 
     public function clinicServices(){
         return $this->hasMany(ClinicServices::class);
@@ -63,9 +60,13 @@ class Clinic extends Model
     public function recieveRequestAccess(){
         return $this->hasMany(RequestAccess::class ,'from_clinic_id');
     }
+
     public function sendRequestAccess(){
         return $this->hasMany(RequestAccess::class ,'to_clinic_id');
     }
-
+    
+    public function owner(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
     
 }
