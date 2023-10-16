@@ -34,6 +34,7 @@ class ClinicResource extends Resource
 
     protected static ?string $navigationGroup = 'Management';
 
+
     protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form

@@ -20,7 +20,7 @@ class RequestAccessResource extends Resource
     protected static ?string $model = RequestAccess::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-arrow-down';
-    protected static ?string $modelLabel = 'Access Log Request';
+    protected static ?string $modelLabel = 'Request Logs';
     protected static ?int $navigationSort = 2;
 
     // protected static ?string $navigationGroup = 'Request';

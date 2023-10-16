@@ -107,7 +107,7 @@ public static function getNavigationBadgeColor(): ?string
                             $query->where('user_id', auth()->user()->id);
                         })
                     )
-                    ->getOptionLabelFromRecordUsing(fn (Model $record) => ucfirst(optional($record)->name) .' - '. ucfirst(optional($record)->breed))
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => ucfirst(optional($record)->name) .' - '. ucfirst(optional($record)->category->name)  )
                     ->searchable(['animal.name', 'animal.breed'])
                     ->preload()
                   
@@ -136,16 +136,27 @@ public static function getNavigationBadgeColor(): ?string
                     name: 'clinicServices',
                     titleAttribute: 'name',
                     modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
+                        // $query->whereHas('allowedCategories.category.animals', function ($query) use ($get) {
+                        //     $query->where('animals.id', $get('animal_id'));
+                        // })
+                        // ->when($get('../../clinic_id'), function ($query) use ($get) {
+                        //     $query->whereHas('allowedCategories', function ($query) use ($get) {
+                        //         $query->where('clinic_id', $get('../../clinic_id'));
+                        //     });
+                        // })->whereHas('allowedCategories', function ($query) use ($get) {
+                        //     $query->where('archived',false);
+                        // });
                         $query->whereHas('allowedCategories.category.animals', function ($query) use ($get) {
-                            $query->where('id', $get('animal_id'));
+                            $query->where('animals.id', $get('animal_id'));
                         })
                         ->when($get('../../clinic_id'), function ($query) use ($get) {
-                            $query->whereHas('allowedCategories', function($query) use($get){
-                                $query->where('clinic_id', $get('../../clinic_id'));
+                            $query->whereHas('allowedCategories', function ($query) use ($get) {
+                                $query->where('clinic_id', $get('../../clinic_id'))
+                                    ->where('archived', false); // Add this condition for allowedCategories
                             });
                         });
                         
-                        ;
+                        
                     })
                      )
                      ->getOptionLabelFromRecordUsing(fn (Model $record) => optional($record)->name . ' - ₱' . number_format(optional($record)->cost))

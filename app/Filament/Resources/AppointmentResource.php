@@ -60,6 +60,7 @@ class AppointmentResource extends Resource
                     Select::make('clinic_id')
                         ->options(Clinic::query()->pluck('name', 'id'))
                         ->native(false)
+                        ->reactive()
                         ->label('What Clinic?')
                         ->required()
                         ->searchable()
@@ -162,6 +163,8 @@ class AppointmentResource extends Resource
                     modifyQueryUsing: fn (Builder $query, Get $get) => $query->when($get('animal_id'), function ($query) use ($get) {
                         $query->whereHas('categories.animals', function ($query) use ($get) {
                             $query->where('id', $get('animal_id'));
+                        })->when($get('../../clinic_id'), function ($query) use ($get) {
+                            $query->where('clinic_id', $get('../../clinic_id'));
                         });
                     })
                      )
@@ -386,7 +389,7 @@ class AppointmentResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->poll('5s')
+            // ->poll('5s')
 
             ;
     }

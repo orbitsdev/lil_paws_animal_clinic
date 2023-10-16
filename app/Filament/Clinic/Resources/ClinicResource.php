@@ -18,7 +18,7 @@ class ClinicResource extends Resource
     protected static ?string $model = Clinic::class;
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
 
-    protected static ?string $modelLabel = 'Requested Record List';
+    protected static ?string $modelLabel = 'Received Requests';
     protected static ?int $navigationSort = 1;
 
 
