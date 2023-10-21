@@ -200,7 +200,8 @@ class ClinicAndApprovalResource extends Resource
             ->actions([
                 ActionGroup::make([
 
-                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details')->modalWidth('5xl'),
+                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details')->modalWidth('5xl')
+                    ->modalHeading('Clinic Details'),
 
                     Tables\Actions\Action::make('Management')
                     ->icon('heroicon-s-pencil-square')
@@ -349,7 +350,7 @@ class ClinicAndApprovalResource extends Resource
                     ->formatStateUsing(fn (string $state): string => ucfirst ($state))
                     ,
 
-                    TextEntry::make('.name')
+                    TextEntry::make('name')
                     ->label('Clinic Name')
                     ->color('gray')
                     ->columnSpan([

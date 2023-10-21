@@ -22,7 +22,13 @@ class ClientRegister extends Register {
             ->required(),
             TextInput::make('last_name')
             ->required(),
-
+        
+            TextInput::make('phone_number')
+                    
+            ->minLength(11)
+            ->maxLength(11)
+            ->required(),
+            TextInput::make('address')->required(),
             // $this->getNameFormComponent(),
             $this->getEmailFormComponent(),
             $this->getPasswordFormComponent(),

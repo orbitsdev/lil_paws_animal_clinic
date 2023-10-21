@@ -50,10 +50,8 @@ class ClinicServicesResource extends Resource
                     titleAttribute: 'id')
                     ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->category->name}")
                     ->bulkToggleable()
-                    ->searchable()
-                    ->label('Pet Categories For This Service')
-                   
-                
+                 
+                    ->label('Select pet categories that are allowed for this service')
                     ,   
 
 

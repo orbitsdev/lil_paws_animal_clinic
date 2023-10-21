@@ -113,7 +113,6 @@ public static function getNavigationBadgeColor(): ?string
                   
                     ->label('Pet Name')
                   
-                  
                     ,
 
                     // CheckboxList::make('clinicServices')

@@ -15,6 +15,7 @@ use App\Models\Veterinarian;
 use App\Models\TreatmentPlan;
 use App\Models\ClinicServices;
 use App\Models\AllowedCategory;
+use App\Models\RequestAccess;
 use App\Observers\UserObserver;
 use App\Observers\AnimalObserver;
 use App\Observers\ClinicObserver;
@@ -30,6 +31,7 @@ use App\Observers\VeterinarianObserver;
 use App\Observers\TreatmentPlanObserver;
 use App\Observers\AllowedCategoryObserver;
 use App\Observers\ClinicServicesObserver;
+use App\Observers\RequestAccessObserver;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -64,6 +66,7 @@ class EventServiceProvider extends ServiceProvider
         TreatmentPlan::observe(TreatmentPlanObserver::class);
         AllowedCategory::observe(AllowedCategoryObserver::class);
         ClinicServices::observe(ClinicServicesObserver::class);
+        RequestAccess::observe(RequestAccessObserver::class);
     }
 
     /**

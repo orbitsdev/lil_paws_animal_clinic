@@ -15,7 +15,7 @@ class RequestAccessObserver
         $user = Auth::user();
         if ($user->hasAnyRole(['Veterenarian'])) {
             if($user->clinic){
-                $requestAccess->form_clinic_id = $user->clinic->id;
+                $requestAccess->from_clinic_id = $user->clinic->id;
                 $requestAccess->save();
             }
             // $animal->user_id = $user->id;

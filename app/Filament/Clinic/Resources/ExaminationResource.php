@@ -741,7 +741,7 @@ class ExaminationResource extends Resource
 
 
                                         TextEntry::make('animal.user')->columnSpan(6)->label('Phone Number')
-                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->phone_number) ? $record->phone_number : 'N/S')
+                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->animal?->user?->phone_number) ? $record->animal?->user?->phone_number : 'NOT SPECIFIED')
 
                                             ->columnSpan([
                                                 'sm' => 2,
@@ -749,8 +749,8 @@ class ExaminationResource extends Resource
                                                 '2xl' => 4,
                                             ])->color('gray'),
                                         TextEntry::make('animal.user')->columnSpan(6)->label('Address')
-                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->address) ? $record->address : 'N/S')
-
+                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->animal?->user?->address) ? $record->animal?->user?->address : 'NOT SPECIFIED')
+                                                
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
@@ -1105,53 +1105,53 @@ class ExaminationResource extends Resource
                             ])
                             ,
 
-                            Tabs\Tab::make('Payment Details')
+                            // Tabs\Tab::make('Payment Details')
 
-                            ->icon('heroicon-m-banknotes')
-                            ->iconPosition(IconPosition::After)
-                            ->schema([
-                                RepeatableEntry::make('payments')
-                                ->columns([
-                                    'sm' => 3,
-                                    'xl' => 6,
-                                    '2xl' => 8,
-                                ])
-                                ->schema([
-                                    TextEntry::make('title')
-                                    ->label('Paytment Title')
-                                    ->color('gray')  
-                                    ->columnSpan(2),
-                                    TextEntry::make('description')
-                                    ->label('Paytment Description')
-                                    ->color('gray')  
-                                    ->columnSpan(2),
-                                    TextEntry::make('amount')
-                                    ->label('Paytment Ammount')
-                                    ->color('gray')  
-                                    ->money('PHP')
-                                    ->columnSpan(2),
+                            // ->icon('heroicon-m-banknotes')
+                            // ->iconPosition(IconPosition::After)
+                            // ->schema([
+                            //     RepeatableEntry::make('payments')
+                            //     ->columns([
+                            //         'sm' => 3,
+                            //         'xl' => 6,
+                            //         '2xl' => 8,
+                            //     ])
+                            //     ->schema([
+                            //         TextEntry::make('title')
+                            //         ->label('Paytment Title')
+                            //         ->color('gray')  
+                            //         ->columnSpan(2),
+                            //         TextEntry::make('description')
+                            //         ->label('Paytment Description')
+                            //         ->color('gray')  
+                            //         ->columnSpan(2),
+                            //         TextEntry::make('amount')
+                            //         ->label('Paytment Ammount')
+                            //         ->color('gray')  
+                            //         ->money('PHP')
+                            //         ->columnSpan(2),
 
-                                    ImageEntry::make('receipt_image')
-                                    ->disk('public')
-                                    ->height(60)
-                                    ->url(fn ($state) => $state ? Storage::disk('public')->url($state) : asset('/images/placeholder.png'))
+                            //         ImageEntry::make('receipt_image')
+                            //         ->disk('public')
+                            //         ->height(60)
+                            //         ->url(fn ($state) => $state ? Storage::disk('public')->url($state) : asset('/images/placeholder.png'))
 
-                                    ->openUrlInNewTab()
-                                    ->label('Proof Of Payment ')
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'xl' => 2,
-                                        '2xl' => 2,
-                                    ])
-                                    ->defaultImageUrl(url('/images/placeholder.png')),
+                            //         ->openUrlInNewTab()
+                            //         ->label('Proof Of Payment ')
+                            //         ->columnSpan([
+                            //             'sm' => 1,
+                            //             'xl' => 2,
+                            //             '2xl' => 2,
+                            //         ])
+                            //         ->defaultImageUrl(url('/images/placeholder.png')),
 
-                                ])
-                                ->columnSpanFull()
-                                ->label('Payments')
-                                ]),
+                            //     ])
+                            //     ->columnSpanFull()
+                            //     ->label('Payments')
+                            //     ]),
 
                     ])
-                    ->activeTab(5)   
+                    ->activeTab(2)   
                     ->columnSpan(8),
 
             ]);

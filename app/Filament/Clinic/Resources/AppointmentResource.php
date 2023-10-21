@@ -58,7 +58,7 @@ class AppointmentResource extends Resource
 
     public static function getNavigationBadge(): ?string
 {
-    return static::getModel()::where('clinic_id', auth()->user()->clinic?->id)->whereNotIn('status',['Accepted','Completed'])->count();
+    return static::getModel()::where('clinic_id', auth()->user()->clinic?->id)->where('status','!=','Accepted')->count();
 
 }
     public static function form(Form $form): Form
@@ -291,7 +291,7 @@ class AppointmentResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-
+                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details')->modalWidth('7xl'),
                     Tables\Actions\Action::make('update')
                         ->icon('heroicon-s-pencil-square')
                         ->label('Manage Request')
@@ -366,7 +366,7 @@ class AppointmentResource extends Resource
 
                     //         return true;
                     //     }),
-                    Tables\Actions\ViewAction::make()->color('primary')->label('View Details'),
+                  
                     // Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Manage Appointment'),
             ])

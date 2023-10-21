@@ -2,18 +2,23 @@
 
 namespace App\Filament\Clinic\Resources;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\RequestAccess;
+use Illuminate\Support\Carbon;
+use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\DeleteAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Clinic\Resources\RequestAccessResource\Pages;
 use App\Filament\Clinic\Resources\RequestAccessResource\RelationManagers;
-use App\Models\RequestAccess;
-use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RequestAccessResource extends Resource
 {
@@ -38,30 +43,35 @@ class RequestAccessResource extends Resource
                     titleAttribute: 'id',
                     modifyQueryUsing:function($query){
                         $clinicId = auth()->user()->clinic?->id;
-                         $query->where('clinic_id', '!=', $clinicId);
+                        $query->where('clinic_id', '!=', $clinicId)->latest()->whereDoesntHave('requestAccess', function($query) use ($clinicId) {
+                            $query->where('from_clinic_id', $clinicId);
+                        });
                     
                     }
                     
                 )
                 ->label('Pets Name')
+
                 ->getOptionLabelFromRecordUsing(function (Model $record) {
 
-                    return $record->animal->name . ' - ('. $record->animal->user->first_name. ''.$record->animal->user->last_name  ;
+                    return $record->animal->name . ' - '. $record->animal->user->first_name. ' '.$record->animal->user->last_name.' ('. $record->clinic->name.') '.Carbon::parse($record->created_at)->format('F d, Y l h:i A')  ;
                     
-
+                    
                 })
-
+                
                 ->preload()
                 ->required()
-                ->searchable(),
-                Forms\Components\TextInput::make('from_clinic_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('to_clinic_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('description')
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('status')
-                    ->maxLength(191),
+                ->searchable()
+                ->hint('Only Pet that has medical record will be shown here')
+                ->helperText(new HtmlString('Patient - Owner ( Clinic ) | ( Record Date)')),
+              
+                // Forms\Components\TextInput::make('to_clinic_id'),
+                   
+                Textarea::make('description')
+                ->columnSpanFull()
+                
+                // Forms\Components\TextInput::make('status')
+                //     ->maxLength(191),
             ]);
     }
 
@@ -69,33 +79,50 @@ class RequestAccessResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('patient_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('from_clinic_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('to_clinic_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('description')
+
+                TextColumn::make('patient.animal.user')
+                ->formatStateUsing(fn ($state): string => $state ? ucfirst($state->first_name . ' ' . $state->last_name) : '')
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('patient.animal.user', function ($query) use ($search) {
+                        $query->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+                }),
+            TextColumn::make('patient.animal.name')
+            ->formatStateUsing(fn ($state): string => ucfirst($state))
+           
+            ->label('Pet Owner')
+            ->searchable(query: function (Builder $query, string $search): Builder {
+                return $query->whereHas('patient.animal', function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%");
+                });
+            })
+            ,
+            
+            TextColumn::make('patient.clinic.name')
+                ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state)
+              
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('clinic', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%");
+                    });
+                })
+                ->badge()
+                ,
+
+             
+               TextColumn::make('description')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
+               TextColumn::make('status')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+              
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
+                DeleteAction::make()->outlined()->button()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
