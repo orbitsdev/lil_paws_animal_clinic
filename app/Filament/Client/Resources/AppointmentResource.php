@@ -233,6 +233,12 @@ public static function getNavigationBadgeColor(): ?string
                     'Rejected' => 'heroicon-o-x-mark',
                 })
                 ->searchable(),
+
+                TextColumn::make('patient.clinicServices.name')
+                ->wrap()
+    ->badge()
+    ->separator(','),
+    
             ])
             ->filters([
                 SelectFilter::make('status')

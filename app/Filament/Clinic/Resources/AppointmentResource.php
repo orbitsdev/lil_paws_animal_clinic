@@ -59,10 +59,9 @@ class AppointmentResource extends Resource
 
 
     public static function getNavigationBadge(): ?string
-{
-    return static::getModel()::where('clinic_id', auth()->user()->clinic?->id)->where('status','!=','Accepted')->count();
-
-}
+    {
+        return static::getModel()::where('clinic_id', auth()->user()->clinic?->id)->where('status', '!=', 'Accepted')->count();
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -206,10 +205,10 @@ class AppointmentResource extends Resource
 
                                     ->maxItems(1),
 
-                                                
 
 
-                                             
+
+
 
                             ])
 
@@ -230,61 +229,66 @@ class AppointmentResource extends Resource
             ->columns([
 
                 TextColumn::make('patient.animal.user')
-                ->formatStateUsing(fn ($state): string => $state ? ucfirst($state->first_name . ' ' . $state->last_name) : '')
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('patient.animal.user', function ($query) use ($search) {
-                        $query->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%");
-                    });
-                }),
-            TextColumn::make('patient.animal.name')
-            ->formatStateUsing(fn ($state): string => ucfirst($state))
-            ->sortable()
-            ->label('Pet Owner')
-            ->searchable(query: function (Builder $query, string $search): Builder {
-                return $query->whereHas('patient.animal', function ($query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%");
-                });
-            })
-            ,
-            
-            TextColumn::make('clinic.name')
-                ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state)
-                ->sortable()
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('clinic', function ($query) use ($search) {
-                        $query->where('name', 'like', "%{$search}%");
-                    });
-                }),
+                    ->formatStateUsing(fn ($state): string => $state ? ucfirst($state->first_name . ' ' . $state->last_name) : '')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('patient.animal.user', function ($query) use ($search) {
+                            $query->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                    }),
+                TextColumn::make('patient.animal.name')
+                    ->formatStateUsing(fn ($state): string => ucfirst($state))
+                    ->sortable()
+                    ->label('Pet Owner')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('patient.animal', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
+                    }),
 
-            TextColumn::make('date')->date()->color('warning'),
-            TextColumn::make('time')->date('h:i:s A'),
-            TextColumn::make('patients.animal.name')
-                ->badge()
-                ->separator(',')
-                ->label('Patients')
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('patients.animal', function ($query) use ($search) {
-                        $query->where('name', 'like', "%{$search}%");
-                    });
-                }),
+                TextColumn::make('clinic.name')
+                    ->formatStateUsing(fn (string $state): string => $state ? ucfirst($state) : $state)
+                    ->sortable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('clinic', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
+                    }),
+
+                TextColumn::make('date')->date()->color('warning'),
+                TextColumn::make('time')->date('h:i:s A'),
+                TextColumn::make('patients.animal.name')
+                    ->badge()
+                    ->separator(',')
+                    ->label('Patients')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('patients.animal', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
+                    }),
 
 
-            TextColumn::make('status')
-                ->badge()
-                ->color(fn (string $state): string => match ($state) {
-                    'Pending' => 'primary',
-                    'Accepted' => 'success',
-                    'Completed' => 'success',
-                    'Rejected' => 'danger',
-                })
-                ->icon(fn (string $state): string => match ($state) {
-                    'Pending' => 'heroicon-o-ellipsis-horizontal-circle',
-                    'Accepted' => 'heroicon-o-check-circle',
-                    'Completed' => 'heroicon-s-check-circle',
-                    'Rejected' => 'heroicon-o-x-mark',
-                })
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Pending' => 'primary',
+                        'Accepted' => 'success',
+                        'Completed' => 'success',
+                        'Rejected' => 'danger',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Pending' => 'heroicon-o-ellipsis-horizontal-circle',
+                        'Accepted' => 'heroicon-o-check-circle',
+                        'Completed' => 'heroicon-s-check-circle',
+                        'Rejected' => 'heroicon-o-x-mark',
+                    })
                     ->searchable(),
+
+                TextColumn::make('patient.clinicServices.name')
+                    ->wrap()
+                    ->badge()
+                    ->separator(','),
+
             ])
             ->filters([
                 // SelectFilter::make('clinic_id')
@@ -346,9 +350,6 @@ class AppointmentResource extends Resource
                                 $patient->save();
                             }
                             $record->save();
-
-
-        
                         })->hidden(function ($record) {
                             return match ($record->status) {
                                 'Accepted' => auth()->user()->id == $record?->veterinarian?->id ? false : true,
@@ -368,7 +369,7 @@ class AppointmentResource extends Resource
 
                     //         return true;
                     //     }),
-                  
+
                     // Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Manage Appointment'),
             ])
@@ -383,7 +384,6 @@ class AppointmentResource extends Resource
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->where('clinic_id', auth()->user()->clinic?->id))
             ->poll('5s');
-            
     }
 
 
@@ -574,6 +574,10 @@ class AppointmentResource extends Resource
                                                         '2xl' => 2,
                                                     ]),
 
+                                                    ViewEntry::make('')
+                                                    ->label('Services')
+                                                    ->view('infolists.components.clinic-services')
+
 
 
 
@@ -585,7 +589,7 @@ class AppointmentResource extends Resource
                                             ->columnSpan(6),
                                     ]),
                             ]),
-                       
+
 
                     ])
                     ->columnSpan(8),

@@ -376,7 +376,38 @@
         </div>
     </div>
 @endif --}}
-    
+@if($patient->clinicServices)
+<div class="section">
+    <p class="section-title">Services</p>
+    <div class="section-content">
+        <table >
+            <tr>
+                <th>Name</th>
+                <th>Cost</th>
+            </tr>
+          
+            @forelse ($patient->clinicServices as $service)
+                <tr>
+                    <td>{{ $service?->name }}</td>
+                    <td>{{ number_format($service?->cost) }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="2">No Services records found.</td>
+                </tr>
+            @endforelse
+
+            @if ($patient->clinicServices->isNotEmpty())
+                <tr>
+                    <td colspan="2"><strong>Total Amount:</strong></td>
+                    <td><strong> Php {{ number_format($patient->clinicServices->sum('cost')) }}</strong></td>
+                </tr>
+            @endif
+        </table>
+    </div>
+</div>
+@endif
+
     
     
 

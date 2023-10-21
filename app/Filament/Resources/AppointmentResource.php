@@ -29,6 +29,7 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -247,6 +248,12 @@ protected static ?int $navigationSort = 6;
                         'Rejected' => 'heroicon-o-x-mark',
                     })
                     ->searchable(),
+
+                    
+                TextColumn::make('patient.clinicServices.name')
+                ->wrap()
+                ->badge()
+                ->separator(','),
             ])
             ->filters([
                 SelectFilter::make('clinic_id')
@@ -577,7 +584,12 @@ protected static ?int $navigationSort = 6;
                                                         'sm' => 1,
                                                         'xl' => 2,
                                                         '2xl' => 2,
-                                                    ]),
+                                                    ]), 
+
+                                                    
+                                                    ViewEntry::make('')
+                                                    ->label('Services')
+                                                    ->view('infolists.components.clinic-services')
 
 
 

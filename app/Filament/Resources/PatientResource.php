@@ -1056,6 +1056,20 @@ class PatientResource extends Resource
 
                             ])
                             ,
+                                
+
+                                Tabs\Tab::make('Services')
+
+                            ->icon('heroicon-m-banknotes')
+                            ->iconPosition(IconPosition::After)
+                            ->schema([
+                                                
+                                ViewEntry::make('')
+                                    ->label('Services')
+                                    ->view('infolists.components.clinic-services')
+                                
+
+                            ]),
 
                             // Tabs\Tab::make('Payment Details')
 
