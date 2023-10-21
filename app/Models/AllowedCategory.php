@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Category;
 use App\Models\ClinicServices;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AllowedCategoryClinicServices;
@@ -17,7 +18,7 @@ class AllowedCategory extends Model
     }
 
     public function category(){
-        return $this->belongsTo(category::class);
+        return $this->belongsTo(Category::class);
     }
 
 
