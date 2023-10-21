@@ -11,6 +11,7 @@ use App\Models\AllowedCategory;
 use Filament\Resources\Resource;
 use Filament\Tables\Grouping\Group;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ToggleColumn;
@@ -71,9 +72,13 @@ class AllowedCategoryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('category.name')
+               TextColumn::make('category.name')
                     ->searchable()
-                    ->label('Name   '),
+                    ->label('Serice Name'),
+               TextColumn::make('clinic.name')
+                    ->searchable()
+                    ->badge()
+                    ->label('Clinic Name'),
                 ToggleColumn::make('archived')->label('Archived'),
             ])
             ->filters([

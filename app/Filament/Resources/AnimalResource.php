@@ -98,7 +98,15 @@ class AnimalResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
+                TextColumn::make('name')->sortable()->searchable()->label('Pet Name')
+                ->formatStateUsing(fn($state)=> ucfirst($state))
+                ,
+                ImageColumn::make('image')->url(fn (Animal $record): null|string => $record->image ?  Storage::disk('public')->url($record->image) : null)
+                    ->openUrlInNewTab()
+                    ->height(140)
+                    ->width(140),
+              
+                TextColumn::make('user_id')
                 ->formatStateUsing(function( $record){
                     if($record->user){
                         return ucfirst($record?->user?->first_name.' '.$record?->user?->last_name);
@@ -113,13 +121,6 @@ class AnimalResource extends Resource
                             ->orWhere('last_name', 'like', "%{$search}%");
                     });
                 })
-                ,
-                ImageColumn::make('image')->url(fn (Animal $record): null|string => $record->image ?  Storage::disk('public')->url($record->image) : null)
-                    ->openUrlInNewTab()
-                    ->height(200)
-                    ->width(200),
-                TextColumn::make('name')->sortable()->searchable()->label('Pet Name')
-                ->formatStateUsing(fn($state)=> ucfirst($state))
                 ,
                 TextColumn::make('category.name')
                 ->sortable()

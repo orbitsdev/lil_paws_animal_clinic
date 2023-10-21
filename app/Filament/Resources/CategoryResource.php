@@ -52,7 +52,8 @@ class CategoryResource extends Resource
                 // TextColumn::make('clinic.name')->badge()->searchable(),
               
               
-                Tables\Columns\TextColumn::make('name')
+               TextColumn::make('name')
+               ->label('Category Name')
                     ->searchable(),
                     TextColumn::make('allowed_categories.clinic.name')->formatStateUsing(function($state){
                         return $state;
@@ -61,7 +62,7 @@ class CategoryResource extends Resource
     ->wrap()
     ->listWithLineBreaks()
     ->separator(',')
-    ->label('Clinic Availability')
+    ->label('Availability')
     ,
                     
                     // ToggleColumn::make('archived')->label('Archived'),
