@@ -39,16 +39,18 @@ class ClinicAndApprovalResource extends Resource
     protected static ?string $model = Clinic::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
-    protected static ?string $navigationGroup = 'Request';
     protected static ?string $modelLabel = 'Clinics & Approval';
+
+
+    protected static ?string $navigationGroup = 'Request Management';
+    protected static ?int $navigationSort = 2;
 
 
     public static function getPluralLabel(): ?string
     {
        return 'Clinic & Approval';
 
-    } 
-    protected static ?int $navigationSort = 6;
+    }
 
     public static function getNavigationBadge(): ?string
 {

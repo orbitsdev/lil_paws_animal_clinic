@@ -26,7 +26,8 @@ class ClinicServicesResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-scissors';
     protected static ?string $navigationGroup = 'Management';
-  
+    protected static bool $shouldRegisterNavigation = false;
+
 
     protected static ?int $navigationSort = 8;
 
