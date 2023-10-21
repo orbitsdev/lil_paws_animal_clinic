@@ -20,7 +20,9 @@ class ReportResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-newspaper';
    
-    protected static ?string $navigationGroup = 'Management';
+
+    protected static ?string $navigationGroup = 'Download';
+    protected static ?string $modelLabel = 'Reports';
 
     protected static ?int $navigationSort = 10;
 

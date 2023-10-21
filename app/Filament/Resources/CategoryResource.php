@@ -26,12 +26,11 @@ class CategoryResource extends Resource
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
-    protected static ?string $navigationGroup = 'Management';
     protected static ?string $modelLabel = 'Pet Category';
-
-
-    protected static ?int $navigationSort = 5;
-
+    
+    
+    protected static ?string $navigationGroup = 'Clinic Data Management';
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

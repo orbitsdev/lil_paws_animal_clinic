@@ -30,10 +30,17 @@ class ClinicResource extends Resource
 
 
     public static function getNavigationBadge(): ?string
-{
-    return static::getModel()::whereHas('patient', function($query) {
-        $query->where('clinic_id', auth()->user()->clinic->id);
-    })->count();
+{   
+
+    if(auth()->user()->clinic){
+
+        return static::getModel()::whereHas('patient', function($query) {
+            $query->where('clinic_id', auth()->user()->clinic->id);
+        })->count();
+    } else {
+        return '0';
+    }
+    
 
 }
 

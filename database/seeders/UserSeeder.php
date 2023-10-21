@@ -26,13 +26,13 @@ class UserSeeder extends Seeder
             'role_id'=> $admin_role->id,
             'password'=> Hash::make('password'),
         ]);
-        $vet_user = User::create([
-            'first_name'=> 'Vet ',
-            'last_name'=> 'User',
-            'email'=> 'vet@gmail.com',
-            'role_id'=> $vet_role->id,
-            'password'=> Hash::make('password'),
-        ]);
+        // $vet_user = User::create([
+        //     'first_name'=> 'Vet ',
+        //     'last_name'=> 'User',
+        //     'email'=> 'vet@gmail.com',
+        //     'role_id'=> $vet_role->id,
+        //     'password'=> Hash::make('password'),
+        // ]);
         $client_user = User::create([
             'first_name'=> 'Client ',
             'last_name'=> 'User',

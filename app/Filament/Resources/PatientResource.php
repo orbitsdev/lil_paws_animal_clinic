@@ -49,8 +49,8 @@ class PatientResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
 
     protected static ?string $modelLabel = 'Medical Record';
-    protected static ?string $navigationGroup = 'Management';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Clinic Data Management';
+    protected static ?int $navigationSort = 1;
     public static function form(Form $form): Form
     {
         return $form
@@ -691,8 +691,9 @@ class PatientResource extends Resource
                                             ])->color('gray'),
 
 
-                                        TextEntry::make('animal.user')->columnSpan(6)->label('Phone Number')
-                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->phone_number) ? $record->phone_number : 'N/S')
+                                      
+                                            TextEntry::make('animal.user')->columnSpan(6)->label('Phone Number')
+                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->animal?->user?->phone_number) ? $record->animal?->user?->phone_number : 'NOT SPECIFIED')
 
                                             ->columnSpan([
                                                 'sm' => 2,
@@ -700,8 +701,8 @@ class PatientResource extends Resource
                                                 '2xl' => 4,
                                             ])->color('gray'),
                                         TextEntry::make('animal.user')->columnSpan(6)->label('Address')
-                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->address) ? $record->address : 'N/S')
-
+                                            ->formatStateUsing(fn (Patient $record): string => !empty($record->animal?->user?->address) ? $record->animal?->user?->address : 'NOT SPECIFIED')
+                                                
                                             ->columnSpan([
                                                 'sm' => 2,
                                                 'xl' => 3,
@@ -1102,7 +1103,7 @@ class PatientResource extends Resource
                             //     ]),
 
                     ])
-                    ->activeTab(5)   
+                    ->activeTab(2)   
                     ->columnSpan(8),
 
             ]);

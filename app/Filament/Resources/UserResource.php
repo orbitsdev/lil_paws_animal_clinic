@@ -14,7 +14,9 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
@@ -38,6 +40,12 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 0;
 
     public $role;
+
+    protected function handleRecordCreation(array $data): Model
+{
+    dd($data);
+    return static::getModel()::create($data);
+}
 
     public static function form(Form $form): Form
     {
@@ -72,24 +80,81 @@ class UserResource extends Resource
                     Select::make('role_id')
                     ->required()
                     ->label('Role')
-                    ->options(Role::all()->pluck('name', 'id'))
+                    ->options(Role::where('name', '!=', 'Veterenarian')->pluck('name', 'id'))
                     ->searchable()
                     ->live()
+                    ->hidden(fn (string $operation): bool => $operation === 'edit')
                     ,
 
-                    Select::make('clinic_id')
-                    ->required()
-                    ->label('Clinic')
-                    ->options(Clinic::all()->pluck('name', 'id'))
-                    ->searchable()
+                    // Select::make('clinic_id')
+                    // ->required()
+                    // ->label('Clinic')
+                    // ->options(Clinic::whereDoesntHave('owner')->pluck('name', 'id'))
+                    // ->searchable()
                   
-                    ->hidden(function(Get $get){
-                        $role = Role::find($get('role_id'));
-                        if(!empty($role)){
-                            return $role->name != 'Veterenarian';
-                        }
-                    })
-                    ,
+                    // ->visible(function(Get $get){
+                    //     $role = Role::find($get('role_id'));
+                    //     if(!empty($role)){
+                    //         return $role->name == 'Veterenarian';
+                    //     }
+                    // })
+                    // ,
+
+                    // FileUpload::make('valid_id')
+                    // ->disk('public')
+                    // ->directory('user-valid-id')
+                    // ->image()
+                    // ->imageEditor()
+                    // ->imageEditorMode(2)
+                    // ->required()
+                    // ->label('Valid ID')
+                    // ->visible(function(Get $get){
+                    //     $role = Role::find($get('role_id'));
+                    //     if(!empty($role)){
+                    //         return $role->name == 'Veterenarian';
+                    //     }
+                    // })
+                    
+                    // ,
+                    // TextInput::make('clinic_name')->label('Clinic Name')
+                    // ->required()
+                    // ->hidden(function(Get $get){
+                    //     $role = Role::find($get('role_id'));
+                    //     if(!empty($role)){
+                    //         return $role->name != 'Veterenarian';
+                    //     }
+                    // })
+                    
+                    // ,
+                              
+                    // Textarea::make('clinic_address')
+                    // ->rows(5)
+                    // ->required()
+                    // ->visible(function(Get $get){
+                    //     $role = Role::find($get('role_id'));
+                    //     if(!empty($role)){
+                    //         return $role->name == 'Veterenarian';
+                    //     }
+                    // })
+                    
+                    // ,
+        
+                    // FileUpload::make('clinic_image')
+                    // ->disk('public')
+                    // ->directory('clinic')
+                    // ->image()
+                    // ->imageEditor()
+                    // ->imageEditorMode(2)
+                    // ->required()
+                    // ->label('Business Location Image')
+                    // ->visible(function(Get $get){
+                    //     $role = Role::find($get('role_id'));
+                    //     if(!empty($role)){
+                    //         return $role->name == 'Veterenarian';
+                    //     }
+                    // })
+                    
+                    // ,
                     
                     
                     TextInput::make('password')
