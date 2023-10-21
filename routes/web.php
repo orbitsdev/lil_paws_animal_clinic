@@ -68,6 +68,6 @@ Route::get('/test-pdf/{patient}', function ($patient) {
 
 Route::get('/clinic-request', function(){
     return view('clinic-request');   
-})->middleware(['auth'])->name('clinic-request',['except' => ['login']]);
+})->middleware('auth')->name('clinic-request',['except' => ['login']]);
 
 Route::post('/auth/logout',[LogoutController::class,'logout'])->name('logout.filament');
