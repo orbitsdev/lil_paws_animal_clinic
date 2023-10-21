@@ -24,9 +24,14 @@ class AllowedCategoryResource extends Resource
 
 
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
-    protected static ?string $navigationGroup = 'Management';
 
     protected static ?string $modelLabel = 'Set Pet Categories';
+    
+    protected static ?string $navigationGroup = 'Clinic Data Management';
+
+
+    protected static ?int $navigationSort = 3;
+
 
 
 

@@ -7,21 +7,24 @@ use Filament\Tables;
 use App\Models\Clinic;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\RequestAccess;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Clinic\Resources\ClinicResource\Pages;
 use App\Filament\Clinic\Resources\ClinicResource\RelationManagers;
-use App\Models\RequestAccess;
 
 class ClinicResource extends Resource
 {
     protected static ?string $model = RequestAccess::class;
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
 
-    protected static ?string $modelLabel = 'Received Requests';
-    protected static ?int $navigationSort = 1;
+    protected static ?string $modelLabel = 'Request Queue';
+    protected static ?string $navigationGroup = 'Request Management';
+    protected static ?int $navigationSort = 7;
 
 
 
@@ -91,13 +94,13 @@ class ClinicResource extends Resource
                     ->color(fn (string $state): string => match ($state) {
                         'pending' => 'primary',
                         'accepted' => 'success',
-                        'completed' => 'success',
+                      
                         'rejected' => 'danger',
                     })
                     ->icon(fn (string $state): string => match ($state) {
                         'pending' => 'heroicon-o-ellipsis-horizontal-circle',
                         'accepted' => 'heroicon-o-check-circle',
-                        'completed' => 'heroicon-s-check-circle',
+                       
                         'rejected' => 'heroicon-o-x-mark',
                     })
                         ->searchable(),
@@ -107,6 +110,37 @@ class ClinicResource extends Resource
                 //
             ])
             ->actions([
+                // EditAction::make()->button()->outlined()
+
+                Tables\Actions\Action::make('update')
+                        ->icon('heroicon-s-pencil-square')
+                        ->label('Manage Request')
+                        ->color('success')
+                        ->fillForm(function (RequestAccess $record, array $data) {
+                            return [
+                                'status' => $record->status
+                            ];
+                        })
+                        ->form([
+
+                            Select::make('status')
+                                ->label('Request Status')
+                                ->options([
+                                    'accepted' => 'Accepted',
+                                    'pending' => 'Pending',
+                                    'rejected' => 'Rejected',
+                                    'restrict' => 'Restricted',
+                                ])
+                                ->required(),
+
+                        ])
+                        ->action(function (RequestAccess $record, array $data): void {
+
+
+                            $record->status = $data['status'];
+                            $record->save();
+                        
+                        }),
             ])
             ->bulkActions([
                 

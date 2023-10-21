@@ -51,9 +51,11 @@ class AppointmentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $modelLabel = 'Appointments Request';
-    protected static ?string $navigationGroup = 'Management';
-    protected static ?int $navigationSort = 6;
+    protected static ?string $modelLabel = 'Appointments';
+    protected static ?string $navigationGroup = 'Request Management';
+
+    protected static ?int $navigationSort = 5;
+
 
 
     public static function getNavigationBadge(): ?string
@@ -285,9 +287,9 @@ class AppointmentResource extends Resource
                     ->searchable(),
             ])
             ->filters([
-                SelectFilter::make('clinic_id')
-                    ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic')
-                    ->default(fn () => auth()->user()->clinic?->id)
+                // SelectFilter::make('clinic_id')
+                //     ->options(Clinic::query()->pluck('name', 'id'))->label('By Clinic')
+                //     ->default(fn () => auth()->user()->clinic?->id)
             ])
             ->actions([
                 ActionGroup::make([

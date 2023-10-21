@@ -64,8 +64,8 @@ class ExaminationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
     protected static ?string $modelLabel = 'Medical Record';
-    protected static ?string $navigationGroup = 'Management';
-    protected static ?int $navigationSort = 7;
+    protected static ?string $navigationGroup = 'Clinic Data Management';
+    protected static ?int $navigationSort = 0;
 
 
     //     protected function getTableQuery(): Builder

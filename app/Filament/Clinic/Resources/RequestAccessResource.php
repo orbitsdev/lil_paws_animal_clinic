@@ -13,20 +13,26 @@ use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Clinic\Resources\RequestAccessResource\Pages;
 use App\Filament\Clinic\Resources\RequestAccessResource\RelationManagers;
 
+
+
 class RequestAccessResource extends Resource
 {
     protected static ?string $model = RequestAccess::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-arrow-down';
-    protected static ?string $modelLabel = 'Request Logs';
-    protected static ?int $navigationSort = 2;
+    protected static ?string $modelLabel = 'Submitted Requests';
+
+    protected static ?string $navigationGroup = 'Request Management';
+    protected static ?int $navigationSort = 6;
 
     // protected static ?string $navigationGroup = 'Request';
 
@@ -113,8 +119,26 @@ class RequestAccessResource extends Resource
              
                TextColumn::make('description')
                     ->searchable(),
-               TextColumn::make('status')
-                    ->searchable(),
+             TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn($state)=> $state ? ucfirst($state) : $state)
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'primary',
+                        'accepted' => 'success',
+                      
+                        'rejected' => 'danger',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'pending' => 'heroicon-o-ellipsis-horizontal-circle',
+                        'accepted' => 'heroicon-o-check-circle',
+                       
+                        'rejected' => 'heroicon-o-x-mark',
+                    })
+                        ->searchable(),
+
+                        ViewColumn::make('created_at')
+                        ->view('tables.columns.download')
+                        ->label('PDF File')
               
             ])
             ->filters([
@@ -122,7 +146,9 @@ class RequestAccessResource extends Resource
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
-                DeleteAction::make()->outlined()->button()
+                ActionGroup::make([
+                    DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

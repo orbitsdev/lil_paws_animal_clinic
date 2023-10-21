@@ -36,8 +36,12 @@ class AnimalResource extends Resource
     
     protected static ?string $navigationIcon = 'heroicon-o-sparkles';
     protected static ?string $modelLabel = 'Pet & Owner';
-    protected static ?string $navigationGroup = 'Management';
-    protected static ?int $navigationSort = 5;
+
+
+    protected static ?string $navigationGroup = 'Clinic Data Management';
+
+
+    protected static ?int $navigationSort = 2;
 
 
     public static function form(Form $form): Form

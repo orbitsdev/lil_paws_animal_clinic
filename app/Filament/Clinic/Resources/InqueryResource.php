@@ -33,6 +33,8 @@ class InqueryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
     protected static ?string $modelLabel = 'Inquery';
+    protected static bool $shouldRegisterNavigation = false;
+
 
     public static function form(Form $form): Form
     {

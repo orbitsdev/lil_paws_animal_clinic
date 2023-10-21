@@ -343,7 +343,7 @@
         </div>
     @endif
 
-    @if($patient->payments)
+    {{-- @if($patient->payments)
     <div class="section">
         <p class="section-title">Payment Information</p>
         <div class="section-content">
@@ -366,7 +366,6 @@
                         <td colspan="3">No payment records found.</td>
                     </tr>
                 @endforelse
-                {{-- Display the total amount --}}
                 @if ($patient->payments)
                     <tr>
                         <td colspan="2"><strong>Total Amount:</strong></td>
@@ -376,7 +375,7 @@
             </table>
         </div>
     </div>
-@endif
+@endif --}}
     
     
     
