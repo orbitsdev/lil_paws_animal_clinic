@@ -12,6 +12,7 @@
         "awcodes/filament-table-repeater": "^2.0",
         "awcodes/light-switch": "^1.0",
         "barryvdh/laravel-dompdf": "^2.0",
+        "coolsam/flatpickr": "^3.0",
         "filament/filament": "^3.0-stable",
         "graham-campbell/markdown": "^15.0",
         "guzzlehttp/guzzle": "^7.2",

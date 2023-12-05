@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+
+use App\Models\Animal;
 use App\Models\Appointment;
+use App\Policies\AnimalPolicy;
 use App\Policies\AppointmentPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -15,7 +18,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // Appointment::class => AppointmentPolicy::class,np
+            //   Appointment::class => AppointmentPolicy::class,
+             Animal::class =>  AnimalPolicy::class,
     ];
 
     /**

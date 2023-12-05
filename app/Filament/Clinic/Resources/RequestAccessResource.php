@@ -60,7 +60,26 @@ class RequestAccessResource extends Resource
 
                 ->getOptionLabelFromRecordUsing(function (Model $record) {
 
-                    return $record->animal->name . ' - '. $record->animal->user->first_name. ' '.$record->animal->user->last_name.' ('. $record->clinic->name.') '.Carbon::parse($record->created_at)->format('F d, Y l h:i A')  ;
+                    $output = '';
+
+                    if ($record->animal && $record->animal->name) {
+                        $output .= $record->animal->name . ' - ';
+                    }
+                    
+                    if ($record->animal && $record->animal->user && $record->animal->user->first_name && $record->animal->user->last_name) {
+                        $output .= $record->animal->user->first_name . ' ' . $record->animal->user->last_name . ' ';
+                    }
+                    
+                    if ($record->clinic && $record->clinic->name) {
+                        $output .= '(' . $record->clinic->name . ') ';
+                    }
+                    
+                    if ($record->created_at) {
+                        $output .= Carbon::parse($record->created_at)->format('F d, Y l h:i A');
+                    }
+                    
+                    return $output ?: "All properties are null or undefined.";
+                    
                     
                     
                 })
